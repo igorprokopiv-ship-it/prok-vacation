@@ -67,79 +67,79 @@ export default function App() {
 
   return (
     <div className="mx-auto min-h-svh w-full max-w-lg pb-28">
-      <header className="sticky top-0 z-20 border-b border-line/80 bg-paper/90 backdrop-blur-md">
-        <div className="flex items-start justify-between gap-3 px-4 pb-3 pt-4">
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-sea">
-              EU2026 Trip Companion
-            </p>
-            <h1 className="mt-1 font-display text-[1.55rem] font-bold leading-tight text-ink">
-              {day.city}
-            </h1>
-            <p className="mt-0.5 text-sm text-ink-soft">{day.dateLabel}</p>
+      <Tabs value={tab} onValueChange={setTab}>
+        <header className="sticky top-0 z-20 border-b border-line/80 bg-paper/90 backdrop-blur-md">
+          <div className="flex items-start justify-between gap-3 px-4 pb-3 pt-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-sea">
+                EU2026 Trip Companion
+              </p>
+              <h1 className="mt-1 font-display text-[1.55rem] font-bold leading-tight text-ink">
+                {day.city}
+              </h1>
+              <p className="mt-0.5 text-sm text-ink-soft">{day.dateLabel}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <CalendarDays className="h-4 w-4" /> Days
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="shrink-0"
-            onClick={() => setDrawerOpen(true)}
-          >
-            <CalendarDays className="h-4 w-4" /> Days
-          </Button>
-        </div>
-        <div className="px-4 pb-3">
-          <Tabs value={tab} onValueChange={setTab}>
+          <div className="px-4 pb-3">
             <TabsList>
               <TabsTrigger value="highlights">Highlights</TabsTrigger>
               <TabsTrigger value="schedule">Schedule</TabsTrigger>
             </TabsList>
-          </Tabs>
-        </div>
-      </header>
-
-      {day.heroImage ? (
-        <div className="relative h-[42vh] min-h-[220px] w-full overflow-hidden">
-          <img
-            src={day.heroImage}
-            alt={day.headline}
-            className="h-full w-full object-cover animate-in fade-in duration-700"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-5 text-paper">
-            <h2 className="font-display text-2xl font-bold leading-tight drop-shadow-sm">
-              {day.headline}
-            </h2>
-            {(day.weather || day.sunrise) && (
-              <p className="mt-2 text-xs text-white/80">
-                {[
-                  day.sunrise && day.sunset
-                    ? `Rise ${day.sunrise} · Set ${day.sunset}`
-                    : null,
-                  day.weather,
-                ]
-                  .filter(Boolean)
-                  .join('  ·  ')}
-              </p>
-            )}
           </div>
-        </div>
-      ) : (
-        <div className="bg-gradient-to-br from-ink via-[#243447] to-sea px-5 pb-6 pt-8 text-paper">
-          <h2 className="font-display text-2xl font-bold leading-tight">{day.headline}</h2>
-          <p className="mt-2 text-sm text-white/75">Transit day — details in Highlights & Schedule.</p>
-        </div>
-      )}
+        </header>
 
-      <main className="px-4 pt-4">
-        <Tabs value={tab} onValueChange={setTab}>
+        {day.heroImage ? (
+          <div className="relative h-[42vh] min-h-[220px] w-full overflow-hidden">
+            <img
+              src={day.heroImage}
+              alt={day.headline}
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-5 text-paper">
+              <h2 className="font-display text-2xl font-bold leading-tight drop-shadow-sm">
+                {day.headline}
+              </h2>
+              {(day.weather || day.sunrise) && (
+                <p className="mt-2 text-xs text-white/80">
+                  {[
+                    day.sunrise && day.sunset
+                      ? `Rise ${day.sunrise} · Set ${day.sunset}`
+                      : null,
+                    day.weather,
+                  ]
+                    .filter(Boolean)
+                    .join('  ·  ')}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-gradient-to-br from-ink via-[#243447] to-sea px-5 pb-6 pt-8 text-paper">
+            <h2 className="font-display text-2xl font-bold leading-tight">{day.headline}</h2>
+            <p className="mt-2 text-sm text-white/75">
+              Transit day — details in Highlights & Schedule.
+            </p>
+          </div>
+        )}
+
+        <main className="px-4 pt-4">
           <TabsContent value="highlights" className="mt-0">
             <HighlightsPanel day={day} />
           </TabsContent>
           <TabsContent value="schedule" className="mt-0">
             <SchedulePanel day={day} onOpen={openViewer} />
           </TabsContent>
-        </Tabs>
-      </main>
+        </main>
+      </Tabs>
 
       <button
         type="button"
