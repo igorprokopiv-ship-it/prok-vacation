@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Source Sans 3', ui-sans-serif, sans-serif;
+  --color-ink: #1c2a3a;
+  --color-ink-soft: #3d4f63;
+  --color-paper: #f7f1e8;
+  --color-paper-deep: #ebe2d4;
+  --color-accent: #b85c38;
+  --color-accent-soft: #d08968;
+  --color-sea: #2f6f7a;
+  --color-sea-soft: #4f8f99;
+  --color-line: #d5c9b8;
+  --color-ok: #2f6b4f;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #fff8ef 0%, transparent 55%),
+      radial-gradient(900px 500px at 100% 0%, #e7f0ef 0%, transparent 50%),
+      linear-gradient(180deg, #f7f1e8 0%, #efe6d8 100%);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
