@@ -26,3 +26,7 @@ dist-ssr
 # Local source extracts (not shipped)
 source/
 
+
+dev-dist/
+dist/
+
