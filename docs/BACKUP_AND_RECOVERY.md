@@ -1,0 +1,40 @@
+# Backup and recovery — prok-vacation
+
+## What to back up
+
+| Asset | Location | How |
+|-------|----------|-----|
+| Authoritative user + trip metadata | Postgres DB `vacation` | `pg_dump` |
+| Content packs (source) | GitHub `prok-vacation` + `content/trips` | git |
+| Blob store (derived) | `data/blobs` on NAS volume (if mounted) | rebuild via `build-pack.mjs` or ZFS snapshot |
+| Phone IndexedDB | device | re-sync from server after reinstall |
+
+## Daily dump (TrueNAS)
+
+```bash
+pg_dump -h 127.0.0.1 -p 5432 -U prok -d vacation -Fc \
+  -f /mnt/<pool>/backups/prok-vacation/vacation_$(date +%Y%m%d_%H%M%S).dump
+```
+
+Retain: 14 daily / 8 weekly / 6 monthly (same policy as timelog is fine).
+
+## Restore
+
+```bash
+createdb -h 127.0.0.1 -U prok vacation_restore_test
+pg_restore -h 127.0.0.1 -U prok -d vacation_restore_test --clean --if-exists \
+  /mnt/<pool>/backups/prok-vacation/<file>.dump
+```
+
+Point `DATABASE_URL` at the restored DB only after verification.
+
+## Disaster rebuild
+
+1. Recreate DB `vacation`.
+2. Deploy container; migrations + EU2026 seed run on startup.
+3. Restore `pg_dump` if you need notes/plan_items/trip_links.
+4. Phones: open app online → Sync chip → content + notes pull.
+
+## Historical trip import
+
+`POST /api/trips/import` with a `.zip` containing `trip.json`, `itinerary.json`, optional `sites.json` / `assets.json` / `images/`. See Phase 4 UI button **Import historical trip pack**.

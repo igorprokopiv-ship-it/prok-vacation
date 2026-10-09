@@ -1,0 +1,15 @@
+services:
+  vacation:
+    build: .
+    ports:
+      - "8083:8083"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-}
+      HOST: 0.0.0.0
+      PORT: "8083"
+      PROK_TIMELOG_BASE: ${PROK_TIMELOG_BASE:-http://admin.prok:8080}
+      PROK_MONEY_BASE: ${PROK_MONEY_BASE:-http://admin.prok:8081}
+      PROK_IMMICH_BASE: ${PROK_IMMICH_BASE:-http://admin.prok:30041}
+    volumes:
+      - ./data/blobs:/app/data/blobs
+      - ./content:/app/content

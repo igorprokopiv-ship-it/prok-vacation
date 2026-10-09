@@ -1,0 +1,191 @@
+{
+  "sites": {
+    "british-museum": {
+      "photo": "/images/sites/british-museum.jpg"
+    },
+    "louvre": {
+      "photo": "/images/sites/louvre.jpg"
+    },
+    "versailles": {
+      "photo": "/images/sites/versailles.jpg"
+    },
+    "trevi-fountain": {
+      "photo": "/images/sites/trevi.jpg"
+    },
+    "colosseum": {
+      "photo": "/images/sites/colosseum.jpg"
+    },
+    "st-peters-basilica": {
+      "photo": "/images/sites/vatican.jpg"
+    },
+    "vatican-museums": {
+      "photo": "/images/sites/vatican.jpg"
+    },
+    "shakespeare-globe": {
+      "photo": "/images/sites/globe.jpg"
+    },
+    "pompeii": {
+      "photo": "/images/sites/pompeii.jpg"
+    },
+    "baths-of-caracalla": {
+      "photo": "/images/sites/baths-map.jpg",
+      "map": [
+        "/images/sites/baths-map.jpg"
+      ]
+    },
+    "tower-of-london": {
+      "photo": "/images/sites/tower-of-london.jpg"
+    },
+    "harry-potter-studios": {
+      "photo": "/images/sites/harry-potter.jpg"
+    }
+  },
+  "tickets": {
+    "british-museum": [
+      "/images/tickets/british-museum/ticket-page-1.jpg",
+      "/images/tickets/british-museum/ticket-page-2.jpg",
+      "/images/tickets/british-museum/ticket-page-3.jpg",
+      "/images/tickets/british-museum/ticket-page-4.jpg"
+    ],
+    "tower-of-london": [
+      "/images/tickets/tower-of-london/ticket-page-1.jpg",
+      "/images/tickets/tower-of-london/ticket-page-2.jpg",
+      "/images/tickets/tower-of-london/ticket-page-3.jpg",
+      "/images/tickets/tower-of-london/ticket-page-4.jpg",
+      "/images/tickets/tower-of-london/ticket-page-5.jpg",
+      "/images/tickets/tower-of-london/ticket-page-6.jpg",
+      "/images/tickets/tower-of-london/ticket-page-7.jpg"
+    ],
+    "harry-potter-studios": [
+      "/images/tickets/harry-potter-studios/ticket-page-1.jpg",
+      "/images/tickets/harry-potter-studios/ticket-page-2.jpg",
+      "/images/tickets/harry-potter-studios/ticket-page-3.jpg",
+      "/images/tickets/harry-potter-studios/ticket-page-4.jpg",
+      "/images/tickets/harry-potter-studios/ticket-page-5.jpg",
+      "/images/tickets/harry-potter-studios/ticket-page-6.jpg",
+      "/images/tickets/harry-potter-studios/ticket-page-7.jpg"
+    ],
+    "westminster-abbey": [
+      "/images/tickets/westminster-abbey/ticket-page-1.jpg",
+      "/images/tickets/westminster-abbey/ticket-page-2.jpg",
+      "/images/tickets/westminster-abbey/ticket-page-3.jpg",
+      "/images/tickets/westminster-abbey/ticket-page-4.jpg",
+      "/images/tickets/westminster-abbey/ticket-page-5.jpg",
+      "/images/tickets/westminster-abbey/ticket-page-6.jpg"
+    ],
+    "shakespeare-globe": [
+      "/images/tickets/shakespeare-globe/ticket-page-1.jpg",
+      "/images/tickets/shakespeare-globe/ticket-page-2.jpg",
+      "/images/tickets/shakespeare-globe/ticket-page-3.jpg"
+    ],
+    "tower-bridge": [
+      "/images/tickets/tower-bridge/ticket-page-1.jpg"
+    ],
+    "louvre": [
+      "/images/tickets/louvre/ticket-page-1.jpg",
+      "/images/tickets/louvre/ticket-page-2.jpg",
+      "/images/tickets/louvre/ticket-page-3.jpg",
+      "/images/tickets/louvre/ticket-page-4.jpg",
+      "/images/tickets/louvre/ticket-page-5.jpg",
+      "/images/tickets/louvre/ticket-page-6.jpg",
+      "/images/tickets/louvre/ticket-page-7.jpg",
+      "/images/tickets/louvre/ticket-page-8.jpg"
+    ],
+    "sainte-chapelle": [
+      "/images/tickets/sainte-chapelle/ticket-page-1.jpg",
+      "/images/tickets/sainte-chapelle/ticket-page-2.jpg",
+      "/images/tickets/sainte-chapelle/ticket-page-3.jpg",
+      "/images/tickets/sainte-chapelle/ticket-page-4.jpg",
+      "/images/tickets/sainte-chapelle/ticket-page-5.jpg",
+      "/images/tickets/sainte-chapelle/ticket-page-6.jpg",
+      "/images/tickets/sainte-chapelle/ticket-page-7.jpg",
+      "/images/tickets/sainte-chapelle/ticket-page-8.jpg"
+    ],
+    "seine-cruise": [
+      "/images/tickets/seine-cruise/ticket-page-1.jpg",
+      "/images/tickets/seine-cruise/ticket-page-2.jpg"
+    ],
+    "eiffel-tower": [
+      "/images/tickets/eiffel-tower/ticket-page-1.jpg",
+      "/images/tickets/eiffel-tower/ticket-page-2.jpg",
+      "/images/tickets/eiffel-tower/ticket-page-3.jpg",
+      "/images/tickets/eiffel-tower/ticket-page-4.jpg"
+    ],
+    "versailles": [
+      "/images/tickets/versailles/ticket-page-1.jpg",
+      "/images/tickets/versailles/ticket-page-2.jpg",
+      "/images/tickets/versailles/ticket-page-3.jpg",
+      "/images/tickets/versailles/ticket-page-4.jpg",
+      "/images/tickets/versailles/ticket-page-5.jpg",
+      "/images/tickets/versailles/ticket-page-6.jpg",
+      "/images/tickets/versailles/ticket-page-7.jpg",
+      "/images/tickets/versailles/ticket-page-8.jpg"
+    ],
+    "colosseum": [
+      "/images/tickets/colosseum/ticket-page-1.jpg",
+      "/images/tickets/colosseum/ticket-page-2.jpg",
+      "/images/tickets/colosseum/ticket-page-3.jpg"
+    ],
+    "castel-sant-angelo": [
+      "/images/tickets/castel-sant-angelo/ticket-page-1.jpg",
+      "/images/tickets/castel-sant-angelo/ticket-page-2.jpg",
+      "/images/tickets/castel-sant-angelo/ticket-page-3.jpg",
+      "/images/tickets/castel-sant-angelo/ticket-page-4.jpg"
+    ],
+    "vatican-museums": [
+      "/images/tickets/vatican-museums/ticket-page-1.jpg",
+      "/images/tickets/vatican-museums/ticket-page-2.jpg",
+      "/images/tickets/vatican-museums/ticket-page-3.jpg"
+    ],
+    "pompeii": [
+      "/images/tickets/pompeii/ticket-page-1.jpg",
+      "/images/tickets/pompeii/ticket-page-2.jpg",
+      "/images/tickets/pompeii/ticket-page-3.jpg",
+      "/images/tickets/pompeii/ticket-page-4.jpg",
+      "/images/tickets/pompeii/ticket-page-5.jpg"
+    ]
+  },
+  "maps": {
+    "british-museum": [
+      "/images/maps/british-museum/map-page-1.jpg",
+      "/images/maps/british-museum/map-page-2.jpg",
+      "/images/maps/british-museum/map-page-3.jpg"
+    ],
+    "tower-of-london": [
+      "/images/maps/tower-of-london/map-page-1.jpg",
+      "/images/maps/tower-of-london/map-page-2.jpg"
+    ],
+    "harry-potter-studios": [
+      "/images/maps/harry-potter-studios/map-page-1.jpg"
+    ],
+    "westminster-abbey": [
+      "/images/maps/westminster-abbey/map-page-1.jpg"
+    ],
+    "palace-of-westminster": [
+      "/images/maps/palace-of-westminster/map-page-1.jpg"
+    ],
+    "louvre": [
+      "/images/maps/louvre/map-page-1.jpg",
+      "/images/maps/louvre/map-page-2.jpg"
+    ],
+    "sainte-chapelle": [
+      "/images/maps/sainte-chapelle/map-page-1.jpg",
+      "/images/maps/sainte-chapelle/map-page-2.jpg"
+    ],
+    "versailles": [
+      "/images/maps/versailles/map-page-1.jpg",
+      "/images/maps/versailles/map-page-2.jpg"
+    ],
+    "roman-forum": [
+      "/images/maps/roman-forum/map-page-1.jpg"
+    ],
+    "vatican-museums": [
+      "/images/maps/vatican-museums/map-page-1.jpg",
+      "/images/maps/vatican-museums/map-page-2.jpg"
+    ],
+    "pompeii": [
+      "/images/maps/pompeii/map-page-1.jpg",
+      "/images/maps/pompeii/map-page-2.jpg"
+    ]
+  }
+}

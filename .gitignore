@@ -11,8 +11,12 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+__pycache__/
+*.py[cod]
+*.pyc
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,10 +27,18 @@ dist-ssr
 *.sln
 *.sw?
 
-# Local source extracts (not shipped)
+# Local source extracts
 source/
-
 
 dev-dist/
 dist/
+web/dist/
+web/dev-dist/
+web/node_modules/
 
+# Generated content-addressed blobs (rebuild with npm run build:pack)
+data/blobs/**
+!data/blobs/.gitkeep
+
+# Windows junction created by build-pack (images live in web/public)
+content/trips/*/images

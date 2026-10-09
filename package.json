@@ -1,37 +1,13 @@
 {
-  "name": "eu2026-trip-companion",
+  "name": "prok-vacation-root",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.1.0",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@radix-ui/react-accordion": "^1.2.21",
-    "@radix-ui/react-dialog": "^1.2.0",
-    "@radix-ui/react-scroll-area": "^1.3.0",
-    "@radix-ui/react-slot": "^1.4.0",
-    "@radix-ui/react-tabs": "^1.1.22",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^1.53.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "tailwind-merge": "^3.7.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^24.13.3",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7",
-    "@vitejs/plugin-react": "^6.1.1",
-    "oxlint": "^1.81.0",
-    "tailwindcss": "^4.3.3",
-    "typescript": "~6.0.2",
-    "vite": "^8.3.0",
-    "vite-plugin-pwa": "^2.0.0"
+    "dev": "npm run dev --prefix web",
+    "build": "node content/scripts/build-pack.mjs && npm run build --prefix web",
+    "build:pack": "node content/scripts/build-pack.mjs",
+    "lint": "npm run lint --prefix web",
+    "preview": "npm run preview --prefix web",
+    "server": "python -m uvicorn app:app --host 0.0.0.0 --port 8083 --reload --app-dir server"
   }
 }

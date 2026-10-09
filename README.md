@@ -1,71 +1,45 @@
-# EU2026 Trip Companion
+# Prok Vacation
 
-Mobile-first offline PWA for the Prok family European Grand Tour (28 Oct – 8 Nov 2026). Open once on Wi‑Fi, **Add to Home Screen**, then use itinerary, Maps links, site guides, and ticket/map images without cell data.
+Offline-first multi-trip companion (itinerary, tickets, maps, notes, planning). Part of the Prok suite — works alone, links to TimeLog / Money / Immich when you want.
 
-## Run locally
+## Local development
 
 ```bash
-npm install
+# Terminal 1 — API (optional; filesystem packs work without Postgres)
+python -m pip install -r server/requirements.txt
+cp .env.example .env   # set DATABASE_URL if using Postgres
+npm run server         # :8083
+
+# Terminal 2 — PWA (proxies /api → :8083)
+npm install --prefix web
 npm run dev
 ```
 
-Dev server: [http://127.0.0.1:4177](http://127.0.0.1:4177)
+Dev UI: [http://127.0.0.1:4177](http://127.0.0.1:4177)
 
 ```bash
-npm run build
-npm run preview   # also on port 4177
+npm run build:pack    # hash content → data/blobs + manifests
+npm run build         # pack + web production build
 ```
 
-## Install on phones (before departure)
+## TrueNAS
 
-Do this **once on Wi‑Fi** for each phone:
+See [docs/DEPLOYMENT_TRUENAS.md](docs/DEPLOYMENT_TRUENAS.md). Image: `ghcr.io/igorprokopiv-ship-it/prok-vacation:latest` on port **8083**, database **`vacation`**.
 
-1. Open the deployed URL (or a laptop hotspot serving the built app).
-2. Wait for the page to fully load so the service worker can precache assets.
-3. **iPhone (Safari):** Share → **Add to Home Screen**.
-4. **Android (Chrome):** Menu → **Install app** / **Add to Home Screen**.
-5. Launch from the home-screen icon; toggle Airplane Mode briefly to confirm offline works.
+## Content inbox
 
-## How the app is organized
+Drop new ticket/map PDFs in [`content/inbox/`](content/inbox/README.md), convert, rebuild pack, push. Phones download only changed blobs.
 
-- **Highlights** — day briefing, main attractions, food focus (Details.html feel).
-- **Schedule** — full EU4 timeline; expand a stop for hours, cost, booking, bags, transit, Maps URL.
-- **Ticket / Map / Guide** — offline viewers when assets exist; otherwise clear empty states.
+## Docs
 
-Branch mornings (British Museum vs Oxford, Pantheon queue options) stay labeled in Schedule without forcing a choice.
+- [Architecture](docs/ARCHITECTURE.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Content delta sync](docs/CONTENT.md)
+- [Prok deep links](docs/PROK_LINKS.md)
+- [Ecosystem agent prompts](docs/PROK_ECOSYSTEM_AGENT_PROMPTS.md) (for TimeLog / Money / HMSE agents)
+- [TrueNAS deploy + GHCR](docs/DEPLOYMENT_TRUENAS.md)
+- [Backup](docs/BACKUP_AND_RECOVERY.md)
 
-## Data & media
+## Release (TrueNAS)
 
-| Path | Source |
-|------|--------|
-| `src/data/itinerary.json` | EU4 itinerary (schedule/times) |
-| `src/data/sites.json` | Sites write-ups (Logistics / Pro-Tips / History / Route) |
-| `src/data/assets.json` | Links sites ↔ photos, ticket pages, map pages |
-| `public/images/sites/` | Compressed landmark photos |
-| `public/images/tickets/<site-id>/` | Ticket page images |
-| `public/images/maps/<site-id>/` | Map page images |
-
-### Add more tickets or maps later
-
-1. Convert each PDF page to a compressed JPEG/WebP (e.g. `pdftoppm -jpeg -r 150 ticket.pdf public/images/tickets/louvre/ticket`).
-2. List the paths under `tickets` or `maps` in `src/data/assets.json`, keyed by the site id used on stops (`siteId` in `itinerary.json`).
-3. Rebuild / redeploy, open the app once online so the service worker precaches the new files.
-
-Example:
-
-```json
-"tickets": {
-  "british-museum": [
-    "/images/tickets/british-museum/ticket-page-1.jpg"
-  ],
-  "louvre": [
-    "/images/tickets/louvre/ticket-page-1.jpg"
-  ]
-}
-```
-
-Site ids are kebab-case (`british-museum`, `louvre`, `colosseum`, …). Match `stop.siteId` in the itinerary.
-
-## Stack
-
-Vite · React · TypeScript · Tailwind CSS · shadcn/ui primitives · vite-plugin-pwa
+Push to `main` → GitHub Actions **Build and publish image** → `ghcr.io/igorprokopiv-ship-it/prok-vacation:latest`. Restart the TrueNAS Custom App to pull the new image.

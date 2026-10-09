@@ -1,0 +1,759 @@
+{
+  "tripId": "a1111111-1111-4111-8111-111111111111",
+  "slug": "eu2026",
+  "version": "4bd4b4a6c07f",
+  "generatedAt": "2026-10-09T01:57:51.812Z",
+  "fileCount": 107,
+  "totalBytes": 32697975,
+  "files": [
+    {
+      "path": "assets.json",
+      "sha256": "8bfd8d2e8e563a447da06f45bf2fe1ee712f94b26a403789d417bbc5db589dcd",
+      "bytes": 6934,
+      "mime": "application/json",
+      "kind": "json"
+    },
+    {
+      "path": "images/maps/british-museum/map-page-1.jpg",
+      "sha256": "48753e65042441fa26078e8e6abc769f4e4f0f165379c24a84408715b7b3c623",
+      "bytes": 241889,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/british-museum/map-page-2.jpg",
+      "sha256": "836e33b43baba2c6b1cbf221afdc8be8c18dc64632faed3067cb0749eec06716",
+      "bytes": 191222,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/british-museum/map-page-3.jpg",
+      "sha256": "2985ce89c264b42d141e6ea56ffcdc0dfaa01db58ea7b53798517ff2bcb4e578",
+      "bytes": 95554,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/harry-potter-studios/map-page-1.jpg",
+      "sha256": "2938f599acf002410aca742ea31d3af74d08d5e7bf95bc28823d55b4bf84803b",
+      "bytes": 88707,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/louvre/map-page-1.jpg",
+      "sha256": "21f292b542d343a989b1656bb7a00d2567ad9cad8c74bb7a4a4742440c84860b",
+      "bytes": 1074589,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/louvre/map-page-2.jpg",
+      "sha256": "bc28bf0cc3ab0b1aa0cc864b66cd32d28d8b832f2e6175001abf16341b1df43d",
+      "bytes": 736289,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/palace-of-westminster/map-page-1.jpg",
+      "sha256": "5864f83ad89f17b6eb0c01b1500363db6faf903c5bd7e7c699d084c7fb95ac91",
+      "bytes": 360155,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/pompeii/map-page-1.jpg",
+      "sha256": "67bf6db77d0441992bc8f236d75f4cb51db6dabff07118d47045988a42f2982e",
+      "bytes": 1639684,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/pompeii/map-page-2.jpg",
+      "sha256": "9038ab5c8e0663fe743b9c7260ab2a5d9f37a6fd8f3a17196919c93b002a3f6d",
+      "bytes": 1721712,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/roman-forum/map-page-1.jpg",
+      "sha256": "78a0f8361fb0936105adc8cb9d5ce33723a96c3c2a298c50258f0fafd6a5ce12",
+      "bytes": 385481,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/sainte-chapelle/map-page-1.jpg",
+      "sha256": "b40795a49b4b89323ef379d30c01c0700932d62f84fb31d127e3d3a9a0912396",
+      "bytes": 339453,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/sainte-chapelle/map-page-2.jpg",
+      "sha256": "a66fe736ec3ed8f9a22d0f613ad94be6ad761f48bf16a811775a881353d936a5",
+      "bytes": 310226,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/tower-of-london/map-page-1.jpg",
+      "sha256": "9e7b00e4de6847704c10c6b2b576bfb56a52b0ad7fc0a6cc6445ce57355fea66",
+      "bytes": 763393,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/tower-of-london/map-page-2.jpg",
+      "sha256": "0896af5f62e89630b85fe3e6d7db147c0d97fe222230d0ce45447c6e7c6cd6f7",
+      "bytes": 596518,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/vatican-museums/map-page-1.jpg",
+      "sha256": "45948cc3caf425097eb2f55174a766940d5418db0329eb780c1c13f63056dbf7",
+      "bytes": 201732,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/vatican-museums/map-page-2.jpg",
+      "sha256": "ca422cdab07e969f1b2adbf7dd58cd37c43f998454a65c8843cd1e5543cfc5c5",
+      "bytes": 128412,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/versailles/map-page-1.jpg",
+      "sha256": "91ff1716f7d8272d90d091d9e5a196c220edfef256295915b9c7d6a86d0a2d68",
+      "bytes": 1823764,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/versailles/map-page-2.jpg",
+      "sha256": "299fa02ed5cfc87921a68eb15aa0826aa4ef9f00a6f5bbd8d0445b35a756152b",
+      "bytes": 1587758,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/maps/westminster-abbey/map-page-1.jpg",
+      "sha256": "79ab5b86f43353a09beb1dbb464a5309ab1b1daca4d293cae2e34f26b60ddc21",
+      "bytes": 168836,
+      "mime": "image/jpeg",
+      "kind": "map"
+    },
+    {
+      "path": "images/sites/baths-map.jpg",
+      "sha256": "107712428873e8e75c0bde337ab7ec97f4e0a895b8c81956b925a88b872e2354",
+      "bytes": 167712,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/british-museum.jpg",
+      "sha256": "f7b6cface8ccb9aa832b9d9c8f3943499f3513ff45889f52f1cc3b7a0dee8e4c",
+      "bytes": 393796,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/colosseum.jpg",
+      "sha256": "170052f8e1cabad51d74e704df0129601a9a4fec27ae840b51ab81b6cfd21c77",
+      "bytes": 196732,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/globe.jpg",
+      "sha256": "14cb8928fcb8f46274d3f145b91df1a15e2e4fe209ee829e4b1bbaf829979e2d",
+      "bytes": 155232,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/harry-potter.jpg",
+      "sha256": "ef6e727f27df6a1af4b559fab6844b6c6997388dbe9ab1a446cbc797813b1d98",
+      "bytes": 198060,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/louvre.jpg",
+      "sha256": "68631e25edfe173d3bdc34830dc22278fcfa168e53ca1aa0a69ca2f08f0d9350",
+      "bytes": 311804,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/pompeii.jpg",
+      "sha256": "afee5c612ca95331b13fbc5128a51204bbddc13a85fa1ec1fc495cade97d3917",
+      "bytes": 153481,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/tower-of-london.jpg",
+      "sha256": "554b3180831e0f8e9f8b557ee3369fe7a9793f6af5c0402eab892cacc464ef50",
+      "bytes": 482901,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/trevi.jpg",
+      "sha256": "27cb85ae4a1f1c077d12af8e14831dbf2798b0d74fe9367628ac48390e1cbfe9",
+      "bytes": 415781,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/vatican.jpg",
+      "sha256": "a2855191e6a2b58c4c8b743c5cd4ea2a2cf7f6b8f3b2aaab7feb1f728b02b206",
+      "bytes": 315333,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/sites/versailles.jpg",
+      "sha256": "f64e3b0deabf7199e82b795777b99712bc0062a1491fe379c5affba0906f9885",
+      "bytes": 438697,
+      "mime": "image/jpeg",
+      "kind": "image"
+    },
+    {
+      "path": "images/tickets/british-museum/ticket-page-1.jpg",
+      "sha256": "90233b2805db1dce4708ae3fa8e24d5aa7f2ca19de6540e2bcc5827ede6bbd20",
+      "bytes": 166137,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/british-museum/ticket-page-2.jpg",
+      "sha256": "9854447040ee189d94d009f2142784375aa6842d4688d18b8a9191fb17870d53",
+      "bytes": 165783,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/british-museum/ticket-page-3.jpg",
+      "sha256": "5cd387d3f9b094e2c8f326cb85b90592e54b791641994a33e5592d221a6527b5",
+      "bytes": 165693,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/british-museum/ticket-page-4.jpg",
+      "sha256": "3b7e6401e72eac704f75a9437b3c858e4a80085bda151a18558bca3317899b21",
+      "bytes": 165796,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/castel-sant-angelo/ticket-page-1.jpg",
+      "sha256": "eb7b7d10b9c052835cfe96d03c1c23809387bcb89e5b0ee003a90d6a6a3d5276",
+      "bytes": 253849,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/castel-sant-angelo/ticket-page-2.jpg",
+      "sha256": "9b117415256e00d4a86ff0d8b98c7540c809532c59a2537a9e560a7d641f89cc",
+      "bytes": 254317,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/castel-sant-angelo/ticket-page-3.jpg",
+      "sha256": "2a10f35e111c27b57e48407aff08f8d7f2daa15435e7da401a307198206e4c5a",
+      "bytes": 254347,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/castel-sant-angelo/ticket-page-4.jpg",
+      "sha256": "67e2c4510731dc3a6dcd6c8bc702a83fe1717f52ba2ad1a987a30ed25b9e2d54",
+      "bytes": 253361,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/colosseum/ticket-page-1.jpg",
+      "sha256": "16ba8a42fc57c7047fd2e458d64f66d90c389042985fbb4d9a24b069cab2a273",
+      "bytes": 236524,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/colosseum/ticket-page-2.jpg",
+      "sha256": "8613106e460ec6fad6ea1cf1abedb44545dd5cebb4fa3ac6bd3b4a7c8f67dca5",
+      "bytes": 209731,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/colosseum/ticket-page-3.jpg",
+      "sha256": "da11174c5ec8b49b4667ebe33b429f8fd90fa3aa5ee6583e6f61ef0b8a48947a",
+      "bytes": 172290,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/eiffel-tower/ticket-page-1.jpg",
+      "sha256": "d48a9e0d773ceb891c225a370cd5bd298a7cb52335b9feb61d2126eedf65004b",
+      "bytes": 241712,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/eiffel-tower/ticket-page-2.jpg",
+      "sha256": "7aabe572345e886bd4d156d6fde014c5601aafc30384e22a459ceeddcbce39d4",
+      "bytes": 242162,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/eiffel-tower/ticket-page-3.jpg",
+      "sha256": "9f4c20630d0f4f129b53b0f377b0e410f67a1cd4e30edcf6220394228df27c9b",
+      "bytes": 242950,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/eiffel-tower/ticket-page-4.jpg",
+      "sha256": "a61b7d995c67d1204b7d0bcda4ba2641797e18dad18b3aeee4153ec197bcc630",
+      "bytes": 242596,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/harry-potter-studios/ticket-page-1.jpg",
+      "sha256": "42177f1966ff67e6eeffc521d2833a88c7918b8da5ebfb583462960247494add",
+      "bytes": 176551,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/harry-potter-studios/ticket-page-2.jpg",
+      "sha256": "3dca47fb733a9bdc34ad63cea6f75bffbfab592a8670a975e49c4cbb932435ea",
+      "bytes": 176797,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/harry-potter-studios/ticket-page-3.jpg",
+      "sha256": "f89271a30291483c30590d96719eaf047bb43bc6ccb7cd721f9948306143e54e",
+      "bytes": 176670,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/harry-potter-studios/ticket-page-4.jpg",
+      "sha256": "9f2aabf5ddd6d9e2acee7e8eb96a5bc3e92644fdb5c868264123bccee746c445",
+      "bytes": 238915,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/harry-potter-studios/ticket-page-5.jpg",
+      "sha256": "8213c3e49ce4264c4944843f21e2a3c56d7803194f2a7a7b7f778ad49113678d",
+      "bytes": 239093,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/harry-potter-studios/ticket-page-6.jpg",
+      "sha256": "59176124ecafa53e739fe075913ed7a17ceadd936dfaa1b082be20a68ccae69c",
+      "bytes": 238821,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/harry-potter-studios/ticket-page-7.jpg",
+      "sha256": "80007e6ce70342ff0102c09e4242733dfd191baf742f91a4ae3f6e2fb8304b2c",
+      "bytes": 238963,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/louvre/ticket-page-1.jpg",
+      "sha256": "7af94bfee79e5cc9bf834eb857dd73ab4e03f681608ddd43fb43d1460c328ad9",
+      "bytes": 251170,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/louvre/ticket-page-2.jpg",
+      "sha256": "9986297010bbb4a65d94065816dc95b8034cb42ca9d1d1abebf7bda969b3b076",
+      "bytes": 251563,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/louvre/ticket-page-3.jpg",
+      "sha256": "2d7f204fb424e0f3c4d77680f3a9c20e7a151d182058f2862436215be650035a",
+      "bytes": 251042,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/louvre/ticket-page-4.jpg",
+      "sha256": "a724ebcb11116c6c14695aef99e2177fe00493ccc06f8e4ca0c282e156814870",
+      "bytes": 250501,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/louvre/ticket-page-5.jpg",
+      "sha256": "89f50fe0bec23895d301653ac53d330fc1db4df3f4735ecb647f95f0ae6c8f8c",
+      "bytes": 226564,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/louvre/ticket-page-6.jpg",
+      "sha256": "37a1c05c7424ffcc4bfe24fa1150830740343ab6128d817653f0fc28e87619bf",
+      "bytes": 226619,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/louvre/ticket-page-7.jpg",
+      "sha256": "303b4694456666d82187c098ac2011b12297be4c5d96654d9834eb29c77ecf13",
+      "bytes": 226682,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/louvre/ticket-page-8.jpg",
+      "sha256": "e191bebc95b8c452c95096b091f911688b4419c4a2234f8ec9c26e382d768443",
+      "bytes": 226531,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/pompeii/ticket-page-1.jpg",
+      "sha256": "92d2815b3c920486ed536c4bf3813e0ca0ab4ae9b531d60b8ea6afee9ec9a1d1",
+      "bytes": 262517,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/pompeii/ticket-page-2.jpg",
+      "sha256": "819442c9d70c685f274a18b2b95523affee1e1934c0a994820e8b1da454356ae",
+      "bytes": 246531,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/pompeii/ticket-page-3.jpg",
+      "sha256": "7197dcf2624aa2d5491ec0084e2213b6e1bb6b271c496fc95261341dbd2f3e7c",
+      "bytes": 246934,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/pompeii/ticket-page-4.jpg",
+      "sha256": "33d436ddc4061b4e61f8789d3b0880bfb6ee67a7a7bc0d9827ad2b1129a04ff1",
+      "bytes": 246319,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/pompeii/ticket-page-5.jpg",
+      "sha256": "9867971f3c235bdef85842d98ade6dc5fea3204fac41ee46880e919952f3e8cc",
+      "bytes": 210880,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/sainte-chapelle/ticket-page-1.jpg",
+      "sha256": "6a99cd8ba420e0206df18401fabdb96c8160d84ffd31c15f93ab318a1bad1744",
+      "bytes": 221216,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/sainte-chapelle/ticket-page-2.jpg",
+      "sha256": "ecb3379e4e1375d5a30e4ee3b41f25a44fd1158797c46384050175e9cba02a0c",
+      "bytes": 220985,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/sainte-chapelle/ticket-page-3.jpg",
+      "sha256": "d72d963623e108468631c4919b459b42602f7a9adc93527fc675ff84234a2766",
+      "bytes": 221425,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/sainte-chapelle/ticket-page-4.jpg",
+      "sha256": "c28710cb750fcc5893acb049f797653af559856c4cc33441cfdbf6325df5500b",
+      "bytes": 221392,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/sainte-chapelle/ticket-page-5.jpg",
+      "sha256": "d26a7ff0af98e7a26c20af8630407bf68f129a46456f8c9ceb31c800eff13923",
+      "bytes": 237856,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/sainte-chapelle/ticket-page-6.jpg",
+      "sha256": "b14ad7573c28a677e675b0d78a24919c0414c0a4c2a93ae1850be3ceedf2696b",
+      "bytes": 238003,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/sainte-chapelle/ticket-page-7.jpg",
+      "sha256": "5499ea87747b38ddb15759221706f5b3a0a4241a87745b6a634817b71d914093",
+      "bytes": 237770,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/sainte-chapelle/ticket-page-8.jpg",
+      "sha256": "fe198a53235cbe7d903907a01c0c9675deac5413631141240ba6af05b98828a2",
+      "bytes": 237824,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/seine-cruise/ticket-page-1.jpg",
+      "sha256": "5a331fdadd2f375da4124f7296fbdc70ff2af58f370ce6193de766c3ec92c911",
+      "bytes": 234634,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/seine-cruise/ticket-page-2.jpg",
+      "sha256": "1fca83a0f78a35e23af34dfffe390c8e57024004714e75f338c7f60ace4cc58b",
+      "bytes": 105663,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/shakespeare-globe/ticket-page-1.jpg",
+      "sha256": "2d2b3ef18bf2ee89fb3da14ff294c6278707598b07ae4a084274aa1e065af847",
+      "bytes": 166557,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/shakespeare-globe/ticket-page-2.jpg",
+      "sha256": "6e40fc2c211ced4c280e26287b6b225fe15d7434a41864fa1546873d229743f6",
+      "bytes": 101299,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/shakespeare-globe/ticket-page-3.jpg",
+      "sha256": "7334be216725564e48c11f8adf046d54c3b923699937dacd75de35b3f9629ab2",
+      "bytes": 176016,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/tower-bridge/ticket-page-1.jpg",
+      "sha256": "dab9fa4008a529b85d9fccfce2fc4b58722b277211c604f1a358a1c7e825a92b",
+      "bytes": 106008,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/tower-of-london/ticket-page-1.jpg",
+      "sha256": "353ccd01e52b3d06afae598c9d403b218bc0546c9819fde1224a5338aa37ecde",
+      "bytes": 83449,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/tower-of-london/ticket-page-2.jpg",
+      "sha256": "e142de2a2a7efd095bdc81fd436657c2dc192ee22fd07eb6358a827b3e2b660b",
+      "bytes": 164818,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/tower-of-london/ticket-page-3.jpg",
+      "sha256": "40270ebf05b8a20ad22a157165497357517ba8743cabb08348d03ad5d15b1ec4",
+      "bytes": 209785,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/tower-of-london/ticket-page-4.jpg",
+      "sha256": "e0f6805dd7eb1071cf0646e9fe7c84dae7bcf3a3acc8a7d378542a3217cec33e",
+      "bytes": 210183,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/tower-of-london/ticket-page-5.jpg",
+      "sha256": "fccadfbe5946aeb084e5fa34b2037b7c64872342c1b3537292490da1be9fd2e2",
+      "bytes": 208099,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/tower-of-london/ticket-page-6.jpg",
+      "sha256": "18ea1e3dde3516e77ba3c6c7defa9cc0b20e620da307378a2e876482b8b27c8f",
+      "bytes": 207833,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/tower-of-london/ticket-page-7.jpg",
+      "sha256": "4fdfbf250a999c3faf85ae333ce34e5ef2c616b94092347f88a69a342cb0e972",
+      "bytes": 86830,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/vatican-museums/ticket-page-1.jpg",
+      "sha256": "2e9e15817c417d25d4007a6e07c990b585bb67347ac64089d56810d9f2369f82",
+      "bytes": 349930,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/vatican-museums/ticket-page-2.jpg",
+      "sha256": "60b44692248f0f8c13ed6761b4fe5af6494cdddaf974b3ce29bf458111726e17",
+      "bytes": 84166,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/vatican-museums/ticket-page-3.jpg",
+      "sha256": "7019d49bd17ab599f6a2f5388f22bb31bdeced69f366ffbf503c700d7f982cb1",
+      "bytes": 223727,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/versailles/ticket-page-1.jpg",
+      "sha256": "5db2c956042c5a8b9b4b399729bf743e29b4e69a5e8fd7ee6b266b08cfe17c2a",
+      "bytes": 391689,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/versailles/ticket-page-2.jpg",
+      "sha256": "988e96984cafe8b030246cea96762dd97e17737c0a20c68014b6ea83709756fa",
+      "bytes": 391594,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/versailles/ticket-page-3.jpg",
+      "sha256": "21f3c00f0073ef2f1c7feee0215e0d4abbcecddfce43a44e812c4f3729d1a211",
+      "bytes": 393107,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/versailles/ticket-page-4.jpg",
+      "sha256": "81ecd15acffdfbd79dd4677528cc30ac1a82277bee39b1e2bccd29d364a2e463",
+      "bytes": 392756,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/versailles/ticket-page-5.jpg",
+      "sha256": "dd74e1930fe796fe12980dd66742dbf7529397a145d9bbe8cee6210f3a660664",
+      "bytes": 415236,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/versailles/ticket-page-6.jpg",
+      "sha256": "4dd2d8463fe484154d5dfa156ec25d2a391f81a0f79d57a6646fea460c524b8c",
+      "bytes": 415166,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/versailles/ticket-page-7.jpg",
+      "sha256": "dbed72e523b7d58f93e345247d7d8afe7593f989db720e0c6f2c1fd423cf2cd5",
+      "bytes": 414976,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/versailles/ticket-page-8.jpg",
+      "sha256": "3cad336c96b570ba036879dd2dcacbd4fa7b9c6620d94e7c6bb1174bcaa2cfde",
+      "bytes": 415331,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/westminster-abbey/ticket-page-1.jpg",
+      "sha256": "29aa480d0cbafffe58323e31bc3a8c2f89877850d29ba72cfe9995b22a7b9678",
+      "bytes": 253506,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/westminster-abbey/ticket-page-2.jpg",
+      "sha256": "4f3233aaf357ae911d93436a17f070e74aa8ff99a66796886535f1b9ed87008f",
+      "bytes": 253445,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/westminster-abbey/ticket-page-3.jpg",
+      "sha256": "e6e55ad1413e39ee32ade6bfd8c9758dde1a2a65a50954db2dc078ee2f496fd3",
+      "bytes": 163983,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/westminster-abbey/ticket-page-4.jpg",
+      "sha256": "0fc6b01c39f8025192403a6eb077512e7af7e61d8d229977cd35181e0e10e9c0",
+      "bytes": 164389,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/westminster-abbey/ticket-page-5.jpg",
+      "sha256": "640c4273e779fc0e9513c8308ec14f7f30040c0b43b5a96a7e970a32aaec075c",
+      "bytes": 162661,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "images/tickets/westminster-abbey/ticket-page-6.jpg",
+      "sha256": "b32f94ff75108065359b23f39d5c1d9e45f30718d225bbb3067edd4946e4b6da",
+      "bytes": 161589,
+      "mime": "image/jpeg",
+      "kind": "ticket"
+    },
+    {
+      "path": "itinerary.json",
+      "sha256": "45f59b10e3a9f8e103e2a7143fc272abfffef9e225b57284fcc3a0284111fa19",
+      "bytes": 140808,
+      "mime": "application/json",
+      "kind": "json"
+    },
+    {
+      "path": "sites.json",
+      "sha256": "fc56e5ceb0ae2106c893a37b1d6a1346ba6d859198ef05c27127d282d4677719",
+      "bytes": 43323,
+      "mime": "application/json",
+      "kind": "json"
+    },
+    {
+      "path": "trip.json",
+      "sha256": "37605beeb85847425a1ea69822e603bc7d6da8edb629b43f94cad411ca46d935",
+      "bytes": 200,
+      "mime": "application/json",
+      "kind": "json"
+    }
+  ]
+}
