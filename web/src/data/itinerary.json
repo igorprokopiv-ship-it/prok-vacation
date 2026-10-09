@@ -24,17 +24,17 @@
       "highlights": [
         {
           "stopId": "stop-day0-plebs-iad",
-          "title": "Plebs depart IAD",
+          "title": "Plebs: FI 644 IAD → KEF",
           "time": "20:40",
-          "duration": "14h",
-          "summary": "FI 644 IAD→KEF then FI 470 KEF→LGW; booking A2VZ2R."
+          "duration": "5h 55m",
+          "summary": "Prok, Max, Troy. Land KEF 06:35. 1h 05m layover."
         },
         {
           "stopId": "stop-day0-hanna-bwi",
-          "title": "Hanna departs BWI",
+          "title": "Hanna: FI 642 BWI → KEF",
           "time": "20:40",
-          "duration": "14h",
-          "summary": "FI 642 BWI→KEF then same FI 470 into LGW; booking A3AIAO."
+          "duration": "5h 50m",
+          "summary": "Business Class. 1h 10m layover in KEF before connecting FI 470."
         }
       ],
       "stops": [
@@ -43,7 +43,6 @@
           "time": "11:00",
           "title": "Prok & Hanna head for BWI",
           "duration": "1.5h",
-          "hours": null,
           "cost": null,
           "notes": "Hanna gets ~6 hours in the Business lounge before departure.",
           "mapsUrl": null,
@@ -54,32 +53,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day0-lounge",
           "time": "12:30",
-          "title": "Drop Hanna at Business Lounge",
+          "title": "Prok drops Hanna at Business Lounge",
           "duration": "0.5h",
-          "hours": null,
-          "cost": null,
-          "notes": "Prok drops Hanna, then returns home.",
-          "mapsUrl": null,
-          "bookingRef": null,
-          "bags": null,
-          "transit": null,
-          "siteId": null,
-          "optionGroup": null,
-          "optionLabel": null,
-          "primary": true,
-          "kind": "transit"
-        },
-        {
-          "id": "stop-day0-prok-home",
-          "time": "14:00",
-          "title": "Prok back home",
-          "duration": "4h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -90,14 +73,36 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
+        },
+        {
+          "id": "stop-day0-prok-home",
+          "time": "14:00",
+          "title": "Prok back home",
+          "duration": "",
+          "cost": null,
+          "notes": null,
+          "mapsUrl": null,
+          "bookingRef": null,
+          "bags": null,
+          "transit": null,
+          "siteId": null,
+          "optionGroup": null,
+          "optionLabel": null,
+          "primary": true,
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day0-boys-leave",
           "time": "18:00",
           "title": "Boys leave for IAD",
           "duration": "0.75h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -108,14 +113,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day0-security",
           "time": "18:40",
           "title": "Boys through airport security",
           "duration": "2h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -126,50 +133,80 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day0-plebs-iad",
           "time": "20:40",
           "title": "Plebs: FI 644 IAD → KEF",
           "duration": "5h 55m",
-          "hours": null,
           "cost": "$874.80 pp",
           "notes": "Prok, Max, Troy. Land KEF 06:35. 1h 05m layover.",
           "mapsUrl": null,
           "bookingRef": "A2VZ2R",
           "bags": "1 carry-on 21.6×15.7×7.8 + 1 personal 15.7×11.8×5.9; 10kg max",
           "transit": null,
-          "siteId": null,
+          "siteId": "flight-boys-london",
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [
+            {
+              "id": "flight-boys-london",
+              "label": "Boys IAD→LGW",
+              "pages": [
+                "/images/tickets/flight-boys-london/ticket-page-1.jpg",
+                "/images/tickets/flight-boys-london/ticket-page-2.jpg",
+                "/images/tickets/flight-boys-london/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "flight-boys-london"
+          ]
         },
         {
           "id": "stop-day0-hanna-bwi",
           "time": "20:40",
           "title": "Hanna: FI 642 BWI → KEF",
           "duration": "5h 50m",
-          "hours": null,
           "cost": "$1,164.60 pp",
           "notes": "Business Class. 1h 10m layover in KEF before connecting FI 470.",
           "mapsUrl": null,
           "bookingRef": "A3AIAO",
           "bags": "1 checked 32kg + carry-on + personal; 10kg max for personal & carry-on together",
           "transit": null,
-          "siteId": null,
+          "siteId": "flight-hanna-london",
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [
+            {
+              "id": "flight-hanna-london",
+              "label": "Hanna BWI→LGW",
+              "pages": [
+                "/images/tickets/flight-hanna-london/ticket-page-1.jpg",
+                "/images/tickets/flight-hanna-london/ticket-page-2.jpg",
+                "/images/tickets/flight-hanna-london/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "flight-hanna-london"
+          ]
         },
         {
           "id": "stop-day0-fi470",
           "time": "07:40",
           "title": "FI 470 KEF → LGW (all)",
           "duration": "3h 15m",
-          "hours": null,
           "cost": null,
           "notes": "Everyone on same Icelandair flight; arrive LGW 10:55.",
           "mapsUrl": null,
@@ -180,7 +217,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -209,15 +249,15 @@
           "stopId": "stop-day1-tower",
           "title": "Tower of London",
           "time": "14:30",
-          "duration": "3h",
-          "summary": "Crown Jewels, Yeoman Warder tour, fortress since 1066."
+          "duration": "",
+          "summary": "Try 14:30 or 15:00 Yeoman Warder tour. Adults £37 / children under 15 £18.50. Historic castle founded 1066."
         },
         {
-          "stopId": "stop-day1-london-wall",
-          "title": "London Wall",
-          "time": "17:45",
-          "duration": "0.5h",
-          "summary": "Roman fort wall — first 14 ft are Roman, then medieval."
+          "stopId": "stop-day1-lampery",
+          "title": "Dinner at The Lampery",
+          "time": "18:00",
+          "duration": "",
+          "summary": "Lively classic Victorian tavern; freshly prepared pub food / fish and chips."
         }
       ],
       "stops": [
@@ -226,7 +266,6 @@
           "time": "10:55",
           "title": "LGW Passport Control",
           "duration": "1h",
-          "hours": null,
           "cost": null,
           "notes": "Arrive LGW 10:55; allow ~1h for passport control.",
           "mapsUrl": null,
@@ -237,14 +276,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-thameslink",
           "time": "12:00",
           "title": "Thameslink to London Bridge",
           "duration": "0.75h",
-          "hours": null,
           "cost": "£57.60",
           "notes": "Google Pay contactless throughout London.",
           "mapsUrl": "https://maps.app.goo.gl/keC72T5HJrfoJj3w5",
@@ -255,14 +296,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-ginger-pig",
           "time": "12:45",
           "title": "Quick lunch at The Ginger Pig",
-          "duration": "0.5h",
-          "hours": "09:00–17:00",
+          "duration": "",
           "cost": "£50",
           "notes": "Borough Market is right there — skip it at peak lunch, too busy.",
           "mapsUrl": null,
@@ -273,14 +316,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-london-bridge-photos",
           "time": "13:15",
           "title": "London Bridge viewpoint",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Take pictures of Tower Bridge (nice one).",
           "mapsUrl": null,
@@ -291,14 +336,26 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [
+            {
+              "id": "tower-bridge",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/tower-bridge/ticket-page-1.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "tower-bridge"
+          ]
         },
         {
           "id": "stop-day1-uber-hotel",
           "time": "13:30",
           "title": "Uber to hotel",
           "duration": "0.25h",
-          "hours": null,
           "cost": "£8",
           "notes": null,
           "mapsUrl": null,
@@ -309,14 +366,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-apex",
           "time": "13:45",
           "title": "Drop bags at Apex City of London Hotel",
-          "duration": "0.75h",
-          "hours": "Check-in 15:00",
+          "duration": "",
           "cost": "$994.95",
           "notes": "Bag drop before Tower; official check-in 15:00.",
           "mapsUrl": null,
@@ -327,14 +386,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "hotel"
+          "kind": "hotel",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-tower",
           "time": "14:30",
           "title": "Tower of London",
-          "duration": "3h",
-          "hours": "10:00–17:30 (last admission 15:00)",
+          "duration": "",
           "cost": "£111 + £14 family audio",
           "notes": "Try 14:30 or 15:00 Yeoman Warder tour. Adults £37 / children under 15 £18.50. Historic castle founded 1066.",
           "mapsUrl": null,
@@ -345,14 +406,35 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "tower-of-london",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/tower-of-london/ticket-page-1.jpg",
+                "/images/tickets/tower-of-london/ticket-page-2.jpg",
+                "/images/tickets/tower-of-london/ticket-page-3.jpg",
+                "/images/tickets/tower-of-london/ticket-page-4.jpg",
+                "/images/tickets/tower-of-london/ticket-page-5.jpg",
+                "/images/tickets/tower-of-london/ticket-page-6.jpg",
+                "/images/tickets/tower-of-london/ticket-page-7.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/tower-of-london/map-page-1.jpg",
+            "/images/maps/tower-of-london/map-page-2.jpg"
+          ],
+          "guideIds": [
+            "tower-of-london"
+          ]
         },
         {
           "id": "stop-day1-tower-viewpoint",
           "time": "17:30",
           "title": "Tower of London viewpoint photos",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -363,14 +445,35 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [
+            {
+              "id": "tower-of-london",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/tower-of-london/ticket-page-1.jpg",
+                "/images/tickets/tower-of-london/ticket-page-2.jpg",
+                "/images/tickets/tower-of-london/ticket-page-3.jpg",
+                "/images/tickets/tower-of-london/ticket-page-4.jpg",
+                "/images/tickets/tower-of-london/ticket-page-5.jpg",
+                "/images/tickets/tower-of-london/ticket-page-6.jpg",
+                "/images/tickets/tower-of-london/ticket-page-7.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/tower-of-london/map-page-1.jpg",
+            "/images/maps/tower-of-london/map-page-2.jpg"
+          ],
+          "guideIds": [
+            "tower-of-london"
+          ]
         },
         {
           "id": "stop-day1-london-wall",
           "time": "17:45",
           "title": "London Wall",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Roman fort wall fragment.",
           "mapsUrl": null,
@@ -381,14 +484,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "london-wall"
+          ]
         },
         {
           "id": "stop-day1-lampery",
           "time": "18:00",
           "title": "Dinner at The Lampery",
-          "duration": "2h",
-          "hours": "12:00–23:00",
+          "duration": "",
           "cost": "£200",
           "notes": "Lively classic Victorian tavern; freshly prepared pub food / fish and chips.",
           "mapsUrl": null,
@@ -399,14 +506,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-tesco",
           "time": "20:00",
           "title": "Tesco Express",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Groceries / breakfast for Saturday morning.",
           "mapsUrl": null,
@@ -417,14 +526,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "shopping"
+          "kind": "shopping",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-walk-hotel",
           "time": "20:15",
           "title": "Walk back to hotel",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/Ryd8MX2qKmCWb9VE9",
@@ -435,14 +546,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-shower",
           "time": "20:30",
           "title": "Shower",
-          "duration": "0.45h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -453,14 +566,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day1-sleep",
           "time": "21:15",
           "title": "Sleep",
-          "duration": "8.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -471,7 +586,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -500,15 +618,36 @@
           "stopId": "stop-day2-hp",
           "title": "Harry Potter Studios",
           "time": "09:30",
-          "duration": "4h",
-          "summary": "Actual Leavesden sets where all eight films were made."
+          "duration": "",
+          "summary": "Sells out months ahead. Friday = London kids at school. Grab free Activity Passports; one-way system; Backlot is outdoors."
         },
         {
           "stopId": "stop-day2-phantom",
           "title": "Phantom of the Opera",
           "time": "19:30",
-          "duration": "2.5h",
-          "summary": "West End converge — both afternoon branches meet here."
+          "duration": "",
+          "summary": "Converge — both afternoon branches meet for the show."
+        },
+        {
+          "stopId": "stop-day2-opt1-taxi",
+          "title": "Taxi to Oxford University",
+          "time": "13:30",
+          "duration": "1.25h",
+          "summary": "60–90 min depending on traffic. Schedule in advance. Drop directly at Magdalen College (closes earliest)."
+        },
+        {
+          "stopId": "stop-day2-opt2-shopping",
+          "title": "Piccadilly / Regent / Carnaby shopping",
+          "time": "16:30",
+          "duration": "",
+          "summary": "Fortnum & Mason (royal grocer since 1707) → Regent Street flagships → Carnaby Street boutiques."
+        },
+        {
+          "stopId": "stop-day2-opt2-zedel",
+          "title": "Dinner at Brasserie Zédel",
+          "time": "18:00",
+          "duration": "",
+          "summary": "1930s Parisian Art Deco basement. Prix fixe — steak haché and profiteroles."
         }
       ],
       "stops": [
@@ -516,8 +655,7 @@
           "id": "stop-day2-wake",
           "time": "06:00",
           "title": "Wake up",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -528,14 +666,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-breakfast",
           "time": "06:30",
           "title": "Full English breakfast at hotel (The Lampery)",
-          "duration": "1h",
-          "hours": "06:30–10:30 (M–F); 07:00–11:00 (weekends)",
+          "duration": "",
           "cost": "£88",
           "notes": "£22 Full English — first full day in London, must do.",
           "mapsUrl": null,
@@ -546,14 +686,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-transit-hp",
           "time": "07:45",
           "title": "Transit to Harry Potter Studios",
           "duration": "1.25h",
-          "hours": null,
           "cost": "£36",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/5DZmt6KEdR4xzPAbA",
@@ -564,14 +706,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-hp",
           "time": "09:30",
           "title": "Harry Potter Studios",
-          "duration": "4h",
-          "hours": "09:00–20:00",
+          "duration": "",
           "cost": "£188 tickets + £14.25 audio + £100 lunch",
           "notes": "Sells out months ahead. Friday = London kids at school. Grab free Activity Passports; one-way system; Backlot is outdoors.",
           "mapsUrl": null,
@@ -582,14 +726,34 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "harry-potter-studios",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/harry-potter-studios/ticket-page-1.jpg",
+                "/images/tickets/harry-potter-studios/ticket-page-2.jpg",
+                "/images/tickets/harry-potter-studios/ticket-page-3.jpg",
+                "/images/tickets/harry-potter-studios/ticket-page-4.jpg",
+                "/images/tickets/harry-potter-studios/ticket-page-5.jpg",
+                "/images/tickets/harry-potter-studios/ticket-page-6.jpg",
+                "/images/tickets/harry-potter-studios/ticket-page-7.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/harry-potter-studios/map-page-1.jpg"
+          ],
+          "guideIds": [
+            "harry-potter-studios"
+          ]
         },
         {
           "id": "stop-day2-opt1-taxi",
           "time": "13:30",
           "title": "Taxi to Oxford University",
           "duration": "1.25h",
-          "hours": null,
           "cost": "£140",
           "notes": "60–90 min depending on traffic. Schedule in advance. Drop directly at Magdalen College (closes earliest).",
           "mapsUrl": null,
@@ -600,14 +764,16 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 1 · Oxford (if good weather)",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-opt1-magdalen",
           "time": "14:45",
           "title": "Magdalen College",
-          "duration": "0.75h",
-          "hours": "10:00–16:00 (Oct–Mar)",
+          "duration": "",
           "cost": "£10 per adult",
           "notes": null,
           "mapsUrl": null,
@@ -618,14 +784,18 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 1 · Oxford (if good weather)",
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "magdalen-college"
+          ]
         },
         {
           "id": "stop-day2-opt1-radcliffe",
           "time": "15:30",
           "title": "Radcliffe Square / Bodleian / Sheldonian / University Church",
-          "duration": "0.75h",
-          "hours": "Bodleian weekdays 09:00–17:00; Radcliffe Square 24/7",
+          "duration": "",
           "cost": "Free exteriors; Bodleian interior needs tour ticket",
           "notes": null,
           "mapsUrl": null,
@@ -636,14 +806,18 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 1 · Oxford (if good weather)",
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "radcliffe-square"
+          ]
         },
         {
           "id": "stop-day2-opt1-christ-church",
           "time": "16:15",
           "title": "Christ Church",
-          "duration": "0.75h",
-          "hours": "Mon–Sat 10:00–17:00",
+          "duration": "",
           "cost": "£22.50 standard adult",
           "notes": "Great Hall inspired Harry Potter dining hall — prioritize for Max.",
           "mapsUrl": null,
@@ -654,14 +828,18 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 1 · Oxford (if good weather)",
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "christ-church"
+          ]
         },
         {
           "id": "stop-day2-opt1-walk-station",
           "time": "17:00",
           "title": "Walk to Oxford station",
           "duration": "0.5h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -672,14 +850,16 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 1 · Oxford (if good weather)",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-opt1-train",
           "time": "17:30",
           "title": "Train to London",
           "duration": "1.5h",
-          "hours": null,
           "cost": "£30–£40",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/PYgbXi5u83RMF3HA7",
@@ -690,14 +870,16 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 1 · Oxford (if good weather)",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-opt1-food",
           "time": "19:00",
           "title": "Quick food (Tesco / Sainsbury's / M&S)",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": "~£5",
           "notes": "Sandwich, drink, and snack. Oxford-branch backup dinner: Shake Shack Leicester Square.",
           "mapsUrl": null,
@@ -708,14 +890,16 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 1 · Oxford (if good weather)",
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-opt2-transit-stpauls",
           "time": "14:00",
           "title": "Transit to St. Paul's",
           "duration": "1.5h",
-          "hours": null,
           "cost": "£36",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/72VRfLhU3VjpLteN7",
@@ -726,14 +910,16 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 2 · St Paul's & Shopping",
           "primary": false,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-opt2-stpauls",
           "time": "15:30",
           "title": "St. Paul's Cathedral",
-          "duration": "0.5h",
-          "hours": "08:30–16:30 (last admission 16:00)",
+          "duration": "",
           "cost": "Free exterior; £48.50 interior (not worth it for 45 min)",
           "notes": "Iconic dome — outside only unless Evensong.",
           "mapsUrl": null,
@@ -744,14 +930,18 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 2 · St Paul's & Shopping",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "st-pauls-cathedral"
+          ]
         },
         {
           "id": "stop-day2-opt2-charing",
           "time": "16:00",
           "title": "Bus to Charing Cross",
           "duration": "0.5h",
-          "hours": null,
           "cost": "£7",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/JDWVaCUq5hwanTZ46",
@@ -762,14 +952,16 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 2 · St Paul's & Shopping",
           "primary": false,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-opt2-shopping",
           "time": "16:30",
           "title": "Piccadilly / Regent / Carnaby shopping",
-          "duration": "1.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Fortnum & Mason (royal grocer since 1707) → Regent Street flagships → Carnaby Street boutiques.",
           "mapsUrl": null,
@@ -780,14 +972,18 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 2 · St Paul's & Shopping",
           "primary": false,
-          "kind": "shopping"
+          "kind": "shopping",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "piccadilly"
+          ]
         },
         {
           "id": "stop-day2-opt2-zedel",
           "time": "18:00",
           "title": "Dinner at Brasserie Zédel",
-          "duration": "1.5h",
-          "hours": "11:30–00:00",
+          "duration": "",
           "cost": "£200",
           "notes": "1930s Parisian Art Deco basement. Prix fixe — steak haché and profiteroles.",
           "mapsUrl": null,
@@ -798,32 +994,48 @@
           "optionGroup": "london-afternoon",
           "optionLabel": "Option 2 · St Paul's & Shopping",
           "primary": false,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-phantom",
           "time": "19:30",
           "title": "Phantom of the Opera",
-          "duration": "2.5h",
-          "hours": "19:30",
+          "duration": "",
           "cost": "£280",
           "notes": "Converge — both afternoon branches meet for the show.",
           "mapsUrl": null,
           "bookingRef": null,
           "bags": null,
           "transit": null,
-          "siteId": null,
+          "siteId": "phantom-of-the-opera",
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "show"
+          "kind": "show",
+          "tickets": [
+            {
+              "id": "phantom-of-the-opera",
+              "label": "Tickets",
+              "pages": [
+                "/images/tickets/phantom-of-the-opera/ticket-page-1.jpg",
+                "/images/tickets/phantom-of-the-opera/ticket-page-2.jpg",
+                "/images/tickets/phantom-of-the-opera/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "phantom-of-the-opera"
+          ]
         },
         {
           "id": "stop-day2-piccadilly",
           "time": "22:00",
           "title": "Piccadilly Circus",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Times Square of London.",
           "mapsUrl": null,
@@ -834,14 +1046,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "piccadilly"
+          ]
         },
         {
           "id": "stop-day2-transit-hotel",
           "time": "22:15",
           "title": "Transit back to hotel",
           "duration": "0.5h",
-          "hours": null,
           "cost": "£7",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/YPk8Ty5ojLx71eUCA",
@@ -852,14 +1068,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-shower",
           "time": "22:45",
           "title": "Shower",
-          "duration": "0.45h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -870,14 +1088,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day2-sleep",
           "time": "23:30",
           "title": "Sleep",
-          "duration": "7h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -888,7 +1108,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -917,22 +1140,50 @@
           "stopId": "stop-day3-abbey",
           "title": "Westminster Abbey",
           "time": "09:30",
-          "duration": "1.5h",
-          "summary": "Coronation church since 1066 — Chair, royal tombs, Unknown Soldier."
+          "duration": "",
+          "summary": "£27.13 adult+child ticket ×2 + £5 adult+child exhibit. Use provided audio guide."
         },
         {
           "stopId": "stop-day3-globe",
-          "title": "Shakespeare's Globe",
+          "title": "Shakespeare's Globe (with guide)",
           "time": "14:00",
-          "duration": "2h",
-          "summary": "Guided tour of the Elizabethan theatre replica; Golden Hind included."
+          "duration": "",
+          "summary": "£30 adult / £13.50 under 16. Tickets emailed the day before. Official guided tours ~60 min."
         },
         {
           "stopId": "stop-day3-tower-bridge",
           "title": "Tower Bridge",
           "time": "16:30",
-          "duration": "1.25h",
-          "summary": "Walkways, glass floor, historic engine rooms."
+          "duration": "",
+          "summary": "Ticket office west side of North Tower. Can enter up to 20 min after ticket time. Follow Blue Line to Engine Rooms."
+        },
+        {
+          "stopId": "stop-day3-big-ben",
+          "title": "Queen Elizabeth Tower / Big Ben",
+          "time": "09:15",
+          "duration": "",
+          "summary": "Queen Elizabeth Tower / Big Ben"
+        },
+        {
+          "stopId": "stop-day3-buckingham",
+          "title": "Buckingham Palace walk",
+          "time": "11:00",
+          "duration": "",
+          "summary": "King's official London residence — facade, gates, Queen Victoria Memorial, St James's Park Blue Bridge."
+        },
+        {
+          "stopId": "stop-day3-london-picture",
+          "title": "The London family picture",
+          "time": "08:30",
+          "duration": "",
+          "summary": "Big Ben, Westminster, River Thames — limited crowds. Wear formal/nice attire."
+        },
+        {
+          "stopId": "stop-day3-george-inn",
+          "title": "Dinner at The George Inn",
+          "time": "17:45",
+          "duration": "",
+          "summary": "17th-century pub — Shakespeare and Dickens drank here."
         }
       ],
       "stops": [
@@ -940,8 +1191,7 @@
           "id": "stop-day3-wake",
           "time": "06:30",
           "title": "Wake up",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -952,14 +1202,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-breakfast",
           "time": "07:00",
           "title": "Breakfast (Thursday groceries)",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Hotel breakfast doesn't open until 07:00 — not enough time; eat what was bought Thursday.",
           "mapsUrl": null,
@@ -970,14 +1222,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-transit-charing",
           "time": "07:30",
           "title": "Bus to Charing Cross / Trafalgar",
           "duration": "0.5h",
-          "hours": null,
           "cost": "£7",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/dWDkS8TVVRDCZomRA",
@@ -988,14 +1242,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-trafalgar",
           "time": "08:00",
           "title": "Trafalgar Square",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Nelson's Column and lion statues.",
           "mapsUrl": null,
@@ -1006,14 +1262,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "trafalgar-square"
+          ]
         },
         {
           "id": "stop-day3-golden-jubilee",
           "time": "08:15",
           "title": "Golden Jubilee Bridge",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Cross the Thames; opened 2002 for QEII's 50th accession anniversary.",
           "mapsUrl": null,
@@ -1024,14 +1284,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "golden-jubilee-bridge"
+          ]
         },
         {
           "id": "stop-day3-london-picture",
           "time": "08:30",
           "title": "The London family picture",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Big Ben, Westminster, River Thames — limited crowds. Wear formal/nice attire.",
           "mapsUrl": null,
@@ -1042,14 +1306,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-westminster-bridge",
           "time": "08:45",
           "title": "Westminster Bridge",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Original 1750 stone bridge was first across the Thames in 500 years.",
           "mapsUrl": null,
@@ -1060,14 +1326,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "westminster-bridge"
+          ]
         },
         {
           "id": "stop-day3-parliament",
           "time": "09:00",
           "title": "Palace of Westminster (Parliament)",
-          "duration": "0.25h",
-          "hours": "09:00–17:00",
+          "duration": "",
           "cost": "Free (exterior)",
           "notes": null,
           "mapsUrl": null,
@@ -1078,15 +1348,21 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [
+            "/images/maps/palace-of-westminster/map-page-1.jpg"
+          ],
+          "guideIds": [
+            "palace-of-westminster"
+          ]
         },
         {
           "id": "stop-day3-big-ben",
           "time": "09:15",
           "title": "Queen Elizabeth Tower / Big Ben",
-          "duration": "0.25h",
-          "hours": "09:00–17:00",
-          "cost": "Free",
+          "duration": "",
+          "cost": null,
           "notes": null,
           "mapsUrl": null,
           "bookingRef": null,
@@ -1096,14 +1372,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "big-ben"
+          ]
         },
         {
           "id": "stop-day3-abbey",
           "time": "09:30",
           "title": "Westminster Abbey",
-          "duration": "1.5h",
-          "hours": "09:30–15:30",
+          "duration": "",
           "cost": "£64.26",
           "notes": "£27.13 adult+child ticket ×2 + £5 adult+child exhibit. Use provided audio guide.",
           "mapsUrl": null,
@@ -1114,14 +1394,33 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "westminster-abbey",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/westminster-abbey/ticket-page-1.jpg",
+                "/images/tickets/westminster-abbey/ticket-page-2.jpg",
+                "/images/tickets/westminster-abbey/ticket-page-3.jpg",
+                "/images/tickets/westminster-abbey/ticket-page-4.jpg",
+                "/images/tickets/westminster-abbey/ticket-page-5.jpg",
+                "/images/tickets/westminster-abbey/ticket-page-6.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/westminster-abbey/map-page-1.jpg"
+          ],
+          "guideIds": [
+            "westminster-abbey"
+          ]
         },
         {
           "id": "stop-day3-officers",
           "time": "10:50",
           "title": "Officers Inspection (Horse Guards)",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": "Free",
           "notes": "Iconic red-coat guards. Officers Inspection 11:00–11:10 Tue/Thu/Sat/Sun.",
           "mapsUrl": "https://maps.app.goo.gl/XWf2edDgWV56ADx17",
@@ -1132,14 +1431,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "horse-guards"
+          ]
         },
         {
           "id": "stop-day3-buckingham",
           "time": "11:00",
           "title": "Buckingham Palace walk",
-          "duration": "1h",
-          "hours": "09:30–18:30 (grounds/exterior)",
+          "duration": "",
           "cost": "Free",
           "notes": "King's official London residence — facade, gates, Queen Victoria Memorial, St James's Park Blue Bridge.",
           "mapsUrl": null,
@@ -1150,14 +1453,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "buckingham-palace"
+          ]
         },
         {
           "id": "stop-day3-regency",
           "time": "12:00",
           "title": "Lunch at Regency Cafe",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": "£75",
           "notes": "Opened 1946; generous portions; long lines but food comes out fast.",
           "mapsUrl": null,
@@ -1168,14 +1475,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-transit-borough",
           "time": "13:00",
           "title": "Transit to Borough Market / Globe",
           "duration": "0.5h",
-          "hours": null,
           "cost": "£12",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/qj7MKk4vyd6wM2KT9",
@@ -1186,14 +1495,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-globe",
           "time": "14:00",
           "title": "Shakespeare's Globe (with guide)",
-          "duration": "2h",
-          "hours": "11:00–18:00",
+          "duration": "",
           "cost": "£87",
           "notes": "£30 adult / £13.50 under 16. Tickets emailed the day before. Official guided tours ~60 min.",
           "mapsUrl": null,
@@ -1204,14 +1515,28 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "shakespeare-globe",
+              "label": "Tour",
+              "pages": [
+                "/images/tickets/shakespeare-globe/ticket-page-1.jpg",
+                "/images/tickets/shakespeare-globe/ticket-page-2.jpg",
+                "/images/tickets/shakespeare-globe/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "shakespeare-globe"
+          ]
         },
         {
           "id": "stop-day3-golden-hind",
           "time": "16:00",
           "title": "Golden Hind",
-          "duration": "0.5h",
-          "hours": "11:00–18:00",
+          "duration": "",
           "cost": "Included with Shakespeare's Globe w/ guide",
           "notes": null,
           "mapsUrl": null,
@@ -1222,14 +1547,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "golden-hind"
+          ]
         },
         {
           "id": "stop-day3-tower-bridge",
           "time": "16:30",
           "title": "Tower Bridge",
-          "duration": "1.25h",
-          "hours": "09:30–18:00 (last admission 17:00)",
+          "duration": "",
           "cost": "£42.50",
           "notes": "Ticket office west side of North Tower. Can enter up to 20 min after ticket time. Follow Blue Line to Engine Rooms.",
           "mapsUrl": "https://maps.app.goo.gl/kmYzbFbFmgJpgTbo6",
@@ -1240,14 +1569,26 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "tower-bridge",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/tower-bridge/ticket-page-1.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "tower-bridge"
+          ]
         },
         {
           "id": "stop-day3-george-inn",
           "time": "17:45",
           "title": "Dinner at The George Inn",
-          "duration": "2h",
-          "hours": "11:00–23:00",
+          "duration": "",
           "cost": "£150",
           "notes": "17th-century pub — Shakespeare and Dickens drank here.",
           "mapsUrl": null,
@@ -1258,14 +1599,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-walk-hotel",
           "time": "19:45",
           "title": "Walk back to hotel",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1276,14 +1619,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-shower",
           "time": "20:00",
           "title": "Shower",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1294,14 +1639,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day3-sleep",
           "time": "21:00",
           "title": "Sleep",
-          "duration": "9.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1312,7 +1659,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -1341,14 +1691,14 @@
           "stopId": "stop-day4-opt1-bm",
           "title": "British Museum",
           "time": "09:30",
-          "duration": "3.5h",
+          "duration": "",
           "summary": "Rosetta Stone, Assyria, Parthenon sculptures, Standard of Ur."
         },
         {
           "stopId": "stop-day4-blacklock",
           "title": "Blacklock Sunday Roast",
           "time": "12:30",
-          "duration": "1.5h",
+          "duration": "",
           "summary": "Converge lunch — mandatory Sunday Roast before the train."
         },
         {
@@ -1364,8 +1714,7 @@
           "id": "stop-day4-wake",
           "time": "06:00",
           "title": "Wake up",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1376,14 +1725,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-opt1-breakfast",
           "time": "07:30",
           "title": "Breakfast at the hotel (The Lampery)",
-          "duration": "1h",
-          "hours": "07:00–10:00",
+          "duration": "",
           "cost": "£88",
           "notes": null,
           "mapsUrl": null,
@@ -1394,14 +1745,16 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 1 · British Museum",
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-opt1-bus",
           "time": "08:30",
           "title": "Bus to Charing Cross",
           "duration": "0.5h",
-          "hours": null,
           "cost": "£7",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/dWDkS8TVVRDCZomRA",
@@ -1412,32 +1765,46 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 1 · British Museum",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-opt1-bounce",
           "time": "09:00",
           "title": "Drop bags at Bounce Storage",
           "duration": "0.25h",
-          "hours": null,
           "cost": "£26.30",
           "notes": "Closer to lunch than museum — walk the rest to BM.",
           "mapsUrl": null,
           "bookingRef": null,
           "bags": null,
           "transit": null,
-          "siteId": null,
+          "siteId": "bounce-bag-storage",
           "optionGroup": "london-morning",
           "optionLabel": "Option 1 · British Museum",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [
+            {
+              "id": "bounce-bag-storage",
+              "label": "Bounce booking",
+              "pages": [
+                "/images/tickets/bounce-bag-storage/ticket-page-1.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "bounce-bag-storage"
+          ]
         },
         {
           "id": "stop-day4-opt1-walk-bm",
           "time": "09:15",
           "title": "Walk to British Museum",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1448,14 +1815,16 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 1 · British Museum",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-opt1-bm",
           "time": "09:30",
           "title": "The British Museum",
-          "duration": "3.5h",
-          "hours": "10:00–17:00",
+          "duration": "",
           "cost": "£105",
           "notes": "First public national museum in the world. Rosetta Stone, Lamassu, Elgin Marbles, Standard of Ur, Sutton Hoo, Lewis Chessmen.",
           "mapsUrl": null,
@@ -1466,14 +1835,33 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 1 · British Museum",
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "british-museum",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/british-museum/ticket-page-1.jpg",
+                "/images/tickets/british-museum/ticket-page-2.jpg",
+                "/images/tickets/british-museum/ticket-page-3.jpg",
+                "/images/tickets/british-museum/ticket-page-4.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/british-museum/map-page-1.jpg",
+            "/images/maps/british-museum/map-page-2.jpg",
+            "/images/maps/british-museum/map-page-3.jpg"
+          ],
+          "guideIds": [
+            "british-museum"
+          ]
         },
         {
           "id": "stop-day4-opt1-walk-lunch",
           "time": "12:15",
           "title": "Walk to lunch",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1484,14 +1872,16 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 1 · British Museum",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-opt2-transit",
           "time": "07:00",
           "title": "Transit to Oxford (Hanna + Max)",
           "duration": "2h",
-          "hours": null,
           "cost": "£100",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/LaM5hBiqP3iLHM22A",
@@ -1502,14 +1892,16 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 2 · Oxford (Hanna + Max)",
           "primary": false,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-opt2-radcliffe",
           "time": "08:30",
           "title": "Radcliffe Square & central university walk (exteriors only)",
-          "duration": "1.5h",
-          "hours": "Public squares 24/7",
+          "duration": "",
           "cost": "Free",
           "notes": "CRITICAL Sunday AM: Bodleian opens 11:00, University Church 12:00, Christ Church closed to visitors until 14:00. Coffee + Christ Church Meadow for exterior views.",
           "mapsUrl": "https://maps.app.goo.gl/YfmyyM6doXWz8T1q9",
@@ -1520,14 +1912,18 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 2 · Oxford (Hanna + Max)",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "radcliffe-square"
+          ]
         },
         {
           "id": "stop-day4-opt2-magdalen",
           "time": "10:00",
           "title": "Magdalen College",
-          "duration": "1.15h",
-          "hours": "10:00–16:00 (winter)",
+          "duration": "",
           "cost": "£10 per person",
           "notes": "Be at visitor gate right at 10:00 opening.",
           "mapsUrl": null,
@@ -1538,14 +1934,18 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 2 · Oxford (Hanna + Max)",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "magdalen-college"
+          ]
         },
         {
           "id": "stop-day4-opt2-train",
           "time": "11:00",
           "title": "Train back to London",
           "duration": "1.5h",
-          "hours": null,
           "cost": "Factored into round-trip outbound",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/tQYejkcnymJuaE3U7",
@@ -1556,14 +1956,16 @@
           "optionGroup": "london-morning",
           "optionLabel": "Option 2 · Oxford (Hanna + Max)",
           "primary": false,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-blacklock",
           "time": "12:30",
           "title": "Lunch at Blacklock (Covent Garden)",
-          "duration": "1.5h",
-          "hours": "11:45–20:00",
+          "duration": "",
           "cost": "£200",
           "notes": "Converge — must have Sunday Roast.",
           "mapsUrl": null,
@@ -1574,14 +1976,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-walk-bounce",
           "time": "14:00",
           "title": "Walk to Bounce Storage",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1592,32 +1996,46 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-grab-bags",
           "time": "14:15",
           "title": "Grab bags at Bounce",
           "duration": "0.1h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
           "bookingRef": null,
           "bags": null,
           "transit": null,
-          "siteId": null,
+          "siteId": "bounce-bag-storage",
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [
+            {
+              "id": "bounce-bag-storage",
+              "label": "Bounce booking",
+              "pages": [
+                "/images/tickets/bounce-bag-storage/ticket-page-1.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "bounce-bag-storage"
+          ]
         },
         {
           "id": "stop-day4-st-pancras",
           "time": "14:30",
           "title": "Transit to St Pancras International",
           "duration": "0.5h",
-          "hours": null,
           "cost": "£8.40",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/AAqeShYXFLm93QXs8",
@@ -1628,14 +2046,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-station-hangout",
           "time": "15:00",
           "title": "Hangout at St Pancras",
           "duration": "1.5h",
-          "hours": null,
           "cost": null,
           "notes": "Arrive 90 min before departure; turned away 30 min before.",
           "mapsUrl": null,
@@ -1646,32 +2066,48 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-eurostar",
           "time": "16:30",
           "title": "Train to Paris",
           "duration": "2.5h",
-          "hours": null,
           "cost": "$568",
           "notes": "Eurostar — book by 2026/08/15. Not a flight.",
           "mapsUrl": null,
           "bookingRef": null,
           "bags": null,
           "transit": null,
-          "siteId": null,
+          "siteId": "eurostar-london-paris",
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [
+            {
+              "id": "eurostar-london-paris",
+              "label": "Eurostar",
+              "pages": [
+                "/images/tickets/eurostar-london-paris/ticket-page-1.jpg",
+                "/images/tickets/eurostar-london-paris/ticket-page-2.jpg",
+                "/images/tickets/eurostar-london-paris/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "eurostar-london-paris"
+          ]
         },
         {
           "id": "stop-day4-metro-hotel",
           "time": "20:00",
           "title": "Metro to hotel",
           "duration": "0.75h",
-          "hours": null,
           "cost": "€10.20",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/as18eHE64kBG7Lms6",
@@ -1682,14 +2118,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-pullman",
           "time": "20:45",
           "title": "Check in Pullman Paris Centre-Bercy",
-          "duration": "0.5h",
-          "hours": "Check-in 15:00",
+          "duration": "",
           "cost": "$1,011.65",
           "notes": "3 nights. (Cost sheet also lists Hotel 34B Astotel $1,580 — EU4 timeline uses Pullman.)",
           "mapsUrl": null,
@@ -1700,14 +2138,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "hotel"
+          "kind": "hotel",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-fiveguys",
           "time": "21:15",
           "title": "Dinner at Five Guys",
-          "duration": "1.25h",
-          "hours": "10:30–01:00",
+          "duration": "",
           "cost": "€100",
           "notes": "French Burger.",
           "mapsUrl": null,
@@ -1718,14 +2158,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-shower",
           "time": "22:30",
           "title": "Shower",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1736,14 +2178,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-laundry",
           "time": "23:15",
           "title": "Drop off laundry",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1754,14 +2198,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day4-sleep",
           "time": "23:30",
           "title": "Sleep",
-          "duration": "7.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1772,7 +2218,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -1801,22 +2250,43 @@
           "stopId": "stop-day5-louvre",
           "title": "The Louvre",
           "time": "09:00",
-          "duration": "3.5h",
-          "summary": "Mona Lisa, Winged Victory, Venus de Milo, Code of Hammurabi."
+          "duration": "",
+          "summary": "Adult tickets €32; kids free. Enter via underground stairs by Arc du Carrousel to bypass outdoor lines."
         },
         {
           "stopId": "stop-day5-sainte-chapelle",
           "title": "Sainte-Chapelle",
           "time": "14:00",
-          "duration": "1h",
-          "summary": "1,113 stained-glass scenes — airport-style security lines."
+          "duration": "",
+          "summary": "Airport security lines — 15–30 min to get in. Beautiful glass church."
         },
         {
-          "stopId": "stop-day5-arc",
-          "title": "Arc de Triomphe flame",
-          "time": "18:00",
-          "duration": "2h",
-          "summary": "Be there exactly at 18:30 for rekindling of the Unknown Soldier flame."
+          "stopId": "stop-day5-notre-dame",
+          "title": "Notre-Dame Cathedral",
+          "time": "16:15",
+          "duration": "",
+          "summary": "Booking opens 2 days before. Two lines; highly pickpocketed area."
+        },
+        {
+          "stopId": "stop-day5-seine",
+          "title": "Vedettes du Pont Neuf Seine River Cruise",
+          "time": "15:00",
+          "duration": "",
+          "summary": "Relaxing boat trip viewing historic bridges and monuments."
+        },
+        {
+          "stopId": "stop-day5-shopping",
+          "title": "Shopping — Avenue Montaigne / Rue du Faubourg Saint-Honoré",
+          "time": "18:15",
+          "duration": "",
+          "summary": "More refined and quieter than the main tourist strips."
+        },
+        {
+          "stopId": "stop-day5-dinner",
+          "title": "Dinner at L'Auberge Aveyronnaise",
+          "time": "20:30",
+          "duration": "",
+          "summary": "Dinner at L'Auberge Aveyronnaise"
         }
       ],
       "stops": [
@@ -1824,8 +2294,7 @@
           "id": "stop-day5-wake",
           "time": "07:00",
           "title": "Wake up",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -1836,14 +2305,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-transit-carrousel",
           "time": "07:30",
           "title": "Metro toward Arc du Carrousel / Palais Royal",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€10.20",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/1BCLqvNYiNZK61Wd7",
@@ -1854,14 +2325,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-palais-royal",
           "time": "08:00",
           "title": "Jardin du Palais Royal",
-          "duration": "0.5h",
-          "hours": "08:00–22:30",
+          "duration": "",
           "cost": "Free",
           "notes": "Famous black-and-white columns (1980s).",
           "mapsUrl": null,
@@ -1872,14 +2345,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "palais-royal"
+          ]
         },
         {
           "id": "stop-day5-breakfast",
           "time": "08:30",
           "title": "Breakfast at Le Pain Quotidien",
-          "duration": "0.5h",
-          "hours": "08:00–20:00",
+          "duration": "",
           "cost": "€20",
           "notes": "Baguette.",
           "mapsUrl": null,
@@ -1890,14 +2367,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-carrousel",
           "time": "08:45",
           "title": "Arc de Triomphe du Carrousel",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": "Free",
           "notes": "Smaller arch honoring French military victories; frames Concorde → Champs-Élysées → Arc.",
           "mapsUrl": null,
@@ -1908,14 +2387,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "arc-du-carrousel"
+          ]
         },
         {
           "id": "stop-day5-louvre",
           "time": "09:00",
           "title": "The Louvre",
-          "duration": "3.5h",
-          "hours": "09:00–18:00 (closed Tuesdays; courtyard opens 07:00)",
+          "duration": "",
           "cost": "€64",
           "notes": "Adult tickets €32; kids free. Enter via underground stairs by Arc du Carrousel to bypass outdoor lines.",
           "mapsUrl": null,
@@ -1926,14 +2409,36 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "louvre",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/louvre/ticket-page-1.jpg",
+                "/images/tickets/louvre/ticket-page-2.jpg",
+                "/images/tickets/louvre/ticket-page-3.jpg",
+                "/images/tickets/louvre/ticket-page-4.jpg",
+                "/images/tickets/louvre/ticket-page-5.jpg",
+                "/images/tickets/louvre/ticket-page-6.jpg",
+                "/images/tickets/louvre/ticket-page-7.jpg",
+                "/images/tickets/louvre/ticket-page-8.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/louvre/map-page-1.jpg",
+            "/images/maps/louvre/map-page-2.jpg"
+          ],
+          "guideIds": [
+            "louvre"
+          ]
         },
         {
           "id": "stop-day5-lunch",
           "time": "12:30",
           "title": "Lunch at Merci Jérôme Pont-Neuf",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": "€100",
           "notes": null,
           "mapsUrl": null,
@@ -1944,14 +2449,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-walk-sainte",
           "time": "13:15",
           "title": "Walk to Sainte-Chapelle",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": "Vedettes du Pont Neuf area.",
           "mapsUrl": null,
@@ -1962,14 +2469,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-sainte-chapelle",
           "time": "14:00",
           "title": "Sainte-Chapelle",
-          "duration": "1h",
-          "hours": "09:00–19:00",
+          "duration": "",
           "cost": "€60",
           "notes": "Airport security lines — 15–30 min to get in. Beautiful glass church.",
           "mapsUrl": null,
@@ -1980,14 +2489,34 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "sainte-chapelle",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/sainte-chapelle/ticket-page-1.jpg",
+                "/images/tickets/sainte-chapelle/ticket-page-2.jpg",
+                "/images/tickets/sainte-chapelle/ticket-page-3.jpg",
+                "/images/tickets/sainte-chapelle/ticket-page-4.jpg",
+                "/images/tickets/sainte-chapelle/ticket-page-5.jpg",
+                "/images/tickets/sainte-chapelle/ticket-page-6.jpg",
+                "/images/tickets/sainte-chapelle/ticket-page-7.jpg",
+                "/images/tickets/sainte-chapelle/ticket-page-8.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "sainte-chapelle",
+            "sainte-chapelle-visitor-guide"
+          ]
         },
         {
           "id": "stop-day5-seine",
           "time": "15:00",
           "title": "Vedettes du Pont Neuf Seine River Cruise",
-          "duration": "1.5h",
-          "hours": "10:30–22:00",
+          "duration": "",
           "cost": "€60",
           "notes": "Relaxing boat trip viewing historic bridges and monuments.",
           "mapsUrl": "https://maps.app.goo.gl/QPihrEWs6RPuNb4o8",
@@ -1998,14 +2527,27 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "seine-cruise",
+              "label": "Cruise",
+              "pages": [
+                "/images/tickets/seine-cruise/ticket-page-1.jpg",
+                "/images/tickets/seine-cruise/ticket-page-2.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "seine-cruise"
+          ]
         },
         {
           "id": "stop-day5-notre-dame",
           "time": "16:15",
           "title": "Notre-Dame Cathedral",
-          "duration": "0.75h",
-          "hours": "08:00–19:00",
+          "duration": "",
           "cost": "Free",
           "notes": "Booking opens 2 days before. Two lines; highly pickpocketed area.",
           "mapsUrl": null,
@@ -2016,14 +2558,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "notre-dame"
+          ]
         },
         {
           "id": "stop-day5-transit-arc",
           "time": "17:00",
           "title": "Metro to Arc de Triomphe",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€10.20",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/31wViPNxFWgFtsWN9",
@@ -2034,14 +2580,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-arc",
           "time": "18:00",
           "title": "Arc de Triomphe",
-          "duration": "2h",
-          "hours": "10:00–22:30",
+          "duration": "",
           "cost": "Free base; €64 to go to the top (not worth it)",
           "notes": "Be here exactly at 18:30 for rekindling of the flame (daily since 1923).",
           "mapsUrl": null,
@@ -2052,14 +2600,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "arc-de-triomphe"
+          ]
         },
         {
           "id": "stop-day5-shopping",
           "time": "18:15",
           "title": "Shopping — Avenue Montaigne / Rue du Faubourg Saint-Honoré",
-          "duration": "2h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "More refined and quieter than the main tourist strips.",
           "mapsUrl": null,
@@ -2070,14 +2622,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "shopping"
+          "kind": "shopping",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-dinner",
           "time": "20:30",
           "title": "Dinner at L'Auberge Aveyronnaise",
-          "duration": "1.5h",
-          "hours": "19:00–22:30",
+          "duration": "",
           "cost": "€200",
           "notes": null,
           "mapsUrl": null,
@@ -2088,14 +2642,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-back-hotel",
           "time": "22:00",
           "title": "Back to hotel",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/ZvPjrUQPnZ1Vu28VA",
@@ -2106,14 +2662,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-shower",
           "time": "22:15",
           "title": "Shower",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2124,14 +2682,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day5-sleep",
           "time": "23:00",
           "title": "Sleep",
-          "duration": "7h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2142,7 +2702,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -2168,25 +2731,32 @@
       },
       "highlights": [
         {
-          "stopId": "stop-day6-trocadero",
-          "title": "Trocadéro sunrise",
-          "time": "07:30",
-          "duration": "0.5h",
-          "summary": "The Paris picture — Eiffel Tower sunrise view."
-        },
-        {
           "stopId": "stop-day6-versailles",
           "title": "Palace of Versailles",
           "time": "09:30",
-          "duration": "4.5h",
-          "summary": "King's Private Apartment tour, Hall of Mirrors, gardens, Trianon."
+          "duration": "",
+          "summary": "Enter Entrance A timed entry. North Ministers Wing by 09:45 for guided tour (bypasses security). Bring kids' passports; umbrella; driver license for golf cart."
         },
         {
           "stopId": "stop-day6-eiffel",
-          "title": "Eiffel Tower night view",
+          "title": "Eiffel Tower — night view & sparkle",
           "time": "16:30",
-          "duration": "1.5h",
-          "summary": "2nd floor for sunset; sparkle on the hour."
+          "duration": "",
+          "summary": "Goal: sunset from 2nd floor. Target entry ~17:00 with 30 min buffer for lines. Sparkles on the hour after sunset."
+        },
+        {
+          "stopId": "stop-day6-trocadero",
+          "title": "Trocadéro family picture",
+          "time": "07:30",
+          "duration": "",
+          "summary": "Wear formal attire. Iconic sunrise view of the Eiffel Tower."
+        },
+        {
+          "stopId": "stop-day6-catacombs",
+          "title": "Catacombs of Paris",
+          "time": "19:00",
+          "duration": "",
+          "summary": "Bones of over 6 million people. ~55°F year-round."
         }
       ],
       "stops": [
@@ -2194,8 +2764,7 @@
           "id": "stop-day6-wake",
           "time": "06:00",
           "title": "Wake up",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2206,14 +2775,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-transit-trocadero",
           "time": "06:45",
           "title": "Transit to Trocadéro",
           "duration": "0.75h",
-          "hours": null,
           "cost": "€8.20",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/Y1UM5epG5WQkAdR5A",
@@ -2224,14 +2795,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-trocadero",
           "time": "07:30",
           "title": "Trocadéro family picture",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Wear formal attire. Iconic sunrise view of the Eiffel Tower.",
           "mapsUrl": null,
@@ -2242,14 +2815,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "trocadero"
+          ]
         },
         {
           "id": "stop-day6-carette",
           "time": "08:00",
           "title": "Breakfast at Carette",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": "€60",
           "notes": "Famous hot chocolate. Might grab lunch food here — Versailles food is overpriced.",
           "mapsUrl": null,
@@ -2260,14 +2837,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-transit-versailles",
           "time": "08:30",
           "title": "RER C to Versailles",
           "duration": "1h",
-          "hours": null,
           "cost": "€30",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/cN6SngAkxrcAhXaB7",
@@ -2278,14 +2857,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-versailles",
           "time": "09:30",
           "title": "Palace of Versailles",
-          "duration": "4.5h",
-          "hours": "09:00–17:30 (closed Mondays)",
+          "duration": "",
           "cost": "€112",
           "notes": "Enter Entrance A timed entry. North Ministers Wing by 09:45 for guided tour (bypasses security). Bring kids' passports; umbrella; driver license for golf cart.",
           "mapsUrl": null,
@@ -2296,14 +2877,36 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "versailles",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/versailles/ticket-page-1.jpg",
+                "/images/tickets/versailles/ticket-page-2.jpg",
+                "/images/tickets/versailles/ticket-page-3.jpg",
+                "/images/tickets/versailles/ticket-page-4.jpg",
+                "/images/tickets/versailles/ticket-page-5.jpg",
+                "/images/tickets/versailles/ticket-page-6.jpg",
+                "/images/tickets/versailles/ticket-page-7.jpg",
+                "/images/tickets/versailles/ticket-page-8.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/versailles/map-page-1.jpg",
+            "/images/maps/versailles/map-page-2.jpg"
+          ],
+          "guideIds": [
+            "versailles"
+          ]
         },
         {
           "id": "stop-day6-transit-eiffel",
           "time": "15:30",
           "title": "RER C back toward Eiffel Tower",
           "duration": "1h",
-          "hours": null,
           "cost": "€30",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/WV837T6kfrwR76ZY9",
@@ -2314,14 +2917,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-eiffel",
           "time": "16:30",
           "title": "Eiffel Tower — night view & sparkle",
-          "duration": "1.5h",
-          "hours": "09:00–00:00",
+          "duration": "",
           "cost": "€110.20",
           "notes": "Goal: sunset from 2nd floor. Target entry ~17:00 with 30 min buffer for lines. Sparkles on the hour after sunset.",
           "mapsUrl": null,
@@ -2332,14 +2937,29 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "eiffel-tower",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/eiffel-tower/ticket-page-1.jpg",
+                "/images/tickets/eiffel-tower/ticket-page-2.jpg",
+                "/images/tickets/eiffel-tower/ticket-page-3.jpg",
+                "/images/tickets/eiffel-tower/ticket-page-4.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "eiffel-tower"
+          ]
         },
         {
           "id": "stop-day6-transit-catacombs",
           "time": "18:30",
           "title": "Metro to Catacombs",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€10.20",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/JJuACJfop7FDEefHA",
@@ -2350,14 +2970,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-catacombs",
           "time": "19:00",
           "title": "Catacombs of Paris",
-          "duration": "1h",
-          "hours": "09:45–20:30 (closed Monday)",
+          "duration": "",
           "cost": "€91",
           "notes": "Bones of over 6 million people. ~55°F year-round.",
           "mapsUrl": null,
@@ -2368,14 +2990,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "catacombs"
+          ]
         },
         {
           "id": "stop-day6-dinner",
           "time": "20:00",
           "title": "Dinner TBD",
-          "duration": "2h",
-          "hours": null,
+          "duration": "",
           "cost": "€200",
           "notes": null,
           "mapsUrl": null,
@@ -2386,14 +3012,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-transit-hotel",
           "time": "22:00",
           "title": "Transit to hotel",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€10.20",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/waGNAQAm7NowVSVy6",
@@ -2404,14 +3032,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-laundry",
           "time": "22:30",
           "title": "Pick up laundry",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2422,14 +3052,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-shower",
           "time": "22:45",
           "title": "Shower",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2440,14 +3072,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day6-sleep",
           "time": "23:30",
           "title": "Sleep",
-          "duration": "6h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2458,7 +3092,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -2485,24 +3122,45 @@
       "highlights": [
         {
           "stopId": "stop-day7-flight",
-          "title": "Fly Paris → Rome",
+          "title": "Fly TO 3910 ORY → FCO",
           "time": "09:15",
           "duration": "2h",
-          "summary": "TO 3910 ORY→FCO; National Unity Day crowds on arrival."
+          "summary": "Land 11:20. FreeNow / itTaxi available."
         },
         {
           "stopId": "stop-day7-opt1-pantheon",
-          "title": "Pantheon (queue options)",
+          "title": "Pantheon",
           "time": "13:00",
-          "duration": "1.75h",
-          "summary": "Three queue strategies — judgement call on line length."
+          "duration": "",
+          "summary": "If line is crazy, keep walking to Piazza Navona, try again afternoon; worst case Friday. Offset everything by 1.75h. Two lines: cash vs credit."
         },
         {
           "stopId": "stop-day7-mattei",
-          "title": "Piazza Mattei pizza class",
+          "title": "Dinner at Piazza Mattei (pizza masterclass)",
           "time": "18:15",
-          "duration": "3.25h",
-          "summary": "Pizza, supplì, gelato masterclass; free-flowing wine for Hanna."
+          "duration": "",
+          "summary": "Pizza, supplì, and gelato from scratch. Free-flowing fine Italian wine (Hanna)."
+        },
+        {
+          "stopId": "stop-day7-opt1-ponte",
+          "title": "Ponte Umberto I",
+          "time": "16:45",
+          "duration": "",
+          "summary": "Perfect sunset view of St. Peter's — must be at sunset or at night."
+        },
+        {
+          "stopId": "stop-day7-opt1-trevi",
+          "title": "Trevi Fountain",
+          "time": "17:45",
+          "duration": "",
+          "summary": "Toss coin over left shoulder with right hand."
+        },
+        {
+          "stopId": "stop-day7-opt1-spanish",
+          "title": "Spanish Steps",
+          "time": "17:15",
+          "duration": "",
+          "summary": "DO NOT sit — €400 fine."
         }
       ],
       "stops": [
@@ -2510,8 +3168,7 @@
           "id": "stop-day7-wake",
           "time": "05:45",
           "title": "Wake up",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2522,14 +3179,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-airport-transit",
           "time": "06:30",
           "title": "Metro to Orly Airport",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€60",
           "notes": null,
           "mapsUrl": "https://maps.app.goo.gl/6ksPBATt6pESU7iN7",
@@ -2540,14 +3199,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-airport-breakfast",
           "time": "07:00",
           "title": "Hangout & breakfast at airport",
-          "duration": "2.25h",
-          "hours": null,
+          "duration": "",
           "cost": "€60",
           "notes": null,
           "mapsUrl": null,
@@ -2558,14 +3219,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-flight",
           "time": "09:15",
           "title": "Fly TO 3910 ORY → FCO",
           "duration": "2h",
-          "hours": null,
           "cost": "$260 pp",
           "notes": "Land 11:20. FreeNow / itTaxi available.",
           "mapsUrl": null,
@@ -2576,14 +3239,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-passport",
           "time": "11:20",
           "title": "FCO Passport Control",
           "duration": "0.5h",
-          "hours": null,
           "cost": null,
           "notes": "Should be ~30 minutes.",
           "mapsUrl": null,
@@ -2594,14 +3259,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-cab",
           "time": "11:45",
           "title": "Cab to Casa Modelli",
           "duration": "0.75h",
-          "hours": null,
           "cost": "€56",
           "notes": "Flat rate cab or Leonardo Express to Termini (non-stop; buy & validate/stamp ticket). National Unity and Armed Forces Day — free museums, packed, Piazza Venezia ceremony + street closures.",
           "mapsUrl": null,
@@ -2612,14 +3279,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-hotel",
           "time": "12:30",
           "title": "Drop bags at Casa Modelli",
-          "duration": "0.5h",
-          "hours": "Check-in 15:00",
+          "duration": "",
           "cost": "$1,857.17",
           "notes": null,
           "mapsUrl": null,
@@ -2630,14 +3299,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "hotel"
+          "kind": "hotel",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-walk-pantheon",
           "time": "12:45",
           "title": "Walk toward Pantheon",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2648,14 +3319,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-opt1-pantheon",
           "time": "13:00",
           "title": "Pantheon",
-          "duration": "1.75h",
-          "hours": "09:00–18:00",
+          "duration": "",
           "cost": "Free (normally €20)",
           "notes": "If line is crazy, keep walking to Piazza Navona, try again afternoon; worst case Friday. Offset everything by 1.75h. Two lines: cash vs credit.",
           "mapsUrl": null,
@@ -2666,14 +3339,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 1 · Pantheon first",
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "pantheon"
+          ]
         },
         {
           "id": "stop-day7-opt1-walk-lunch",
           "time": "14:45",
           "title": "Walk to lunch",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2684,14 +3361,16 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 1 · Pantheon first",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-opt1-lunch",
           "time": "15:00",
           "title": "Lunch at Pizza e Mozzarella",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": "€50",
           "notes": null,
           "mapsUrl": null,
@@ -2702,14 +3381,16 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 1 · Pantheon first",
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-opt1-navona",
           "time": "16:15",
           "title": "Piazza Navona",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2720,14 +3401,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 1 · Pantheon first",
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "piazza-navona"
+          ]
         },
         {
           "id": "stop-day7-opt1-ponte",
           "time": "16:45",
           "title": "Ponte Umberto I",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Perfect sunset view of St. Peter's — must be at sunset or at night.",
           "mapsUrl": "https://maps.app.goo.gl/LuJRMLz3fuBaR2Pi7",
@@ -2738,14 +3423,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 1 · Pantheon first",
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "ponte-umberto"
+          ]
         },
         {
           "id": "stop-day7-opt1-spanish",
           "time": "17:15",
           "title": "Spanish Steps",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "DO NOT sit — €400 fine.",
           "mapsUrl": null,
@@ -2756,14 +3445,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 1 · Pantheon first",
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "spanish-steps"
+          ]
         },
         {
           "id": "stop-day7-opt1-trevi",
           "time": "17:45",
           "title": "Trevi Fountain",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Toss coin over left shoulder with right hand.",
           "mapsUrl": null,
@@ -2774,14 +3467,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 1 · Pantheon first",
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "trevi-fountain"
+          ]
         },
         {
           "id": "stop-day7-opt1-walk-mattei",
           "time": "18:00",
           "title": "Walk to Piazza Mattei",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2792,14 +3489,16 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 1 · Pantheon first",
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-opt2-lunch",
           "time": "13:00",
           "title": "Lunch at Pizza e Mozzarella",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": "€50",
           "notes": null,
           "mapsUrl": null,
@@ -2810,14 +3509,16 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 2 · Lunch then Pantheon",
           "primary": false,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-opt2-pantheon",
           "time": "14:15",
           "title": "Pantheon",
-          "duration": "1.75h",
-          "hours": "09:00–18:00",
+          "duration": "",
           "cost": "Free (normally €20)",
           "notes": "Judgement call if line still crazy — offset by 1.75h; worst case Friday.",
           "mapsUrl": null,
@@ -2828,14 +3529,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 2 · Lunch then Pantheon",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "pantheon"
+          ]
         },
         {
           "id": "stop-day7-opt2-navona",
           "time": "16:15",
           "title": "Piazza Navona",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2846,14 +3551,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 2 · Lunch then Pantheon",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "piazza-navona"
+          ]
         },
         {
           "id": "stop-day7-opt2-ponte",
           "time": "16:45",
           "title": "Ponte Umberto I",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2864,14 +3573,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 2 · Lunch then Pantheon",
           "primary": false,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "ponte-umberto"
+          ]
         },
         {
           "id": "stop-day7-opt2-spanish",
           "time": "17:15",
           "title": "Spanish Steps",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2882,14 +3595,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 2 · Lunch then Pantheon",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "spanish-steps"
+          ]
         },
         {
           "id": "stop-day7-opt2-trevi",
           "time": "17:45",
           "title": "Trevi Fountain",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2900,14 +3617,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 2 · Lunch then Pantheon",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "trevi-fountain"
+          ]
         },
         {
           "id": "stop-day7-opt2-walk-mattei",
           "time": "18:00",
           "title": "Walk to Piazza Mattei",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2918,14 +3639,16 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 2 · Lunch then Pantheon",
           "primary": false,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-opt3-lunch",
           "time": "13:00",
           "title": "Lunch at Pizza e Mozzarella",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": "€50",
           "notes": null,
           "mapsUrl": null,
@@ -2936,14 +3659,16 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 3 · Sightseeing first, Pantheon last",
           "primary": false,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-opt3-trevi",
           "time": "14:15",
           "title": "Trevi Fountain",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2954,14 +3679,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 3 · Sightseeing first, Pantheon last",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "trevi-fountain"
+          ]
         },
         {
           "id": "stop-day7-opt3-spanish",
           "time": "14:45",
           "title": "Spanish Steps",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2972,14 +3701,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 3 · Sightseeing first, Pantheon last",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "spanish-steps"
+          ]
         },
         {
           "id": "stop-day7-opt3-ponte",
           "time": "15:15",
           "title": "Ponte Umberto I",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -2990,14 +3723,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 3 · Sightseeing first, Pantheon last",
           "primary": false,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "ponte-umberto"
+          ]
         },
         {
           "id": "stop-day7-opt3-navona",
           "time": "15:45",
           "title": "Piazza Navona",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3008,14 +3745,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 3 · Sightseeing first, Pantheon last",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "piazza-navona"
+          ]
         },
         {
           "id": "stop-day7-opt3-pantheon",
           "time": "16:15",
           "title": "Pantheon",
-          "duration": "1.75h",
-          "hours": "09:00–18:00",
+          "duration": "",
           "cost": "Free (normally €20)",
           "notes": "Now or never — last window before dinner.",
           "mapsUrl": null,
@@ -3026,14 +3767,18 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 3 · Sightseeing first, Pantheon last",
           "primary": false,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "pantheon"
+          ]
         },
         {
           "id": "stop-day7-opt3-walk-mattei",
           "time": "18:00",
           "title": "Walk to Piazza Mattei",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3044,32 +3789,48 @@
           "optionGroup": "pantheon-queue",
           "optionLabel": "Option 3 · Sightseeing first, Pantheon last",
           "primary": false,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-mattei",
           "time": "18:15",
           "title": "Dinner at Piazza Mattei (pizza masterclass)",
-          "duration": "3.25h",
-          "hours": "18:15–21:30",
+          "duration": "",
           "cost": "$423.42",
           "notes": "Pizza, supplì, and gelato from scratch. Free-flowing fine Italian wine (Hanna).",
           "mapsUrl": null,
           "bookingRef": null,
           "bags": null,
           "transit": null,
-          "siteId": null,
+          "siteId": "pizza-gelato-class",
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [
+            {
+              "id": "pizza-gelato-class",
+              "label": "Class booking",
+              "pages": [
+                "/images/tickets/pizza-gelato-class/ticket-page-1.jpg",
+                "/images/tickets/pizza-gelato-class/ticket-page-2.jpg",
+                "/images/tickets/pizza-gelato-class/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "pizza-gelato-class"
+          ]
         },
         {
           "id": "stop-day7-walk-hotel",
           "time": "21:30",
           "title": "Walk back to hotel",
           "duration": "0.25h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3080,14 +3841,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-shower",
           "time": "21:45",
           "title": "Shower",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3098,14 +3861,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day7-sleep",
           "time": "22:45",
           "title": "Sleep",
-          "duration": "7h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3116,7 +3881,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -3143,24 +3911,38 @@
       "highlights": [
         {
           "stopId": "stop-day8-agnesi",
-          "title": "Largo Gaetana Agnesi picture",
+          "title": "Largo Gaetana Agnesi family picture",
           "time": "08:00",
-          "duration": "0.5h",
-          "summary": "Elevated Colosseum backdrop with no crowds."
+          "duration": "",
+          "summary": "Elevated viewpoint above Colosseo Metro. Arrive 30 min before opening for empty background. Wear formal attire."
         },
         {
           "stopId": "stop-day8-colosseum",
           "title": "Colosseum",
           "time": "10:30",
-          "duration": "2.5h",
-          "summary": "Flavian Amphitheatre — tickets are a pain; arrive early."
+          "duration": "",
+          "summary": "If tickets fail: flip schedule start at Caracalla; $600 guide; queue at 06:00; Forum/Palatine-only; or walk Via dei Fori Imperiali for Forum views."
         },
         {
           "stopId": "stop-day8-caracalla",
           "title": "Baths of Caracalla",
           "time": "15:00",
-          "duration": "1.5h",
-          "summary": "Second-largest Roman public baths; get the VR headset."
+          "duration": "",
+          "summary": "No need to prebook. Get VR headset."
+        },
+        {
+          "stopId": "stop-day8-altar",
+          "title": "Altar of the Fatherland",
+          "time": "18:30",
+          "duration": "",
+          "summary": "Base free; glass elevator to roof worth it. No prebook / no line — buy on site."
+        },
+        {
+          "stopId": "stop-day8-dinner",
+          "title": "Dinner at Da Cicero",
+          "time": "19:30",
+          "duration": "",
+          "summary": "EU4 food column also lists Da Cueri — timeline uses Da Cicero. Pinsa / meat & cheese platters vibe."
         }
       ],
       "stops": [
@@ -3168,8 +3950,7 @@
           "id": "stop-day8-wake",
           "time": "05:45",
           "title": "Wake up",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3180,14 +3961,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-breakfast",
           "time": "06:30",
           "title": "Breakfast at the hotel",
-          "duration": "1h",
-          "hours": "07:00–10:00",
+          "duration": "",
           "cost": "€100",
           "notes": "Next meal is 13:00 — eat up.",
           "mapsUrl": null,
@@ -3198,14 +3981,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-walk-agnesi",
           "time": "07:30",
           "title": "Walk to Largo Gaetana Agnesi",
           "duration": "0.5h",
-          "hours": null,
           "cost": null,
           "notes": "~20 min via Via della Dataria past Trajan's Column.",
           "mapsUrl": null,
@@ -3216,14 +4001,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-agnesi",
           "time": "08:00",
           "title": "Largo Gaetana Agnesi family picture",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Elevated viewpoint above Colosseo Metro. Arrive 30 min before opening for empty background. Wear formal attire.",
           "mapsUrl": null,
@@ -3234,14 +4021,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "largo-gaetana-agnesi"
+          ]
         },
         {
           "id": "stop-day8-constantine",
           "time": "08:30",
           "title": "Arch of Constantine",
-          "duration": "0.25h",
-          "hours": "08:30–16:30 (last admission 15:30)",
+          "duration": "",
           "cost": "Included in Colosseum ticket",
           "notes": "Meeting point for the tour. Enter Palatine/Forum from here — if you leave through a gate you can't come back in.",
           "mapsUrl": null,
@@ -3252,14 +4043,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "arch-of-constantine"
+          ]
         },
         {
           "id": "stop-day8-forum",
           "time": "09:00",
           "title": "Roman Forum",
-          "duration": "0.75h",
-          "hours": "08:30–16:30 (last admission 15:30)",
+          "duration": "",
           "cost": "Included in Colosseum ticket",
           "notes": null,
           "mapsUrl": null,
@@ -3270,14 +4065,20 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [
+            "/images/maps/roman-forum/map-page-1.jpg"
+          ],
+          "guideIds": [
+            "roman-forum"
+          ]
         },
         {
           "id": "stop-day8-palatine",
           "time": "09:45",
           "title": "Palatine Hill",
-          "duration": "0.75h",
-          "hours": "08:30–16:30 (last admission 15:30)",
+          "duration": "",
           "cost": "Included in Colosseum ticket",
           "notes": "Where Rome was founded; ancient imperial palaces.",
           "mapsUrl": null,
@@ -3288,14 +4089,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "palatine-hill"
+          ]
         },
         {
           "id": "stop-day8-colosseum",
           "time": "10:30",
           "title": "Colosseum",
-          "duration": "2.5h",
-          "hours": "08:30–16:30 (last admission 15:30)",
+          "duration": "",
           "cost": "€52",
           "notes": "If tickets fail: flip schedule start at Caracalla; $600 guide; queue at 06:00; Forum/Palatine-only; or walk Via dei Fori Imperiali for Forum views.",
           "mapsUrl": null,
@@ -3306,14 +4111,28 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "colosseum",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/colosseum/ticket-page-1.jpg",
+                "/images/tickets/colosseum/ticket-page-2.jpg",
+                "/images/tickets/colosseum/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "colosseum"
+          ]
         },
         {
           "id": "stop-day8-lunch",
           "time": "13:00",
           "title": "Lunch at La Nuova Piazzetta",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": "€100",
           "notes": "Backup: al42 by Pasta Chef Rione Monti.",
           "mapsUrl": null,
@@ -3324,14 +4143,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-uber-south",
           "time": "14:30",
           "title": "Uber to southern ruins",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€10",
           "notes": "~1 mile — save the feet.",
           "mapsUrl": null,
@@ -3342,14 +4163,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-caracalla",
           "time": "15:00",
           "title": "Baths of Caracalla",
-          "duration": "1.5h",
-          "hours": "09:00–16:30 (last admission 15:30)",
+          "duration": "",
           "cost": "€44",
           "notes": "No need to prebook. Get VR headset.",
           "mapsUrl": null,
@@ -3360,14 +4183,20 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [
+            "/images/maps/baths-of-caracalla/map-page-1.jpg"
+          ],
+          "guideIds": [
+            "baths-of-caracalla"
+          ]
         },
         {
           "id": "stop-day8-circus",
           "time": "16:30",
           "title": "Circus Maximus",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "If exhausted, skip and Uber.",
           "mapsUrl": null,
@@ -3378,14 +4207,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "circus-maximus"
+          ]
         },
         {
           "id": "stop-day8-capitoline",
           "time": "17:00",
           "title": "Capitoline Hill / Piazza del Campidoglio",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": "Free",
           "notes": "Michelangelo-designed piazza.",
           "mapsUrl": "https://maps.app.goo.gl/68VnYPt5RAQAgzg37",
@@ -3396,14 +4229,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "capitoline-hill"
+          ]
         },
         {
           "id": "stop-day8-san-pietro-carcere",
           "time": "17:30",
           "title": "Via di San Pietro in Carcere photo",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Walk down from Capitoline toward Trajan's Column — Colosseum lit up.",
           "mapsUrl": null,
@@ -3414,14 +4251,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-trajan",
           "time": "18:00",
           "title": "Trajan's Column",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": "Free",
           "notes": "Military documentary in stone.",
           "mapsUrl": null,
@@ -3432,14 +4271,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "trajans-column"
+          ]
         },
         {
           "id": "stop-day8-altar",
           "time": "18:30",
           "title": "Altar of the Fatherland",
-          "duration": "0.5h",
-          "hours": "09:30–19:30 (rooftop elevator last admission 18:45)",
+          "duration": "",
           "cost": "€36",
           "notes": "Base free; glass elevator to roof worth it. No prebook / no line — buy on site.",
           "mapsUrl": null,
@@ -3450,14 +4293,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "altar-of-the-fatherland"
+          ]
         },
         {
           "id": "stop-day8-back-hotel",
           "time": "19:00",
           "title": "Back to hotel",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€12",
           "notes": null,
           "mapsUrl": null,
@@ -3468,14 +4315,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-dinner",
           "time": "19:30",
           "title": "Dinner at Da Cicero",
-          "duration": "2h",
-          "hours": "10:30–23:30",
+          "duration": "",
           "cost": "€200",
           "notes": "EU4 food column also lists Da Cueri — timeline uses Da Cicero. Pinsa / meat & cheese platters vibe.",
           "mapsUrl": null,
@@ -3486,14 +4335,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-shower",
           "time": "21:30",
           "title": "Shower",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3504,14 +4355,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day8-sleep",
           "time": "22:15",
           "title": "Sleep",
-          "duration": "8h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3522,7 +4375,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -3551,22 +4407,29 @@
           "stopId": "stop-day9-st-peters",
           "title": "St. Peter's Basilica",
           "time": "07:30",
-          "duration": "1.5h",
-          "summary": "Dome stairs open 08:00 — buy ticket on site, not beforehand."
+          "duration": "",
+          "summary": "Buy dome ticket there — do not buy beforehand. Largest basilica; St Peter's burial."
         },
         {
           "stopId": "stop-day9-vatican",
-          "title": "Vatican Museums & Sistine",
+          "title": "Vatican Museums & Sistine Chapel",
           "time": "09:30",
-          "duration": "3.5h",
-          "summary": "Raphael Rooms, Gallery of Maps, Michelangelo ceiling & Last Judgment."
+          "duration": "",
+          "summary": "End at Sistine. Max tour size 25. After tour, go back to beginning at own pace."
         },
         {
           "stopId": "stop-day9-castel",
           "title": "Castel Sant'Angelo",
           "time": "15:00",
-          "duration": "2h",
-          "summary": "Hadrian's mausoleum → papal fortress → prison; Passetto di Borgo."
+          "duration": "",
+          "summary": "Hadrian mausoleum, castle, papal residence, prison. Great view from top."
+        },
+        {
+          "stopId": "stop-day9-dinner",
+          "title": "Dinner at Ristorante Grano",
+          "time": "19:30",
+          "duration": "",
+          "summary": "Bread & olive oil, tuna tartare, grilled octopus, pasta with calamari, tiramisu."
         }
       ],
       "stops": [
@@ -3574,8 +4437,7 @@
           "id": "stop-day9-wake",
           "time": "06:15",
           "title": "Wake up",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3586,14 +4448,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-uber",
           "time": "07:00",
           "title": "Uber to St. Peter's Basilica",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€20",
           "notes": "Bring passport. Knees and shoulders covered.",
           "mapsUrl": null,
@@ -3604,14 +4468,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-st-peters",
           "time": "07:30",
           "title": "St. Peter's Basilica",
-          "duration": "1.5h",
-          "hours": "07:00–19:10 (dome stairs open 08:00)",
+          "duration": "",
           "cost": "€40",
           "notes": "Buy dome ticket there — do not buy beforehand. Largest basilica; St Peter's burial.",
           "mapsUrl": null,
@@ -3622,14 +4488,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "st-peters-basilica"
+          ]
         },
         {
           "id": "stop-day9-perimeter",
           "time": "09:00",
           "title": "Walk Vatican walls + espresso/pastry",
-          "duration": "0.5h",
-          "hours": null,
+          "duration": "",
           "cost": "€30",
           "notes": "Perimeter walk from Basilica to museum entrance; quick recharge.",
           "mapsUrl": null,
@@ -3640,14 +4510,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-vatican",
           "time": "09:30",
           "title": "Vatican Museums & Sistine Chapel",
-          "duration": "3.5h",
-          "hours": "08:00–20:00 (closed Sunday and holidays)",
+          "duration": "",
           "cost": "€140",
           "notes": "End at Sistine. Max tour size 25. After tour, go back to beginning at own pace.",
           "mapsUrl": null,
@@ -3658,14 +4530,31 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "vatican-museums",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/vatican-museums/ticket-page-1.jpg",
+                "/images/tickets/vatican-museums/ticket-page-2.jpg",
+                "/images/tickets/vatican-museums/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/vatican-museums/map-page-1.jpg",
+            "/images/maps/vatican-museums/map-page-2.jpg"
+          ],
+          "guideIds": [
+            "vatican-museums"
+          ]
         },
         {
           "id": "stop-day9-lunch",
           "time": "13:00",
           "title": "Lunch at Borghiciana Pastificio Artigianale",
-          "duration": "1.5h",
-          "hours": null,
+          "duration": "",
           "cost": "€150",
           "notes": "Backup: Osteria Padi Vaticano — pasta with porcini & black truffle, carbonara, risotto.",
           "mapsUrl": null,
@@ -3676,14 +4565,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-walk-castel",
           "time": "14:30",
           "title": "Walk to Castel Sant'Angelo",
           "duration": "0.5h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3694,14 +4585,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-castel",
           "time": "15:00",
           "title": "Castel Sant'Angelo",
-          "duration": "2h",
-          "hours": "09:00–19:30",
+          "duration": "",
           "cost": "€38",
           "notes": "Hadrian mausoleum, castle, papal residence, prison. Great view from top.",
           "mapsUrl": null,
@@ -3712,14 +4605,29 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "castel-sant-angelo",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/castel-sant-angelo/ticket-page-1.jpg",
+                "/images/tickets/castel-sant-angelo/ticket-page-2.jpg",
+                "/images/tickets/castel-sant-angelo/ticket-page-3.jpg",
+                "/images/tickets/castel-sant-angelo/ticket-page-4.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "castel-sant-angelo"
+          ]
         },
         {
           "id": "stop-day9-shopping",
           "time": "17:00",
           "title": "Shopping — Rinascente / Via del Governo Vecchio / Via dei Coronari",
-          "duration": "2.5h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Rinascente by Trevi (Gucci, Alexander McQueen). Get snacks for tomorrow.",
           "mapsUrl": "https://maps.app.goo.gl/GabWYNzScBWHeNJV6",
@@ -3730,14 +4638,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "shopping"
+          "kind": "shopping",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-dinner",
           "time": "19:30",
           "title": "Dinner at Ristorante Grano",
-          "duration": "2h",
-          "hours": "11:00–23:00",
+          "duration": "",
           "cost": "€200",
           "notes": "Bread & olive oil, tuna tartare, grilled octopus, pasta with calamari, tiramisu.",
           "mapsUrl": null,
@@ -3748,14 +4658,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-back-hotel",
           "time": "21:30",
           "title": "Back to hotel",
           "duration": "0.25h",
-          "hours": null,
           "cost": "€20 Uber budgeted",
           "notes": null,
           "mapsUrl": null,
@@ -3766,14 +4678,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-shower",
           "time": "21:45",
           "title": "Shower",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3784,14 +4698,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day9-sleep",
           "time": "22:30",
           "title": "Sleep",
-          "duration": "7.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3802,7 +4718,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -3831,15 +4750,22 @@
           "stopId": "stop-day10-pompeii",
           "title": "Pompeii",
           "time": "10:30",
-          "duration": "2.5h",
-          "summary": "Commercial hub preserved under ash from 24 Aug 79 AD."
+          "duration": "",
+          "summary": "Only small bags. Working fountains for water bottles."
         },
         {
           "stopId": "stop-day10-vesuvius",
           "title": "Mt. Vesuvius hike",
           "time": "14:30",
-          "duration": "2h",
-          "summary": "30–40 min to crater rim — cooler and windier at the summit."
+          "duration": "",
+          "summary": "30–40 min hike to top. Loose volcanic gravel — good grip shoes. Cooler/windier at summit. Peer into active crater."
+        },
+        {
+          "stopId": "stop-day10-dinner",
+          "title": "Dinner at ADEVA Cucina Moderna",
+          "time": "20:30",
+          "duration": "",
+          "summary": "Dinner at ADEVA Cucina Moderna"
         }
       ],
       "stops": [
@@ -3847,8 +4773,7 @@
           "id": "stop-day10-wake",
           "time": "05:45",
           "title": "Wake up",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3859,14 +4784,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-transit-popolo",
           "time": "06:30",
           "title": "Walk/Uber to Piazza del Popolo",
           "duration": "0.25h",
-          "hours": null,
           "cost": "€12 / Free if walking",
           "notes": null,
           "mapsUrl": null,
@@ -3877,14 +4804,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-popolo",
           "time": "06:45",
           "title": "Piazza del Popolo",
-          "duration": "0.25h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Historic northern gate into Rome. Tour pickup.",
           "mapsUrl": null,
@@ -3895,14 +4824,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "photo"
+          "kind": "photo",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "piazza-del-popolo"
+          ]
         },
         {
           "id": "stop-day10-bus",
           "time": "07:00",
           "title": "Tour bus to Pompeii",
           "duration": "3.5h",
-          "hours": null,
           "cost": "€556 (tour package)",
           "notes": "7:30 departure — be there by 07:00. Bring water (little shade). Includes guide, 3-course Neapolitan lunch, Vesuvius. One highway rest stop halfway.",
           "mapsUrl": null,
@@ -3913,14 +4846,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-pompeii",
           "time": "10:30",
           "title": "Pompeii",
-          "duration": "2.5h",
-          "hours": "09:00–17:00 (1 Nov–30 Mar; else to 19:00)",
+          "duration": "",
           "cost": null,
           "notes": "Only small bags. Working fountains for water bottles.",
           "mapsUrl": null,
@@ -3931,14 +4866,33 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [
+            {
+              "id": "pompeii",
+              "label": "Admission",
+              "pages": [
+                "/images/tickets/pompeii/ticket-page-1.jpg",
+                "/images/tickets/pompeii/ticket-page-2.jpg",
+                "/images/tickets/pompeii/ticket-page-3.jpg",
+                "/images/tickets/pompeii/ticket-page-4.jpg",
+                "/images/tickets/pompeii/ticket-page-5.jpg"
+              ]
+            }
+          ],
+          "mapPages": [
+            "/images/maps/pompeii/map-page-1.jpg",
+            "/images/maps/pompeii/map-page-2.jpg"
+          ],
+          "guideIds": [
+            "pompeii"
+          ]
         },
         {
           "id": "stop-day10-lunch",
           "time": "13:00",
           "title": "Authentic Neapolitan pizza lunch",
-          "duration": "1h",
-          "hours": null,
+          "duration": "",
           "cost": "Included in tour",
           "notes": "Views across the Bay of Naples.",
           "mapsUrl": null,
@@ -3949,14 +4903,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-drive-vesuvius",
           "time": "14:00",
           "title": "Drive to Mt. Vesuvius",
           "duration": "0.5h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -3967,14 +4923,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-vesuvius",
           "time": "14:30",
           "title": "Mt. Vesuvius hike",
-          "duration": "2h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "30–40 min hike to top. Loose volcanic gravel — good grip shoes. Cooler/windier at summit. Peer into active crater.",
           "mapsUrl": null,
@@ -3985,14 +4943,18 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "attraction"
+          "kind": "attraction",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": [
+            "mt-vesuvius"
+          ]
         },
         {
           "id": "stop-day10-bus-rome",
           "time": "16:30",
           "title": "Tour bus to Rome",
           "duration": "3h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -4003,14 +4965,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-uber-dinner",
           "time": "20:00",
           "title": "Uber to dinner",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€12",
           "notes": null,
           "mapsUrl": null,
@@ -4021,14 +4985,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-dinner",
           "time": "20:30",
           "title": "Dinner at ADEVA Cucina Moderna",
-          "duration": "1.5h",
-          "hours": "17:30–00:00",
+          "duration": "",
           "cost": "€200",
           "notes": null,
           "mapsUrl": null,
@@ -4039,14 +5005,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-back-hotel",
           "time": "22:00",
           "title": "Back to hotel",
           "duration": "0.5h",
-          "hours": null,
           "cost": "€12",
           "notes": null,
           "mapsUrl": null,
@@ -4057,14 +5025,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-shower",
           "time": "22:30",
           "title": "Shower",
-          "duration": "0.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -4075,14 +5045,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day10-sleep",
           "time": "23:15",
           "title": "Sleep",
-          "duration": "6.75h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -4093,7 +5065,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     },
@@ -4138,8 +5113,7 @@
           "id": "stop-day11-wake",
           "time": "05:30",
           "title": "Wake up",
-          "duration": "2h",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -4150,14 +5124,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day11-breakfast",
           "time": "07:30",
           "title": "Breakfast at the hotel",
-          "duration": "1h",
-          "hours": "07:00–10:00",
+          "duration": "",
           "cost": null,
           "notes": "Final espresso.",
           "mapsUrl": null,
@@ -4168,14 +5144,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "meal"
+          "kind": "meal",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day11-airport",
           "time": "08:30",
           "title": "Leonardo Express to FCO",
           "duration": "1h",
-          "hours": null,
           "cost": "€56",
           "notes": null,
           "mapsUrl": null,
@@ -4186,14 +5164,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day11-security",
           "time": "09:25",
           "title": "Airport & security",
           "duration": "2h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -4204,50 +5184,90 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day11-fi931",
           "time": "11:25",
           "title": "FI 931 FCO → KEF (all)",
           "duration": "5h 05m",
-          "hours": null,
           "cost": "Plebs $1,313 pp; Royalty segment under A4RA46",
           "notes": "Everyone Economy this leg. Land KEF 15:30. ~1h 20–25m layover.",
           "mapsUrl": null,
           "bookingRef": "A38FNO (Plebs) / A4RA46 (Hanna)",
           "bags": "Plebs: 1 carry-on + personal, 10kg max. Hanna: checked 32kg on long-haul booking.",
           "transit": null,
-          "siteId": null,
+          "siteId": "flight-hanna-iceland",
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [
+            {
+              "id": "flight-hanna-iceland",
+              "label": "Hanna FCO→KEF",
+              "pages": [
+                "/images/tickets/flight-hanna-iceland/ticket-page-1.jpg",
+                "/images/tickets/flight-hanna-iceland/ticket-page-2.jpg",
+                "/images/tickets/flight-hanna-iceland/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "flight-hanna-iceland"
+          ]
         },
         {
           "id": "stop-day11-fi645",
           "time": "16:50",
           "title": "FI 645 KEF → IAD",
           "duration": "6h 40m",
-          "hours": null,
           "cost": "Hanna $2,064.51 pp (A4X3SC)",
           "notes": "Hanna Business; boys Economy. Land IAD 18:30.",
           "mapsUrl": null,
           "bookingRef": "A4X3SC (Hanna Business)",
           "bags": "Hanna: 1 checked 32kg + carry-on + personal; 10kg max personal & carry-on together",
           "transit": null,
-          "siteId": null,
+          "siteId": "flight-boy-dc",
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [
+            {
+              "id": "flight-boy-dc",
+              "label": "Boy KEF→IAD",
+              "pages": [
+                "/images/tickets/flight-boy-dc/ticket-page-1.jpg",
+                "/images/tickets/flight-boy-dc/ticket-page-2.jpg",
+                "/images/tickets/flight-boy-dc/ticket-page-3.jpg"
+              ]
+            },
+            {
+              "id": "flight-hanna-dc",
+              "label": "Hanna KEF→IAD",
+              "pages": [
+                "/images/tickets/flight-hanna-dc/ticket-page-1.jpg",
+                "/images/tickets/flight-hanna-dc/ticket-page-2.jpg",
+                "/images/tickets/flight-hanna-dc/ticket-page-3.jpg"
+              ]
+            }
+          ],
+          "mapPages": [],
+          "guideIds": [
+            "flight-boy-dc",
+            "flight-hanna-dc"
+          ]
         },
         {
           "id": "stop-day11-land",
           "time": "18:30",
           "title": "Land at IAD",
           "duration": "1h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -4258,14 +5278,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day11-leave-airport",
           "time": "19:30",
           "title": "Leave the airport",
           "duration": "0.5h",
-          "hours": null,
           "cost": null,
           "notes": null,
           "mapsUrl": null,
@@ -4276,14 +5298,16 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "transit"
+          "kind": "transit",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         },
         {
           "id": "stop-day11-home",
           "time": "20:00",
           "title": "Home",
-          "duration": "—",
-          "hours": null,
+          "duration": "",
           "cost": null,
           "notes": "Trip total ~$16,980.61.",
           "mapsUrl": null,
@@ -4294,7 +5318,10 @@
           "optionGroup": null,
           "optionLabel": null,
           "primary": true,
-          "kind": "rest"
+          "kind": "rest",
+          "tickets": [],
+          "mapPages": [],
+          "guideIds": []
         }
       ]
     }

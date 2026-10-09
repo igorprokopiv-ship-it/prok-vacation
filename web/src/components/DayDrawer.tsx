@@ -1,3 +1,5 @@
+import { Plus, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -14,12 +16,18 @@ export function DayDrawer({
   days,
   currentId,
   onSelect,
+  adminMode = false,
+  onAddDay,
+  onRemoveDay,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   days: ItineraryDay[]
   currentId: string
   onSelect: (id: string) => void
+  adminMode?: boolean
+  onAddDay?: () => void
+  onRemoveDay?: (dayId: string) => void
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -28,9 +36,14 @@ export function DayDrawer({
           <DialogTitle>Pick a day</DialogTitle>
           <DialogDescription>One day at a time — jump anywhere in the tour.</DialogDescription>
         </DialogHeader>
+        {adminMode && onAddDay ? (
+          <Button variant="outline" size="sm" className="w-full" onClick={onAddDay}>
+            <Plus className="h-3.5 w-3.5" /> Add day
+          </Button>
+        ) : null}
         <ul className="max-h-[55vh] space-y-1 overflow-y-auto pr-1">
           {days.map((day) => (
-            <li key={day.id}>
+            <li key={day.id} className="flex items-stretch gap-1">
               <button
                 type="button"
                 onClick={() => {
@@ -38,7 +51,7 @@ export function DayDrawer({
                   onOpenChange(false)
                 }}
                 className={cn(
-                  'w-full rounded-xl px-3 py-3 text-left transition-colors',
+                  'min-w-0 flex-1 rounded-xl px-3 py-3 text-left transition-colors',
                   day.id === currentId
                     ? 'bg-ink text-paper'
                     : 'bg-paper-deep/60 text-ink hover:bg-paper-deep',
@@ -54,6 +67,16 @@ export function DayDrawer({
                   {day.headline}
                 </div>
               </button>
+              {adminMode && onRemoveDay ? (
+                <button
+                  type="button"
+                  className="rounded-xl px-2 text-ink-soft hover:bg-paper-deep hover:text-accent"
+                  aria-label={`Remove ${day.navLabel}`}
+                  onClick={() => onRemoveDay(day.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              ) : null}
             </li>
           ))}
         </ul>

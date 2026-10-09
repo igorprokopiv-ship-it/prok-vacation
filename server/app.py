@@ -14,7 +14,7 @@ from uuid import UUID, uuid4
 
 import psycopg
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -31,11 +31,14 @@ CONTENT_INBOX = ROOT / "content" / "inbox"
 
 load_dotenv(ROOT / ".env", override=True)
 
+from admin_cms import require_admin, router as admin_router, set_refresh_hook  # noqa: E402
+
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 APP_VERSION = os.environ.get("APP_VERSION", "0.0.0")
 PROK_TIMELOG_BASE = os.environ.get("PROK_TIMELOG_BASE", "http://admin.prok:8080")
 PROK_MONEY_BASE = os.environ.get("PROK_MONEY_BASE", "http://admin.prok:8081")
 PROK_IMMICH_BASE = os.environ.get("PROK_IMMICH_BASE", "http://admin.prok:30041")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 
 EU2026_TRIP_ID = UUID("a1111111-1111-4111-8111-111111111111")
 
@@ -96,6 +99,8 @@ def list_filesystem_trips() -> list[dict[str, Any]]:
         manifest = load_pack_manifest(d.name)
         meta_path = d / "trip.json"
         meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.is_file() else {}
+        if meta.get("record_status") == "deleted":
+            continue
         trips.append(
             {
                 "id": meta.get("id") or (manifest or {}).get("tripId") or d.name,
@@ -135,9 +140,9 @@ def seed_eu2026(conn: psycopg.Connection) -> None:
         """
         INSERT INTO trip (
           id, slug, title, start_date, end_date, status,
-          content_version, trip_document, last_modified_on
+          content_version, trip_document, record_status, last_modified_on
         ) VALUES (
-          %s, %s, %s, %s, %s, %s, %s, %s, now()
+          %s, %s, %s, %s, %s, %s, %s, %s, %s, now()
         )
         ON CONFLICT (id) DO UPDATE SET
           title = EXCLUDED.title,
@@ -146,6 +151,7 @@ def seed_eu2026(conn: psycopg.Connection) -> None:
           status = EXCLUDED.status,
           content_version = EXCLUDED.content_version,
           trip_document = EXCLUDED.trip_document,
+          record_status = EXCLUDED.record_status,
           last_modified_on = now()
         """,
         (
@@ -157,6 +163,7 @@ def seed_eu2026(conn: psycopg.Connection) -> None:
             meta.get("status") or "active",
             manifest.get("version") or "1",
             Json(doc),
+            meta.get("record_status") or "active",
         ),
     )
     # Register blobs from manifest if present
@@ -199,6 +206,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(admin_router)
 
 
 @app.on_event("startup")
@@ -721,7 +729,10 @@ def list_trip_links(trip_id: str) -> list[dict[str, Any]]:
 
 
 @app.post("/api/trips/import")
-async def import_trip_pack(file: UploadFile = File(...)) -> dict[str, Any]:
+async def import_trip_pack(
+    file: UploadFile = File(...),
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
     """Phase 4: upload a zip or accept a slug folder already on disk via form field name."""
     if not DATABASE_URL:
         raise HTTPException(503, "DATABASE_URL not configured")
@@ -786,8 +797,8 @@ def _seed_pack(conn: psycopg.Connection, slug: str) -> None:
         """
         INSERT INTO trip (
           id, slug, title, start_date, end_date, status,
-          content_version, trip_document, last_modified_on
-        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s, now())
+          content_version, trip_document, record_status, last_modified_on
+        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s, now())
         ON CONFLICT (slug) DO UPDATE SET
           title = EXCLUDED.title,
           start_date = EXCLUDED.start_date,
@@ -795,6 +806,7 @@ def _seed_pack(conn: psycopg.Connection, slug: str) -> None:
           status = EXCLUDED.status,
           content_version = EXCLUDED.content_version,
           trip_document = EXCLUDED.trip_document,
+          record_status = EXCLUDED.record_status,
           last_modified_on = now()
         """,
         (
@@ -806,8 +818,22 @@ def _seed_pack(conn: psycopg.Connection, slug: str) -> None:
             meta.get("status") or "archived",
             manifest.get("version") or "1",
             Json({"itinerary": itinerary, "sites": sites, "assets": assets}),
+            meta.get("record_status") or "active",
         ),
     )
+
+
+def _admin_refresh_pack(slug: str) -> None:
+    if not DATABASE_URL:
+        return
+    with db() as conn:
+        if slug == "eu2026":
+            seed_eu2026(conn)
+        else:
+            _seed_pack(conn, slug)
+
+
+set_refresh_hook(_admin_refresh_pack)
 
 
 # SPA static files last

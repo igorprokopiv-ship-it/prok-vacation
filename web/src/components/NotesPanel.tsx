@@ -5,13 +5,16 @@ import {
   saveNote,
   type NoteRow,
 } from '@/lib/contentSync'
+import { getDeviceUser } from '@/lib/deviceIdentity'
 
 export function NotesPanel({
   tripId,
   dayId,
+  deviceUser,
 }: {
   tripId: string
   dayId: string
+  deviceUser: string
 }) {
   const [notes, setNotes] = useState<NoteRow[]>([])
   const [draft, setDraft] = useState('')
@@ -29,6 +32,7 @@ export function NotesPanel({
     const body = draft.trim()
     if (!body) return
     const now = new Date().toISOString()
+    const author = getDeviceUser() || deviceUser
     await saveNote({
       id: crypto.randomUUID(),
       trip_id: tripId,
@@ -37,6 +41,8 @@ export function NotesPanel({
       record_status: 'active',
       last_modified_on: now,
       created_on: now,
+      created_by: author,
+      last_modified_by: author,
       created_on_device: 'web',
       last_modified_on_device: 'web',
     })
@@ -47,7 +53,7 @@ export function NotesPanel({
   return (
     <div className="space-y-4 pb-8">
       <p className="text-sm text-ink-soft">
-        Capture live notes while traveling. They sync when you have a connection.
+        Notes as <span className="font-semibold text-ink">{deviceUser}</span>. They sync when online.
       </p>
       <textarea
         value={draft}
@@ -68,6 +74,7 @@ export function NotesPanel({
           >
             <div className="whitespace-pre-wrap">{n.body}</div>
             <div className="mt-2 text-[11px] text-ink-soft">
+              {n.created_by ? <span className="font-semibold text-ink">{n.created_by} · </span> : null}
               {new Date(n.last_modified_on).toLocaleString()}
             </div>
           </li>

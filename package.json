@@ -6,6 +6,7 @@
     "dev": "npm run dev --prefix web",
     "build": "node content/scripts/build-pack.mjs && npm run build --prefix web",
     "build:pack": "node content/scripts/build-pack.mjs",
+    "seed:tmp": "node content/scripts/seed-from-tmp.mjs",
     "lint": "npm run lint --prefix web",
     "preview": "npm run preview --prefix web",
     "server": "python -m uvicorn app:app --host 0.0.0.0 --port 8083 --reload --app-dir server"

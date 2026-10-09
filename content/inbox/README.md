@@ -1,6 +1,13 @@
 # Content inbox — tickets & maps
 
-Drop remaining ticket and map PDFs (or JPEGs) here before converting them into a trip pack.
+Prefer the **in-app admin CMS** (lock icon → password) to upload tickets/maps/guides.
+
+For batch offline seeding, drop PDFs here or into repo-root `TMP/` and run:
+
+```bash
+npm run seed:tmp
+npm run build:pack
+```
 
 ```
 content/inbox/

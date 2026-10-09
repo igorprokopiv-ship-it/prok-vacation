@@ -1,10 +1,32 @@
 # Content packs & delta sync
 
-## Authoring
+## In-app admin CMS (preferred)
+
+1. Set `ADMIN_PASSWORD` in `.env` (see `.env.example`).
+2. On a phone/browser, unlock admin (lock icon) with that password.
+3. Trip list (admin): create vacation, rename, change start date, soft-delete (type title to confirm).
+4. Day drawer (admin): add/remove days; edit city, headline, briefing; upload/paste/remove day hero photo.
+5. On Schedule: Manage sheet for edit/delete/highlight, attachments, and option branches; reader keeps Ticket/Map/Guide only.
+6. On Highlights: Briefing, Main attractions (non-meal highlights), Food focus (highlighted meals) — same for every day type.
+7. Writes update `content/trips/<slug>/*.json` + `web/public/images/…`, rebuild the pack manifest, and bump `content_version` so phones delta-sync. Soft-deleted trips set `record_status: deleted` and disappear from `GET /api/trips`.
+
+Ticket / Map / Guide actions only appear for readers when content exists.
+
+## Batch seed from TMP
+
+```bash
+# PDFs in ./TMP named "YYYY-MM-DD - Name.pdf" (maps end with " Map")
+node content/scripts/seed-from-tmp.mjs
+npm run build:pack
+```
+
+Requires Python `pypdfium2` + `pillow` for PDF→JPEG.
+
+## Offline / git authoring
 
 1. Drop raw PDFs into [`content/inbox/`](../content/inbox/README.md).
-2. Convert to JPEG pages under `web/public/images/tickets|maps/<site-id>/`.
-3. Update `assets.json` in the trip pack (`content/trips/<slug>/` and `web/src/data/` for EU2026).
+2. Convert to JPEG pages under `web/public/images/tickets|maps/<id>/`.
+3. Attach on stops via `tickets` / `mapPages` / `guideIds` in `itinerary.json` (and guides in `sites.json`).
 4. Rebuild:
 
 ```bash

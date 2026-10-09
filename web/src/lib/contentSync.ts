@@ -273,6 +273,8 @@ export interface NoteRow {
   record_status: string
   last_modified_on: string
   created_on?: string
+  created_by?: string | null
+  last_modified_by?: string | null
   created_on_device?: string
   last_modified_on_device?: string
   dirty?: boolean

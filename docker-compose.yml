@@ -7,9 +7,12 @@ services:
       DATABASE_URL: ${DATABASE_URL:-}
       HOST: 0.0.0.0
       PORT: "8083"
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:-}
       PROK_TIMELOG_BASE: ${PROK_TIMELOG_BASE:-http://admin.prok:8080}
       PROK_MONEY_BASE: ${PROK_MONEY_BASE:-http://admin.prok:8081}
       PROK_IMMICH_BASE: ${PROK_IMMICH_BASE:-http://admin.prok:30041}
     volumes:
       - ./data/blobs:/app/data/blobs
       - ./content:/app/content
+      - ./web/public/images:/app/web/public/images

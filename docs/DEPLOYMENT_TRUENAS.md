@@ -60,18 +60,19 @@ Same pattern as prok-timelog: PAT with `read:packages`, register `ghcr.io` in Tr
 | Name | Value |
 |------|--------|
 | `DATABASE_URL` | `postgresql://prok:YOUR_PASSWORD@127.0.0.1:5432/vacation` |
+| `ADMIN_PASSWORD` | strong password — unlocks in-app CMS (events/tickets/maps/guides) |
+| `ADMIN_SESSION_SECRET` | long random string (optional; defaults to `ADMIN_PASSWORD`) |
 | `PROK_TIMELOG_BASE` | `http://admin.prok:8080` |
 | `PROK_MONEY_BASE` | `http://admin.prok:8081` |
 | `PROK_IMMICH_BASE` | `http://admin.prok:30041` |
 
-Optional host-path mount for mutable content packs:
+**Host-path mounts** (required for admin CMS writes to persist across image updates):
 
 | Host path | Container path |
 |-----------|----------------|
 | `/mnt/Programs/Apps/ProkVacation/content` | `/app/content` |
 | `/mnt/Programs/Apps/ProkVacation/blobs` | `/app/data/blobs` |
-
-Not required for MVP if packs are baked into the image.
+| `/mnt/Programs/Apps/ProkVacation/web-public-images` | `/app/web/public/images` |
 
 ---
 

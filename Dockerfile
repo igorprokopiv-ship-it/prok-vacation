@@ -13,12 +13,17 @@ FROM python:3.12-slim
 WORKDIR /app
 ARG APP_VERSION=0.0.0
 ENV APP_VERSION=$APP_VERSION
+# Node for admin CMS pack rebuilds (content/scripts/build-pack.mjs)
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends nodejs \
+  && rm -rf /var/lib/apt/lists/*
 COPY server/requirements.txt ./server/requirements.txt
 RUN pip install --no-cache-dir -r server/requirements.txt
 COPY db ./db
 COPY server ./server
 COPY content ./content
 COPY --from=webbuild /src/web/dist ./web/dist
+COPY --from=webbuild /src/web/public ./web/public
 COPY --from=webbuild /src/data/blobs ./data/blobs
 COPY --from=webbuild /src/content/trips ./content/trips
 ENV HOST=0.0.0.0 PORT=8083

@@ -10,7 +10,7 @@ See also: [DEPLOYMENT_TRUENAS.md](./DEPLOYMENT_TRUENAS.md), [PROK_LINKS.md](./PR
 2. Content updates are **delta** (hash-addressed blobs) — not full re-download.
 3. User notes sync like timelog (local-first + outbox + LWW).
 4. Peer apps (TimeLog, Money, Immich) are optional; vacation never requires them.
-5. Tailscale is the access perimeter; no app auth for MVP.
+5. Tailscale is the access perimeter. **Device identity** (who is on this phone) attributes notes. **Admin password** unlocks content edits (events, tickets, maps, guides).
 
 ## High-level
 
