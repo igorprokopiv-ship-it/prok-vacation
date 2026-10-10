@@ -128,6 +128,16 @@ export function HighlightsPanel({
                   {meal.time}
                 </div>
                 <h3 className="mt-0.5 font-display text-lg font-bold">{meal.title}</h3>
+                {meal.vibe?.length ? (
+                  <p className="mt-1.5 text-sm text-white/90">
+                    {meal.vibe.join(' · ')}
+                  </p>
+                ) : null}
+                {meal.mustTry?.length ? (
+                  <p className="mt-1.5 text-xs text-white/75">
+                    Must try: {meal.mustTry.join(' · ')}
+                  </p>
+                ) : null}
                 {meal.notes ? (
                   <p className="mt-1.5 text-sm text-white/90">{meal.notes}</p>
                 ) : null}

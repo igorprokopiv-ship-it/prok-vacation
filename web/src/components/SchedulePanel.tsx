@@ -10,25 +10,63 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import {
+  AttachmentPicker,
+  type AttachmentPickOption,
+} from '@/components/AttachmentPicker'
 import { Button } from '@/components/ui/button'
 import {
   showDuration,
+  showGuideSection,
   stopDetailFields,
   stopHasVisibleDetails,
+  type GuideSectionKey,
+  visibleGuideSections,
 } from '@/data/stopFields'
 import type { ItineraryDay, ItineraryStop } from '@/data/types'
 import {
+  getGuidesForStop,
   getMapPages,
   getTicketSets,
   stopCanExpand,
   stopHasMap,
   stopHasTickets,
+  stopHasVisibleGuideContent,
 } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
+const GUIDE_SECTION_LABELS: Record<GuideSectionKey, string> = {
+  logistics: 'Logistics',
+  proTips: 'Pro-Tips',
+  history: 'History',
+  route: 'The Route',
+}
+
+/** Prefer full Expand when guide text is long enough to benefit from a wider panel. */
+function guideNeedsFullExpand(stop: ItineraryStop): boolean {
+  const sections = visibleGuideSections(stop.kind)
+  let chars = 0
+  let items = 0
+  for (const g of getGuidesForStop(stop)) {
+    for (const key of sections) {
+      for (const line of g[key] ?? []) {
+        items += 1
+        chars += line.length
+      }
+    }
+  }
+  return items >= 8 || chars >= 600
+}
+
 export type ViewerTarget =
   | { kind: 'ticket'; stop: ItineraryStop; ticketId?: string; title: string }
-  | { kind: 'map'; stop: ItineraryStop; title: string }
+  | {
+      kind: 'map'
+      stop: ItineraryStop
+      title: string
+      /** Open a single page; omit for all pages. */
+      pageIndex?: number
+    }
   | {
       kind: 'expand'
       stop: ItineraryStop
@@ -183,16 +221,84 @@ function StopCard({
   isHighlight: boolean
   hideOptionPill?: boolean
 }) {
-  const ticketSets = getTicketSets(stop)
+  const ticketSets = getTicketSets(stop).filter((t) => t.pages.length)
   const maps = getMapPages(stop)
   const hasTickets = stopHasTickets(stop)
   const hasMap = stopHasMap(stop)
-  const canExpand = stopCanExpand(stop)
+  const guides = getGuidesForStop(stop)
+  const guide = guides[0]
+  const hasGuideContent = stopHasVisibleGuideContent(stop)
+  const guideSections = visibleGuideSections(stop.kind)
+  const showFullExpand = stopCanExpand(stop) && guideNeedsFullExpand(stop)
   const hasViewer =
-    Boolean(stop.mapsUrl) || hasTickets || hasMap || canExpand
+    Boolean(stop.mapsUrl) || hasTickets || hasMap || showFullExpand
   const details = stopDetailFields(stop)
   const hasDetailFields = stopHasVisibleDetails(stop)
-  const expandable = hasDetailFields || hasViewer || adminMode
+  const expandable =
+    hasDetailFields || hasViewer || hasGuideContent || adminMode
+
+  const [picker, setPicker] = useState<{
+    title: string
+    options: AttachmentPickOption[]
+    onSelect: (id: string) => void
+  } | null>(null)
+
+  const openTickets = () => {
+    if (ticketSets.length === 1) {
+      const t = ticketSets[0]
+      onOpen({
+        kind: 'ticket',
+        stop,
+        ticketId: t.id,
+        title: `${stop.title} · ${t.label}`,
+      })
+      return
+    }
+    setPicker({
+      title: 'Which ticket?',
+      options: ticketSets.map((t) => ({ id: t.id, label: t.label })),
+      onSelect: (id) => {
+        const t = ticketSets.find((x) => x.id === id)
+        if (!t) return
+        onOpen({
+          kind: 'ticket',
+          stop,
+          ticketId: t.id,
+          title: `${stop.title} · ${t.label}`,
+        })
+      },
+    })
+  }
+
+  const openMap = () => {
+    if (maps.length <= 1) {
+      onOpen({ kind: 'map', stop, title: stop.title })
+      return
+    }
+    setPicker({
+      title: 'Which map page?',
+      options: [
+        ...maps.map((_, i) => ({
+          id: String(i),
+          label: `Page ${i + 1}`,
+        })),
+        { id: 'all', label: 'All pages' },
+      ],
+      onSelect: (id) => {
+        if (id === 'all') {
+          onOpen({ kind: 'map', stop, title: stop.title })
+          return
+        }
+        const pageIndex = Number(id)
+        onOpen({
+          kind: 'map',
+          stop,
+          title: `${stop.title} · page ${pageIndex + 1}`,
+          pageIndex,
+        })
+      },
+    })
+  }
 
   const header = (
     <>
@@ -254,6 +360,9 @@ function StopCard({
             <div className="space-y-3 border-t border-line/70 px-3 py-3">
               {hasDetailFields ? (
                 <dl className="space-y-2">
+                  {details.hours ? (
+                    <DetailRow label="Hours" value={details.hours} />
+                  ) : null}
                   {details.cost ? (
                     <DetailRow label="Cost" value={details.cost} />
                   ) : null}
@@ -266,28 +375,51 @@ function StopCard({
                   {details.transit ? (
                     <DetailRow label="Transit" value={details.transit} />
                   ) : null}
+                  {details.vibe ? (
+                    <DetailRow label="Vibe" value={details.vibe} />
+                  ) : null}
+                  {details.mustTry ? (
+                    <DetailRow label="Must try" value={details.mustTry} />
+                  ) : null}
                   {details.notes ? (
                     <DetailRow label="Notes" value={details.notes} />
-                  ) : null}
-                  {stop.mapsUrl ? (
-                    <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
-                      <dt className="font-semibold text-ink">Maps</dt>
-                      <dd className="text-ink-soft break-all">
-                        <a
-                          href={stop.mapsUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-medium text-sea underline decoration-sea/40 underline-offset-2"
-                        >
-                          Open in Google Maps
-                        </a>
-                      </dd>
-                    </div>
                   ) : null}
                 </dl>
               ) : null}
 
-              {hasViewer || adminMode ? (
+              {hasGuideContent && guide ? (
+                <div className="space-y-4">
+                  {guideSections.map((key) => {
+                    if (!showGuideSection(stop.kind, key)) return null
+                    const items = guide[key] ?? []
+                    if (!items.length) return null
+                    return (
+                      <section key={key}>
+                        <h4 className="mb-1.5 font-display text-base font-bold text-ink">
+                          {GUIDE_SECTION_LABELS[key]}
+                        </h4>
+                        <ul className="space-y-1.5">
+                          {items.map((item, i) => (
+                            <li
+                              key={`${key}-${i}`}
+                              className="relative rounded-lg bg-paper-deep/70 px-3 py-2 pl-4 text-sm leading-relaxed text-ink-soft before:absolute before:left-1.5 before:top-3 before:h-1.5 before:w-1.5 before:rounded-full before:bg-accent"
+                            >
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )
+                  })}
+                </div>
+              ) : null}
+
+              {hasViewer ||
+              stop.mapsUrl ||
+              hasTickets ||
+              hasMap ||
+              showFullExpand ||
+              adminMode ? (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {stop.mapsUrl ? (
                     <Button variant="outline" size="sm" asChild>
@@ -296,33 +428,28 @@ function StopCard({
                       </a>
                     </Button>
                   ) : null}
-                  {ticketSets.map((t) =>
-                    t.pages.length ? (
-                      <Button
-                        key={t.id}
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          onOpen({
-                            kind: 'ticket',
-                            stop,
-                            ticketId: t.id,
-                            title: `${stop.title} · ${t.label}`,
-                          })
-                        }
-                      >
-                        <Ticket className="h-3.5 w-3.5" /> {t.label}
-                      </Button>
-                    ) : null,
-                  )}
-                  {hasMap ? (
+                  {ticketSets.length === 1 ? (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        onOpen({ kind: 'map', stop, title: stop.title })
-                      }
+                      onClick={() => openTickets()}
                     >
+                      <Ticket className="h-3.5 w-3.5" /> {ticketSets[0].label}
+                    </Button>
+                  ) : ticketSets.length > 1 ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openTickets()}
+                    >
+                      <Ticket className="h-3.5 w-3.5" /> Ticket
+                      <span className="text-[10px] opacity-70">
+                        · {ticketSets.length}
+                      </span>
+                    </Button>
+                  ) : null}
+                  {hasMap ? (
+                    <Button variant="outline" size="sm" onClick={() => openMap()}>
                       <MapIcon className="h-3.5 w-3.5" /> Map
                       {maps.length > 1 ? (
                         <span className="text-[10px] opacity-70">
@@ -331,7 +458,7 @@ function StopCard({
                       ) : null}
                     </Button>
                   ) : null}
-                  {canExpand ? (
+                  {showFullExpand ? (
                     <Button
                       variant="sea"
                       size="sm"
@@ -377,6 +504,14 @@ function StopCard({
           </div>
         </div>
       ) : null}
+
+      <AttachmentPicker
+        open={Boolean(picker)}
+        onOpenChange={(o) => !o && setPicker(null)}
+        title={picker?.title ?? ''}
+        options={picker?.options ?? []}
+        onSelect={(id) => picker?.onSelect(id)}
+      />
     </article>
   )
 }

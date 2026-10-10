@@ -28,11 +28,28 @@ pg_restore -h 127.0.0.1 -U prok -d vacation_restore_test --clean --if-exists \
 
 Point `DATABASE_URL` at the restored DB only after verification.
 
+## Text DML snapshot (repo)
+
+Committed under `db/dml/` (trip metadata + `trip_document` text; optional `note` / `plan_item` / `trip_link`). Regenerated with:
+
+```bash
+node content/scripts/export-text-dml.mjs
+```
+
+Restore after migrations:
+
+```bash
+psql "$DATABASE_URL" -f db/dml/20261009_text_snapshot.sql
+npm run build:pack   # if content_blob / images are missing
+```
+
+Then restart the server (or hit admin refresh) so `seed_eu2026` / pack sync matches the filesystem.
+
 ## Disaster rebuild
 
 1. Recreate DB `vacation`.
 2. Deploy container; migrations + EU2026 seed run on startup.
-3. Restore `pg_dump` if you need notes/plan_items/trip_links.
+3. Restore `pg_dump` if you need notes/plan_items/trip_links — or apply `db/dml/*_text_snapshot.sql` for text-only recovery.
 4. Phones: open app online → Sync chip → content + notes pull.
 
 ## Historical trip import

@@ -12,7 +12,6 @@ import { AdminLoginDialog } from '@/components/AdminLoginDialog'
 import { DayDrawer } from '@/components/DayDrawer'
 import { DeviceIdentityGate } from '@/components/DeviceIdentityGate'
 import { HighlightsPanel } from '@/components/HighlightsPanel'
-import { ImageViewer } from '@/components/ImageViewer'
 import { NotesPanel } from '@/components/NotesPanel'
 import {
   SchedulePanel,
@@ -86,11 +85,7 @@ const STOP_KINDS: StopKind[] = [
   'rest',
 ]
 
-type Overlay =
-  | { type: 'ticket'; title: string; pages: string[] }
-  | { type: 'map'; title: string; pages: string[] }
-  | { type: 'expand'; stop: ItineraryStop; edit?: boolean }
-  | null
+type Overlay = { type: 'expand'; stop: ItineraryStop; edit?: boolean } | null
 
 type PromptState =
   | { kind: 'add-event' }
@@ -258,6 +253,47 @@ export default function App() {
     setOverlay(null)
   }, [dayId])
 
+  const openPagesWindow = (title: string, pages: string[]) => {
+    if (!pages.length) {
+      alert(title ? `${title}: no pages yet` : 'No pages yet')
+      return
+    }
+    const win = window.open('', '_blank')
+    if (!win) {
+      alert('Pop-up blocked — allow pop-ups to open attachments.')
+      return
+    }
+    const esc = (s: string) =>
+      s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+    const imgs = pages
+      .map(
+        (src) =>
+          `<img src="${esc(src)}" alt="" style="max-width:100%;height:auto;display:block;margin:0 auto 1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.2)" />`,
+      )
+      .join('')
+    win.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${esc(title)}</title>
+  <style>
+    body { margin: 0; padding: 1rem; background: #1c2a3a; color: #f4f1ea; font-family: system-ui, sans-serif; }
+    h1 { font-size: 1.1rem; margin: 0 0 1rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>${esc(title)}</h1>
+  ${imgs}
+</body>
+</html>`)
+    win.document.close()
+  }
+
   const openViewer = async (target: ViewerTarget) => {
     if (target.kind === 'expand') {
       setOverlay({
@@ -275,14 +311,14 @@ export default function App() {
         : sets[0]
       raw = set?.pages ?? []
     } else {
-      raw = getMapPages(target.stop)
+      const all = getMapPages(target.stop)
+      raw =
+        typeof target.pageIndex === 'number' && all[target.pageIndex]
+          ? [all[target.pageIndex]]
+          : all
     }
     const pages = tripId ? await resolveAssetUrls(tripId, raw) : raw
-    setOverlay({
-      type: target.kind,
-      title: target.title,
-      pages,
-    })
+    openPagesWindow(target.title, pages)
   }
 
   const pickFile = (accept: string): Promise<File | null> =>
@@ -818,24 +854,6 @@ export default function App() {
         </DialogContent>
       </Dialog>
 
-      {overlay?.type === 'ticket' ? (
-        <ImageViewer
-          title={overlay.title}
-          pages={overlay.pages}
-          emptyTitle="Ticket not added yet"
-          emptyDetail="Admin can upload tickets from Expand → Edit."
-          onClose={() => setOverlay(null)}
-        />
-      ) : null}
-      {overlay?.type === 'map' ? (
-        <ImageViewer
-          title={overlay.title}
-          pages={overlay.pages}
-          emptyTitle="No map yet"
-          emptyDetail="Admin can upload a map from Expand → Edit."
-          onClose={() => setOverlay(null)}
-        />
-      ) : null}
       {overlay?.type === 'expand' ? (
         <EventExpand
           stop={
@@ -855,13 +873,14 @@ export default function App() {
               title,
             })
           }}
-          onOpenMap={(title) => {
+          onOpenMap={(title, pageIndex) => {
             void openViewer({
               kind: 'map',
               stop:
                 day.stops.find((s) => s.id === overlay.stop.id) ??
                 overlay.stop,
               title,
+              pageIndex,
             })
           }}
           onSaveStop={async (patch) => {

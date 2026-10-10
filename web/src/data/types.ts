@@ -47,12 +47,18 @@ export interface ItineraryStop {
   title: string;
   /** Stored duration; UI only for transit. */
   duration: string;
+  /** Opening hours; UI for meal + attraction. */
+  hours: string | null;
   cost: string | null;
   notes: string | null;
   mapsUrl: string | null;
   bookingRef: string | null;
   bags: string | null;
   transit: string | null;
+  /** Meal-only: atmosphere / vibe lines. */
+  vibe?: string[];
+  /** Meal-only: dishes / must-try lines. */
+  mustTry?: string[];
   /** Primary guide id (legacy); prefer guideIds when present. */
   siteId: string | null;
   /** One or more guides linked to this stop. */

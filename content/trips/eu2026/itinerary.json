@@ -61,7 +61,7 @@
         {
           "id": "stop-day0-lounge",
           "time": "12:30",
-          "title": "Prok drops Hanna at Business Lounge",
+          "title": "Drop Hanna at Business Lounge",
           "duration": "0.5h",
           "cost": null,
           "notes": null,
@@ -319,7 +319,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Bustling, premium grab-and-go butcher/deli vibe. Expect to eat standing up or while walking."
+          ],
+          "mustTry": [
+            "Sausage Roll"
+          ],
+          "hours": "9:00 – 17:00"
         },
         {
           "id": "stop-day1-london-bridge-photos",
@@ -337,15 +344,7 @@
           "optionLabel": null,
           "primary": true,
           "kind": "photo",
-          "tickets": [
-            {
-              "id": "tower-bridge",
-              "label": "Admission",
-              "pages": [
-                "/images/tickets/tower-bridge/ticket-page-1.jpg"
-              ]
-            }
-          ],
+          "tickets": [],
           "mapPages": [],
           "guideIds": [
             "tower-bridge"
@@ -428,7 +427,8 @@
           ],
           "guideIds": [
             "tower-of-london"
-          ]
+          ],
+          "hours": "10:00 – 17:30 (last admission 15:00)"
         },
         {
           "id": "stop-day1-tower-viewpoint",
@@ -489,7 +489,8 @@
           "mapPages": [],
           "guideIds": [
             "london-wall"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day1-lampery",
@@ -509,7 +510,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Lively, classic Victorian tavern atmosphere."
+          ],
+          "mustTry": [
+            "Freshly prepared pub food like classic fish and chips."
+          ],
+          "hours": "12:00 – 23:00"
         },
         {
           "id": "stop-day1-tesco",
@@ -689,7 +697,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "English breakfast"
+          ],
+          "mustTry": [
+            "Full English"
+          ],
+          "hours": "6:30 – 10:30 (M–F), 7:00 – 11:00 (weekends)"
         },
         {
           "id": "stop-day2-transit-hp",
@@ -747,7 +762,8 @@
           ],
           "guideIds": [
             "harry-potter-studios"
-          ]
+          ],
+          "hours": "9:00 – 20:00"
         },
         {
           "id": "stop-day2-opt1-taxi",
@@ -789,7 +805,8 @@
           "mapPages": [],
           "guideIds": [
             "magdalen-college"
-          ]
+          ],
+          "hours": "10:00 – 16:00 (October–March)"
         },
         {
           "id": "stop-day2-opt1-radcliffe",
@@ -811,7 +828,8 @@
           "mapPages": [],
           "guideIds": [
             "radcliffe-square"
-          ]
+          ],
+          "hours": "Bodleian Library weekdays 9:00 – 17:00; Radcliffe Square 24/7"
         },
         {
           "id": "stop-day2-opt1-christ-church",
@@ -833,7 +851,8 @@
           "mapPages": [],
           "guideIds": [
             "christ-church"
-          ]
+          ],
+          "hours": "Monday–Saturday 10:00 – 17:00"
         },
         {
           "id": "stop-day2-opt1-walk-station",
@@ -893,7 +912,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "UK convenience-store grab-and-go (Tesco / Sainsbury's / M&S)."
+          ],
+          "mustTry": [
+            "Sandwich, drink, and snack"
+          ],
+          "hours": null
         },
         {
           "id": "stop-day2-opt2-transit-stpauls",
@@ -935,7 +961,8 @@
           "mapPages": [],
           "guideIds": [
             "st-pauls-cathedral"
-          ]
+          ],
+          "hours": "8:30 – 16:30 (last admission 16:00)"
         },
         {
           "id": "stop-day2-opt2-charing",
@@ -997,7 +1024,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "A stunning, grand 1930s Parisian Art Deco basement."
+          ],
+          "mustTry": [
+            "The Prix Fixe menu — steak haché and profiteroles"
+          ],
+          "hours": "11:30 – 00:00"
         },
         {
           "id": "stop-day2-phantom",
@@ -1225,7 +1259,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Quick hotel-room breakfast from Thursday groceries"
+          ],
+          "mustTry": [
+            "What was bought Thursday"
+          ],
+          "hours": null
         },
         {
           "id": "stop-day3-transit-charing",
@@ -1355,7 +1396,8 @@
           ],
           "guideIds": [
             "palace-of-westminster"
-          ]
+          ],
+          "hours": "09:00 – 17:00"
         },
         {
           "id": "stop-day3-big-ben",
@@ -1414,7 +1456,8 @@
           ],
           "guideIds": [
             "westminster-abbey"
-          ]
+          ],
+          "hours": "09:30 – 15:30"
         },
         {
           "id": "stop-day3-officers",
@@ -1436,7 +1479,8 @@
           "mapPages": [],
           "guideIds": [
             "horse-guards"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day3-buckingham",
@@ -1458,7 +1502,8 @@
           "mapPages": [],
           "guideIds": [
             "buckingham-palace"
-          ]
+          ],
+          "hours": "09:30 – 18:30"
         },
         {
           "id": "stop-day3-regency",
@@ -1478,7 +1523,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Traditional British comfort food"
+          ],
+          "mustTry": [
+            "British Breakfast"
+          ],
+          "hours": "10:00 – 17:00"
         },
         {
           "id": "stop-day3-transit-borough",
@@ -1530,7 +1582,8 @@
           "mapPages": [],
           "guideIds": [
             "shakespeare-globe"
-          ]
+          ],
+          "hours": "11:00 – 18:00"
         },
         {
           "id": "stop-day3-golden-hind",
@@ -1552,7 +1605,8 @@
           "mapPages": [],
           "guideIds": [
             "golden-hind"
-          ]
+          ],
+          "hours": "11:00 – 18:00"
         },
         {
           "id": "stop-day3-tower-bridge",
@@ -1582,7 +1636,8 @@
           "mapPages": [],
           "guideIds": [
             "tower-bridge"
-          ]
+          ],
+          "hours": "9:30 – 18:00 (last admission 17:00)"
         },
         {
           "id": "stop-day3-george-inn",
@@ -1602,7 +1657,15 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "17th-century pub where Shakespeare and Dickens drank"
+          ],
+          "mustTry": [
+            "Local ale",
+            "Fish and chips"
+          ],
+          "hours": "11:00 – 23:00"
         },
         {
           "id": "stop-day3-walk-hotel",
@@ -1748,7 +1811,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "English breakfast"
+          ],
+          "mustTry": [
+            "Full English"
+          ],
+          "hours": "07:00 – 10:00"
         },
         {
           "id": "stop-day4-opt1-bus",
@@ -1855,7 +1925,8 @@
           ],
           "guideIds": [
             "british-museum"
-          ]
+          ],
+          "hours": "10:00 – 17:00"
         },
         {
           "id": "stop-day4-opt1-walk-lunch",
@@ -1917,7 +1988,8 @@
           "mapPages": [],
           "guideIds": [
             "radcliffe-square"
-          ]
+          ],
+          "hours": "Public squares open 24/7"
         },
         {
           "id": "stop-day4-opt2-magdalen",
@@ -1939,7 +2011,8 @@
           "mapPages": [],
           "guideIds": [
             "magdalen-college"
-          ]
+          ],
+          "hours": "10:00 – 16:00 (winter hours)"
         },
         {
           "id": "stop-day4-opt2-train",
@@ -1979,7 +2052,17 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Upscale yet unpretentious mid-century British chophouse"
+          ],
+          "mustTry": [
+            "The \"All-In\" Roast",
+            "The Trimmings & Unlimited Gravy",
+            "Cauliflower Cheese",
+            "White Chocolate Cheesecake"
+          ],
+          "hours": "11:45 – 20:00"
         },
         {
           "id": "stop-day4-walk-bounce",
@@ -2161,7 +2244,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Burgers"
+          ],
+          "mustTry": [
+            "French Burger"
+          ],
+          "hours": "10:30 – 01:00"
         },
         {
           "id": "stop-day4-shower",
@@ -2350,7 +2440,8 @@
           "mapPages": [],
           "guideIds": [
             "palais-royal"
-          ]
+          ],
+          "hours": "8:00 – 22:30"
         },
         {
           "id": "stop-day5-breakfast",
@@ -2370,7 +2461,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Chain bakery-café"
+          ],
+          "mustTry": [
+            "Baguette"
+          ],
+          "hours": "8:00 – 20:00"
         },
         {
           "id": "stop-day5-carrousel",
@@ -2392,7 +2490,8 @@
           "mapPages": [],
           "guideIds": [
             "arc-du-carrousel"
-          ]
+          ],
+          "hours": "N/A"
         },
         {
           "id": "stop-day5-louvre",
@@ -2432,7 +2531,8 @@
           ],
           "guideIds": [
             "louvre"
-          ]
+          ],
+          "hours": "09:00 – 18:00 (closed Tuesdays)"
         },
         {
           "id": "stop-day5-lunch",
@@ -2452,7 +2552,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Scenic & comfortable"
+          ],
+          "mustTry": [
+            "Subs"
+          ],
+          "hours": "7:00 – 19:00"
         },
         {
           "id": "stop-day5-walk-sainte",
@@ -2510,7 +2617,8 @@
           "guideIds": [
             "sainte-chapelle",
             "sainte-chapelle-visitor-guide"
-          ]
+          ],
+          "hours": "09:00 – 19:00"
         },
         {
           "id": "stop-day5-seine",
@@ -2541,7 +2649,8 @@
           "mapPages": [],
           "guideIds": [
             "seine-cruise"
-          ]
+          ],
+          "hours": "10:30 – 22:00"
         },
         {
           "id": "stop-day5-notre-dame",
@@ -2563,7 +2672,8 @@
           "mapPages": [],
           "guideIds": [
             "notre-dame"
-          ]
+          ],
+          "hours": "08:00 – 19:00"
         },
         {
           "id": "stop-day5-transit-arc",
@@ -2605,7 +2715,8 @@
           "mapPages": [],
           "guideIds": [
             "arc-de-triomphe"
-          ]
+          ],
+          "hours": "10:00 – 22:30"
         },
         {
           "id": "stop-day5-shopping",
@@ -2645,7 +2756,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Old-school French countryside hospitality in the city"
+          ],
+          "mustTry": [
+            "Traditional Auvergne sausages and thick-cut steaks"
+          ],
+          "hours": "19:00 – 22:30"
         },
         {
           "id": "stop-day5-back-hotel",
@@ -2840,7 +2958,15 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Classic Parisian"
+          ],
+          "mustTry": [
+            "Hot chocolate",
+            "Croissant with whipped cream"
+          ],
+          "hours": "7:00 – 23:30"
         },
         {
           "id": "stop-day6-transit-versailles",
@@ -2900,7 +3026,8 @@
           ],
           "guideIds": [
             "versailles"
-          ]
+          ],
+          "hours": "09:00 – 17:30 (closed Mondays)"
         },
         {
           "id": "stop-day6-transit-eiffel",
@@ -2953,7 +3080,8 @@
           "mapPages": [],
           "guideIds": [
             "eiffel-tower"
-          ]
+          ],
+          "hours": "9:00 – 00:00"
         },
         {
           "id": "stop-day6-transit-catacombs",
@@ -2995,7 +3123,8 @@
           "mapPages": [],
           "guideIds": [
             "catacombs"
-          ]
+          ],
+          "hours": "9:45 – 20:30 (closed Mondays)"
         },
         {
           "id": "stop-day6-dinner",
@@ -3015,7 +3144,10 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [],
+          "mustTry": [],
+          "hours": null
         },
         {
           "id": "stop-day6-transit-hotel",
@@ -3222,7 +3354,12 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Airport hangout before the Rome flight"
+          ],
+          "mustTry": [],
+          "hours": null
         },
         {
           "id": "stop-day7-flight",
@@ -3344,7 +3481,8 @@
           "mapPages": [],
           "guideIds": [
             "pantheon"
-          ]
+          ],
+          "hours": "09:00 – 18:00"
         },
         {
           "id": "stop-day7-opt1-walk-lunch",
@@ -3384,7 +3522,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Small, casual takeaway counter"
+          ],
+          "mustTry": [
+            "The fresh Pizza Margherita straight out of the oven"
+          ],
+          "hours": "11:00 – 21:00"
         },
         {
           "id": "stop-day7-opt1-navona",
@@ -3406,7 +3551,8 @@
           "mapPages": [],
           "guideIds": [
             "piazza-navona"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt1-ponte",
@@ -3450,7 +3596,8 @@
           "mapPages": [],
           "guideIds": [
             "spanish-steps"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt1-trevi",
@@ -3472,7 +3619,8 @@
           "mapPages": [],
           "guideIds": [
             "trevi-fountain"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt1-walk-mattei",
@@ -3512,7 +3660,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Small, casual takeaway counter"
+          ],
+          "mustTry": [
+            "The fresh Pizza Margherita straight out of the oven"
+          ],
+          "hours": "11:00 – 21:00"
         },
         {
           "id": "stop-day7-opt2-pantheon",
@@ -3534,7 +3689,8 @@
           "mapPages": [],
           "guideIds": [
             "pantheon"
-          ]
+          ],
+          "hours": "09:00 – 18:00"
         },
         {
           "id": "stop-day7-opt2-navona",
@@ -3556,7 +3712,8 @@
           "mapPages": [],
           "guideIds": [
             "piazza-navona"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt2-ponte",
@@ -3600,7 +3757,8 @@
           "mapPages": [],
           "guideIds": [
             "spanish-steps"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt2-trevi",
@@ -3622,7 +3780,8 @@
           "mapPages": [],
           "guideIds": [
             "trevi-fountain"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt2-walk-mattei",
@@ -3662,7 +3821,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Small, casual takeaway counter"
+          ],
+          "mustTry": [
+            "The fresh Pizza Margherita straight out of the oven"
+          ],
+          "hours": "11:00 – 21:00"
         },
         {
           "id": "stop-day7-opt3-trevi",
@@ -3684,7 +3850,8 @@
           "mapPages": [],
           "guideIds": [
             "trevi-fountain"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt3-spanish",
@@ -3706,7 +3873,8 @@
           "mapPages": [],
           "guideIds": [
             "spanish-steps"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt3-ponte",
@@ -3750,7 +3918,8 @@
           "mapPages": [],
           "guideIds": [
             "piazza-navona"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day7-opt3-pantheon",
@@ -3772,7 +3941,8 @@
           "mapPages": [],
           "guideIds": [
             "pantheon"
-          ]
+          ],
+          "hours": "09:00 – 18:00"
         },
         {
           "id": "stop-day7-opt3-walk-mattei",
@@ -3824,7 +3994,16 @@
           "mapPages": [],
           "guideIds": [
             "pizza-gelato-class"
-          ]
+          ],
+          "vibe": [
+            "Hands-on, fun, and interactive Roman cooking experience with wine"
+          ],
+          "mustTry": [
+            "The handmade pizza",
+            "Traditional Roman supplì",
+            "Fresh gelato you prepare from scratch"
+          ],
+          "hours": "18:15 – 21:30"
         },
         {
           "id": "stop-day7-walk-hotel",
@@ -3984,7 +4163,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Relaxed morning"
+          ],
+          "mustTry": [
+            "Paid hotel breakfast — next meal is 13:00"
+          ],
+          "hours": "07:00 – 10:00"
         },
         {
           "id": "stop-day8-walk-agnesi",
@@ -4048,7 +4234,8 @@
           "mapPages": [],
           "guideIds": [
             "arch-of-constantine"
-          ]
+          ],
+          "hours": "08:30 – 16:30 (last admission 15:30)"
         },
         {
           "id": "stop-day8-forum",
@@ -4072,7 +4259,8 @@
           ],
           "guideIds": [
             "roman-forum"
-          ]
+          ],
+          "hours": "08:30 – 16:30 (last admission 15:30)"
         },
         {
           "id": "stop-day8-palatine",
@@ -4094,7 +4282,8 @@
           "mapPages": [],
           "guideIds": [
             "palatine-hill"
-          ]
+          ],
+          "hours": "08:30 – 16:30 (last admission 15:30)"
         },
         {
           "id": "stop-day8-colosseum",
@@ -4126,7 +4315,8 @@
           "mapPages": [],
           "guideIds": [
             "colosseum"
-          ]
+          ],
+          "hours": "08:30 – 16:30 (last admission 15:30)"
         },
         {
           "id": "stop-day8-lunch",
@@ -4146,7 +4336,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Authentic, blunt, and quick Roman service"
+          ],
+          "mustTry": [
+            "Traditional Roman pastas"
+          ],
+          "hours": "11:30 – 22:30"
         },
         {
           "id": "stop-day8-uber-south",
@@ -4190,7 +4387,8 @@
           ],
           "guideIds": [
             "baths-of-caracalla"
-          ]
+          ],
+          "hours": "09:00 – 16:30 (last admission 15:30)"
         },
         {
           "id": "stop-day8-circus",
@@ -4212,7 +4410,8 @@
           "mapPages": [],
           "guideIds": [
             "circus-maximus"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day8-capitoline",
@@ -4234,7 +4433,8 @@
           "mapPages": [],
           "guideIds": [
             "capitoline-hill"
-          ]
+          ],
+          "hours": "N/A"
         },
         {
           "id": "stop-day8-san-pietro-carcere",
@@ -4276,7 +4476,8 @@
           "mapPages": [],
           "guideIds": [
             "trajans-column"
-          ]
+          ],
+          "hours": "N/A"
         },
         {
           "id": "stop-day8-altar",
@@ -4298,7 +4499,8 @@
           "mapPages": [],
           "guideIds": [
             "altar-of-the-fatherland"
-          ]
+          ],
+          "hours": "09:30 – 19:30 (rooftop elevator last admission 18:45)"
         },
         {
           "id": "stop-day8-back-hotel",
@@ -4338,7 +4540,15 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Welcoming, friendly, and non-touristy"
+          ],
+          "mustTry": [
+            "Pinsa with carbonara or pistachio",
+            "Meat and cheese platters"
+          ],
+          "hours": "10:30 – 23:30"
         },
         {
           "id": "stop-day8-shower",
@@ -4493,7 +4703,8 @@
           "mapPages": [],
           "guideIds": [
             "st-peters-basilica"
-          ]
+          ],
+          "hours": "7:00 – 19:10 (dome stairs open 8:00)"
         },
         {
           "id": "stop-day9-perimeter",
@@ -4513,7 +4724,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Hectic, basic rest-stop cafeteria"
+          ],
+          "mustTry": [
+            "A standard double espresso to quickly recharge"
+          ],
+          "hours": "08:00 – 18:00"
         },
         {
           "id": "stop-day9-vatican",
@@ -4548,7 +4766,8 @@
           ],
           "guideIds": [
             "vatican-museums"
-          ]
+          ],
+          "hours": "08:00 – 20:00 (closed Sundays and holidays)"
         },
         {
           "id": "stop-day9-lunch",
@@ -4568,7 +4787,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Small artisan pasta shop"
+          ],
+          "mustTry": [
+            "Homemade pasta"
+          ],
+          "hours": "11:45 – 21:30"
         },
         {
           "id": "stop-day9-walk-castel",
@@ -4621,7 +4847,8 @@
           "mapPages": [],
           "guideIds": [
             "castel-sant-angelo"
-          ]
+          ],
+          "hours": "09:00 – 19:30"
         },
         {
           "id": "stop-day9-shopping",
@@ -4661,7 +4888,18 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Relaxed yet stylish and upscale"
+          ],
+          "mustTry": [
+            "Complimentary fresh bread and olive oil",
+            "Tuna tartare with lemon",
+            "Grilled octopus",
+            "Pasta with calamari",
+            "Tiramisu"
+          ],
+          "hours": "11:00 – 23:00"
         },
         {
           "id": "stop-day9-back-hotel",
@@ -4886,7 +5124,8 @@
           ],
           "guideIds": [
             "pompeii"
-          ]
+          ],
+          "hours": "09:00 – 17:00 (1 Nov–30 Mar; else until 19:00)"
         },
         {
           "id": "stop-day10-lunch",
@@ -4906,7 +5145,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Three-course Neapolitan lunch with views across the Bay of Naples"
+          ],
+          "mustTry": [
+            "Authentic Neapolitan pizza"
+          ],
+          "hours": null
         },
         {
           "id": "stop-day10-drive-vesuvius",
@@ -4948,7 +5194,8 @@
           "mapPages": [],
           "guideIds": [
             "mt-vesuvius"
-          ]
+          ],
+          "hours": null
         },
         {
           "id": "stop-day10-bus-rome",
@@ -5008,7 +5255,16 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Cozy, elegant, and modern"
+          ],
+          "mustTry": [
+            "Beef carpaccio",
+            "Calamari",
+            "Ragù with thyme"
+          ],
+          "hours": "17:30 – 00:00"
         },
         {
           "id": "stop-day10-back-hotel",
@@ -5147,7 +5403,14 @@
           "kind": "meal",
           "tickets": [],
           "mapPages": [],
-          "guideIds": []
+          "guideIds": [],
+          "vibe": [
+            "Paid hotel breakfast"
+          ],
+          "mustTry": [
+            "Final espresso"
+          ],
+          "hours": "07:00 – 10:00"
         },
         {
           "id": "stop-day11-airport",

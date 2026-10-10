@@ -8,14 +8,21 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import {
+  AttachmentPicker,
+  type AttachmentPickOption,
+} from '@/components/AttachmentPicker'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
 import type { ItineraryStop, Site, StopKind } from '@/data/types'
 import {
+  asStringList,
   guideHasVisibleContent,
   showCost,
   showDuration,
   showGuideSection,
+  showHours,
+  showMealExtras,
   showTransitExtras,
   stopDetailFields,
   type GuideSectionKey,
@@ -133,7 +140,7 @@ export function EventExpand({
   onAssignOption?: (label: string, group?: string) => void | Promise<void>
   onClearOption?: () => void | Promise<void>
   onOpenTicket?: (ticketId: string, title: string) => void
-  onOpenMap?: (title: string) => void
+  onOpenMap?: (title: string, pageIndex?: number) => void
 }) {
   const [editing, setEditing] = useState(Boolean(adminMode && initialEditMode))
   const [busy, setBusy] = useState(false)
@@ -149,31 +156,85 @@ export function EventExpand({
   const [title, setTitle] = useState(stop.title)
   const [kind, setKind] = useState<StopKind>(stop.kind || 'attraction')
   const [duration, setDuration] = useState(stop.duration || '')
+  const [hours, setHours] = useState(stop.hours || '')
   const [cost, setCost] = useState(stop.cost || '')
   const [booking, setBooking] = useState(stop.bookingRef || '')
   const [bags, setBags] = useState(stop.bags || '')
   const [transit, setTransit] = useState(stop.transit || '')
   const [notes, setNotes] = useState(stop.notes || '')
+  const [vibe, setVibe] = useState<string[]>(() => asStringList(stop.vibe))
+  const [mustTry, setMustTry] = useState<string[]>(() =>
+    asStringList(stop.mustTry),
+  )
   const [optionLabel, setOptionLabel] = useState(stop.optionLabel || '')
 
   const sections = useMemo(() => visibleGuideSections(kind), [kind])
   const details = stopDetailFields(stop)
-  const ticketSets = getTicketSets(stop)
+  const ticketSets = getTicketSets(stop).filter((t) => t.pages.length)
   const maps = getMapPages(stop)
   const hasTickets = stopHasTickets(stop)
   const hasMap = stopHasMap(stop)
   const attachments = buildAttachments(stop)
+  const [picker, setPicker] = useState<{
+    title: string
+    options: AttachmentPickOption[]
+    onSelect: (id: string) => void
+  } | null>(null)
+
+  const openTickets = () => {
+    if (!onOpenTicket || !ticketSets.length) return
+    if (ticketSets.length === 1) {
+      const t = ticketSets[0]
+      onOpenTicket(t.id, `${stop.title} · ${t.label}`)
+      return
+    }
+    setPicker({
+      title: 'Which ticket?',
+      options: ticketSets.map((t) => ({ id: t.id, label: t.label })),
+      onSelect: (id) => {
+        const t = ticketSets.find((x) => x.id === id)
+        if (!t) return
+        onOpenTicket(t.id, `${stop.title} · ${t.label}`)
+      },
+    })
+  }
+
+  const openMap = () => {
+    if (!onOpenMap) return
+    if (maps.length <= 1) {
+      onOpenMap(stop.title)
+      return
+    }
+    setPicker({
+      title: 'Which map page?',
+      options: [
+        ...maps.map((_, i) => ({ id: String(i), label: `Page ${i + 1}` })),
+        { id: 'all', label: 'All pages' },
+      ],
+      onSelect: (id) => {
+        if (id === 'all') {
+          onOpenMap(stop.title)
+          return
+        }
+        const pageIndex = Number(id)
+        onOpenMap(`${stop.title} · page ${pageIndex + 1}`, pageIndex)
+      },
+    })
+  }
 
   useEffect(() => {
     setTime(stop.time)
     setTitle(stop.title)
     setKind(stop.kind || 'attraction')
     setDuration(stop.duration || '')
+    setHours(stop.hours || '')
     setCost(stop.cost || '')
     setBooking(stop.bookingRef || '')
     setBags(stop.bags || '')
     setTransit(stop.transit || '')
     setNotes(stop.notes || '')
+    setVibe(asStringList(stop.vibe))
+    setMustTry(asStringList(stop.mustTry))
     setOptionLabel(stop.optionLabel || '')
   }, [stop])
 
@@ -248,16 +309,44 @@ export function EventExpand({
     updateSection(key, [...list, next.trim()])
   }
 
+  const editStringList = (
+    list: string[],
+    setList: (next: string[]) => void,
+    index: number,
+  ) => {
+    const current = list[index] ?? ''
+    const next = window.prompt('Edit item', current)
+    if (next === null) return
+    const trimmed = next.trim()
+    if (!trimmed) {
+      setList(list.filter((_, i) => i !== index))
+      return
+    }
+    setList(list.map((item, i) => (i === index ? trimmed : item)))
+  }
+
+  const addStringListItem = (
+    list: string[],
+    setList: (next: string[]) => void,
+  ) => {
+    const next = window.prompt('New item')
+    if (!next?.trim()) return
+    setList([...list, next.trim()])
+  }
+
   const stopDirty =
     time !== stop.time ||
     title !== stop.title ||
     kind !== (stop.kind || 'attraction') ||
     duration !== (stop.duration || '') ||
+    hours !== (stop.hours || '') ||
     cost !== (stop.cost || '') ||
     booking !== (stop.bookingRef || '') ||
     bags !== (stop.bags || '') ||
     transit !== (stop.transit || '') ||
-    notes !== (stop.notes || '')
+    notes !== (stop.notes || '') ||
+    JSON.stringify(vibe) !== JSON.stringify(asStringList(stop.vibe)) ||
+    JSON.stringify(mustTry) !== JSON.stringify(asStringList(stop.mustTry))
 
   const guideDirty =
     Boolean(guideDraft) &&
@@ -285,11 +374,14 @@ export function EventExpand({
           title: title.trim(),
           kind,
           duration: showDuration(kind) ? duration.trim() : '',
+          hours: showHours(kind) ? hours.trim() || null : null,
           notes: notes.trim() || null,
           cost: showCost(kind) ? cost.trim() || null : null,
           bookingRef: showTransitExtras(kind) ? booking.trim() || null : null,
           bags: showTransitExtras(kind) ? bags.trim() || null : null,
           transit: showTransitExtras(kind) ? transit.trim() || null : null,
+          vibe: showMealExtras(kind) ? vibe : [],
+          mustTry: showMealExtras(kind) ? mustTry : [],
         })
       }
       if (onSaveGuide && guideDraft && guideDirty) {
@@ -374,14 +466,8 @@ export function EventExpand({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/45 p-3 sm:items-center"
-      onClick={onClose}
-    >
-      <div
-        className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-xl animate-in fade-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/45 p-12">
+      <div className="flex h-full max-h-full w-full flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-xl animate-in fade-in zoom-in-95 duration-200">
         <header className="shrink-0 border-b border-line bg-paper/95 px-4 py-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -469,6 +555,19 @@ export function EventExpand({
           <div className="space-y-4 border-b border-line/70 p-4">
             {editing ? (
               <div className="space-y-3">
+                {showHours(kind) ? (
+                  <label className="block space-y-1">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                      Hours
+                    </span>
+                    <input
+                      value={hours}
+                      onChange={(e) => setHours(e.target.value)}
+                      className={inputClass}
+                      placeholder="09:00 – 17:00"
+                    />
+                  </label>
+                ) : null}
                 {showCost(kind) ? (
                   <label className="block space-y-1">
                     <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
@@ -519,6 +618,114 @@ export function EventExpand({
                     </label>
                   </>
                 ) : null}
+                {showMealExtras(kind) ? (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                          Vibe
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addStringListItem(vibe, setVibe)}
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Add
+                        </Button>
+                      </div>
+                      {vibe.length ? (
+                        <ul className="space-y-2">
+                          {vibe.map((item, i) => (
+                            <li
+                              key={`vibe-edit-${i}`}
+                              className="flex items-start justify-between gap-2 rounded-lg bg-paper-deep/70 px-3 py-2 text-sm text-ink-soft"
+                            >
+                              <span className="min-w-0 flex-1">{item}</span>
+                              <span className="flex shrink-0 gap-0.5">
+                                <button
+                                  type="button"
+                                  className="rounded p-1 text-ink-soft hover:bg-paper hover:text-ink"
+                                  aria-label="Edit vibe"
+                                  onClick={() =>
+                                    editStringList(vibe, setVibe, i)
+                                  }
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rounded p-1 text-ink-soft hover:bg-paper hover:text-accent"
+                                  aria-label="Delete vibe"
+                                  onClick={() =>
+                                    setVibe(vibe.filter((_, j) => j !== i))
+                                  }
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-ink-soft">No items yet.</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                          Must try
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            addStringListItem(mustTry, setMustTry)
+                          }
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Add
+                        </Button>
+                      </div>
+                      {mustTry.length ? (
+                        <ul className="space-y-2">
+                          {mustTry.map((item, i) => (
+                            <li
+                              key={`must-edit-${i}`}
+                              className="flex items-start justify-between gap-2 rounded-lg bg-paper-deep/70 px-3 py-2 text-sm text-ink-soft"
+                            >
+                              <span className="min-w-0 flex-1">{item}</span>
+                              <span className="flex shrink-0 gap-0.5">
+                                <button
+                                  type="button"
+                                  className="rounded p-1 text-ink-soft hover:bg-paper hover:text-ink"
+                                  aria-label="Edit must try"
+                                  onClick={() =>
+                                    editStringList(mustTry, setMustTry, i)
+                                  }
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rounded p-1 text-ink-soft hover:bg-paper hover:text-accent"
+                                  aria-label="Delete must try"
+                                  onClick={() =>
+                                    setMustTry(
+                                      mustTry.filter((_, j) => j !== i),
+                                    )
+                                  }
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-ink-soft">No items yet.</p>
+                      )}
+                    </div>
+                  </>
+                ) : null}
                 <label className="block space-y-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
                     Notes
@@ -533,6 +740,9 @@ export function EventExpand({
               </div>
             ) : (
               <dl className="space-y-2">
+                {details.hours ? (
+                  <DetailRow label="Hours" value={details.hours} />
+                ) : null}
                 {details.cost ? (
                   <DetailRow label="Cost" value={details.cost} />
                 ) : null}
@@ -545,27 +755,30 @@ export function EventExpand({
                 {details.transit ? (
                   <DetailRow label="Transit" value={details.transit} />
                 ) : null}
+                {details.vibe ? (
+                  <DetailRow label="Vibe" value={details.vibe} />
+                ) : null}
+                {details.mustTry ? (
+                  <DetailRow label="Must try" value={details.mustTry} />
+                ) : null}
                 {details.notes ? (
                   <DetailRow label="Notes" value={details.notes} />
                 ) : null}
               </dl>
             )}
 
-            {/* Attachments */}
-            <section className="space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wide text-ink-soft">
-                Attachments
-              </h3>
-              {attachments.length === 0 && !editing ? (
-                <p className="text-sm text-ink-soft">None</p>
-              ) : null}
-              <div className="space-y-2">
-                {attachments.map((row) => (
-                  <div
-                    key={`${row.type}-${row.id}`}
-                    className="flex flex-wrap items-center gap-2 rounded-lg bg-paper-deep/50 px-2 py-1.5 text-sm"
-                  >
-                    {editing ? (
+            {/* View: icon buttons only. Edit: manage list + add. */}
+            {editing ? (
+              <section className="space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wide text-ink-soft">
+                  Attachments
+                </h3>
+                <div className="space-y-2">
+                  {attachments.map((row) => (
+                    <div
+                      key={`${row.type}-${row.id}`}
+                      className="flex flex-wrap items-center gap-2 rounded-lg bg-paper-deep/50 px-2 py-1.5 text-sm"
+                    >
                       <select
                         value={row.type}
                         disabled={busy}
@@ -581,70 +794,24 @@ export function EventExpand({
                         <option value="map">Map</option>
                         <option value="mapsUrl">Map URL</option>
                       </select>
-                    ) : (
-                      <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                        {row.type === 'mapsUrl'
-                          ? 'Map URL'
-                          : row.type === 'map'
-                            ? 'Map'
-                            : 'Ticket'}
-                      </span>
-                    )}
-                    {row.type === 'ticket' ? (
-                      editing ? (
+                      {row.type === 'ticket' ? (
                         <span className="min-w-0 flex-1 font-medium text-ink">
                           {row.label}
                         </span>
-                      ) : (
-                        <button
-                          type="button"
-                          className="min-w-0 flex-1 text-left font-medium text-sea underline"
-                          onClick={() =>
-                            onOpenTicket?.(
-                              row.id,
-                              `${stop.title} · ${row.label}`,
-                            )
-                          }
-                        >
-                          {row.label}
-                        </button>
-                      )
-                    ) : null}
-                    {row.type === 'map' ? (
-                      editing ? (
+                      ) : null}
+                      {row.type === 'map' ? (
                         <span className="min-w-0 flex-1 font-medium text-ink">
                           Venue map
                           {row.pages.length > 1
                             ? ` · ${row.pages.length} pages`
                             : ''}
                         </span>
-                      ) : (
-                        <button
-                          type="button"
-                          className="min-w-0 flex-1 text-left font-medium text-sea underline"
-                          onClick={() => onOpenMap?.(stop.title)}
-                        >
-                          Venue map
-                        </button>
-                      )
-                    ) : null}
-                    {row.type === 'mapsUrl' ? (
-                      editing ? (
+                      ) : null}
+                      {row.type === 'mapsUrl' ? (
                         <span className="min-w-0 flex-1 truncate text-ink-soft">
                           {row.url}
                         </span>
-                      ) : (
-                        <a
-                          href={row.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="min-w-0 flex-1 truncate font-medium text-sea underline"
-                        >
-                          Open in Google Maps
-                        </a>
-                      )
-                    ) : null}
-                    {editing ? (
+                      ) : null}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -664,11 +831,9 @@ export function EventExpand({
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-              {editing ? (
+                    </div>
+                  ))}
+                </div>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button
                     variant="outline"
@@ -707,46 +872,52 @@ export function EventExpand({
                     <MapPinned className="h-3.5 w-3.5" /> Map URL
                   </Button>
                 </div>
-              ) : stop.mapsUrl || hasTickets || hasMap ? (
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {stop.mapsUrl ? (
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={stop.mapsUrl} target="_blank" rel="noreferrer">
-                        <MapPinned className="h-3.5 w-3.5" /> Maps
-                      </a>
-                    </Button>
-                  ) : null}
-                  {ticketSets.map((t) =>
-                    t.pages.length && onOpenTicket ? (
-                      <Button
-                        key={t.id}
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          onOpenTicket(t.id, `${stop.title} · ${t.label}`)
-                        }
-                      >
-                        <Ticket className="h-3.5 w-3.5" /> {t.label}
-                      </Button>
-                    ) : null,
-                  )}
-                  {hasMap && onOpenMap ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onOpenMap(stop.title)}
-                    >
-                      <MapIcon className="h-3.5 w-3.5" /> Map
-                      {maps.length > 1 ? (
-                        <span className="text-[10px] opacity-70">
-                          · {maps.length}
-                        </span>
-                      ) : null}
-                    </Button>
-                  ) : null}
-                </div>
-              ) : null}
-            </section>
+              </section>
+            ) : stop.mapsUrl || hasTickets || hasMap ? (
+              <div className="flex flex-wrap gap-2">
+                {stop.mapsUrl ? (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={stop.mapsUrl} target="_blank" rel="noreferrer">
+                      <MapPinned className="h-3.5 w-3.5" /> Maps
+                    </a>
+                  </Button>
+                ) : null}
+                {ticketSets.length === 1 ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openTickets()}
+                  >
+                    <Ticket className="h-3.5 w-3.5" /> {ticketSets[0].label}
+                  </Button>
+                ) : ticketSets.length > 1 ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openTickets()}
+                  >
+                    <Ticket className="h-3.5 w-3.5" /> Ticket
+                    <span className="text-[10px] opacity-70">
+                      · {ticketSets.length}
+                    </span>
+                  </Button>
+                ) : null}
+                {hasMap && onOpenMap ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openMap()}
+                  >
+                    <MapIcon className="h-3.5 w-3.5" /> Map
+                    {maps.length > 1 ? (
+                      <span className="text-[10px] opacity-70">
+                        · {maps.length}
+                      </span>
+                    ) : null}
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           {/* Guide sections */}
@@ -959,11 +1130,14 @@ export function EventExpand({
                 setTitle(stop.title)
                 setKind(stop.kind || 'attraction')
                 setDuration(stop.duration || '')
+                setHours(stop.hours || '')
                 setCost(stop.cost || '')
                 setBooking(stop.bookingRef || '')
                 setBags(stop.bags || '')
                 setTransit(stop.transit || '')
                 setNotes(stop.notes || '')
+                setVibe(asStringList(stop.vibe))
+                setMustTry(asStringList(stop.mustTry))
                 if (active) {
                   setGuideDraft({
                     ...active,
@@ -986,6 +1160,14 @@ export function EventExpand({
           </div>
         ) : null}
       </div>
+
+      <AttachmentPicker
+        open={Boolean(picker)}
+        onOpenChange={(o) => !o && setPicker(null)}
+        title={picker?.title ?? ''}
+        options={picker?.options ?? []}
+        onSelect={(id) => picker?.onSelect(id)}
+      />
     </div>
   )
 }

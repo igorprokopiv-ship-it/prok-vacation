@@ -202,10 +202,20 @@ def find_stop(day: dict, stop_id: str) -> dict:
     raise HTTPException(404, f"Stop '{stop_id}' not found")
 
 
+def _as_string_list(value: Any) -> list[str]:
+    if isinstance(value, list):
+        return [str(x).strip() for x in value if str(x).strip()]
+    if isinstance(value, str) and value.strip():
+        return [value.strip()]
+    return []
+
+
 def ensure_stop_arrays(stop: dict) -> None:
     stop.setdefault("tickets", [])
     stop.setdefault("mapPages", [])
     stop.setdefault("guideIds", [])
+    stop["vibe"] = _as_string_list(stop.get("vibe"))
+    stop["mustTry"] = _as_string_list(stop.get("mustTry"))
     if stop.get("siteId") and stop["siteId"] not in stop["guideIds"]:
         stop["guideIds"].insert(0, stop["siteId"])
 
@@ -302,12 +312,15 @@ class PatchStopBody(BaseModel):
     time: Optional[str] = None
     title: Optional[str] = None
     duration: Optional[str] = None
+    hours: Optional[str] = None
     cost: Optional[str] = None
     notes: Optional[str] = None
     mapsUrl: Optional[str] = None
     bookingRef: Optional[str] = None
     bags: Optional[str] = None
     transit: Optional[str] = None
+    vibe: Optional[list[str]] = None
+    mustTry: Optional[list[str]] = None
     kind: Optional[str] = None
     siteId: Optional[str] = None
     guideIds: Optional[list[str]] = None
@@ -393,12 +406,15 @@ def create_stop(
         "time": body.time,
         "title": body.title,
         "duration": (body.duration or "") if kind == "transit" else "",
+        "hours": None,
         "cost": None,
         "notes": None,
         "mapsUrl": None,
         "bookingRef": None,
         "bags": None,
         "transit": None,
+        "vibe": [],
+        "mustTry": [],
         "siteId": None,
         "guideIds": [],
         "tickets": [],
@@ -427,14 +443,17 @@ def patch_stop(
     data = body.model_dump(exclude_unset=True)
     for k, v in data.items():
         stop[k] = v
-    # Drop legacy stop.hours; duration only for transit
-    stop.pop("hours", None)
     kind = stop.get("kind") or "attraction"
     if kind != "transit":
         stop["duration"] = ""
         stop["bookingRef"] = None
         stop["bags"] = None
         stop["transit"] = None
+    if kind not in ("meal", "attraction"):
+        stop["hours"] = None
+    if kind != "meal":
+        stop["vibe"] = []
+        stop["mustTry"] = []
     if kind in ("photo", "rest"):
         stop["cost"] = None
     ensure_stop_arrays(stop)

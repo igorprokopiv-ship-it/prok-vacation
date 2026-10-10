@@ -43,3 +43,8 @@ data/blobs/**
 
 # Windows junction created by build-pack (images live in web/public)
 content/trips/*/images
+
+# Working PDF text extracts
+tmp-*-extract.txt
+tmp-sites-*
+
