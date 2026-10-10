@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM node:22-alpine AS webbuild
 WORKDIR /src
+ARG APP_VERSION=0.0.0
+ENV VITE_APP_VERSION=$APP_VERSION
 COPY web/package.json web/package-lock.json* ./web/
 RUN cd web && npm install
 COPY web ./web

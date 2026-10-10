@@ -110,6 +110,9 @@ export default function App() {
   const [overlay, setOverlay] = useState<Overlay>(null)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle')
   const [syncDetail, setSyncDetail] = useState<string | undefined>()
+  const [appVersion, setAppVersion] = useState(
+    () => import.meta.env.VITE_APP_VERSION?.trim() || '0.1.0',
+  )
   const [tick, setTick] = useState(0)
   const [prompt, setPrompt] = useState<PromptState>(null)
   const [promptValue, setPromptValue] = useState('')
@@ -216,6 +219,15 @@ export default function App() {
 
   useEffect(() => {
     void (async () => {
+      try {
+        const res = await fetch('/api/config')
+        if (res.ok) {
+          const cfg = (await res.json()) as { version?: string }
+          if (cfg.version) setAppVersion(cfg.version)
+        }
+      } catch {
+        /* bundled VITE_APP_VERSION is enough offline */
+      }
       const me = await adminMe()
       setAdminMode(me.admin)
       resetToBundled()
@@ -525,6 +537,14 @@ export default function App() {
                 detail={syncDetail}
                 onClick={() => tripId && void runSync(tripId)}
               />
+              {appVersion ? (
+                <span
+                  className="select-all text-[10px] tabular-nums tracking-wide text-ink-soft/70"
+                  title="App version"
+                >
+                  v{appVersion}
+                </span>
+              ) : null}
               <Button
                 variant="outline"
                 size="sm"

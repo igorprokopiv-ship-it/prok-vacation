@@ -42,4 +42,4 @@ Drop new ticket/map PDFs in [`content/inbox/`](content/inbox/README.md), convert
 
 ## Release (TrueNAS)
 
-Push to `main` → GitHub Actions **Build and publish image** → `ghcr.io/igorprokopiv-ship-it/prok-vacation:latest`. Restart the TrueNAS Custom App to pull the new image.
+Push to `main` → GitHub Actions bumps the patch version, publishes `ghcr.io/igorprokopiv-ship-it/prok-vacation:latest` (and `:<version>`). On TrueNAS set **Pull Policy = Always pull image**, then restart/update the Custom App. Confirm with the subtle `vX.Y.Z` under Sync in the app header.

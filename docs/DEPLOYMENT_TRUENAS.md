@@ -31,10 +31,10 @@ Workflow: [`.github/workflows/docker-publish.yml`](../.github/workflows/docker-p
 
 | Trigger | Result |
 |---------|--------|
-| Push to `main` | Build + push `ghcr.io/igorprokopiv-ship-it/prok-vacation:latest` and `:0.1.0` (from `web/package.json`) + git sha tag |
-| **Actions → Run workflow** | Same (manual redeploy without a code change) |
+| Push to `main` | Bump patch in `package.json` / `web/package.json` (e.g. `0.1.0` → `0.1.1`), push that commit with `[skip ci]`, then build + push `:latest`, `:<version>`, and git sha tags |
+| **Actions → Run workflow** | Same bump + build (manual redeploy) |
 
-After green CI: TrueNAS → Apps → **prok-vacation** → **Update** / restart → re-pull `latest` if pull policy allows.
+After green CI: TrueNAS → Apps → **prok-vacation** → Edit → ensure **Pull Policy = Always pull image** → Save / restart. With “only if not present”, `:latest` stays forever on the first digest pulled.
 
 First-time: merge workflow + Dockerfile to `main`, wait for **Build and publish image**, then configure Custom App (below).
 
@@ -50,10 +50,13 @@ Same pattern as prok-timelog: PAT with `read:packages`, register `ghcr.io` in Tr
 |-------|--------|
 | Application Name | `prok-vacation` |
 | Repository | `ghcr.io/igorprokopiv-ship-it/prok-vacation` |
-| Tag | `latest` |
+| Tag | `latest` (or a semver tag like `0.1.2` after CI bumps) |
+| **Pull Policy** | **Always pull image** — required with `:latest`. If set to “only if not present”, TrueNAS keeps the cached image and never picks up new pushes |
 | **Host Network** | **checked** |
 | Restart Policy | Unless Stopped |
 | Timezone | `America/New_York` |
+
+After a green **Build and publish image** run: Edit App → save (or Stop/Start) so the new digest is pulled. Confirm the subtle `vX.Y.Z` under the Sync chip matches the version CI just published.
 
 ### Environment
 

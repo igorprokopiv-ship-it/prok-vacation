@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 env:
@@ -17,10 +17,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Needed so the version-bump commit can push back to main.
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Read app version
+      - name: Bump patch version
         id: version
-        run: echo "value=$(node -p "require('./web/package.json').version")" >> "$GITHUB_OUTPUT"
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          let next = null;
+          for (const f of ['web/package.json', 'package.json']) {
+            const pkg = JSON.parse(fs.readFileSync(f, 'utf8'));
+            const parts = String(pkg.version || '0.1.0').split('.').map((n) => parseInt(n, 10) || 0);
+            while (parts.length < 3) parts.push(0);
+            parts[2] += 1;
+            pkg.version = parts.join('.');
+            fs.writeFileSync(f, JSON.stringify(pkg, null, 2) + '\n');
+            next = pkg.version;
+            console.log(f, '->', pkg.version);
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `value=${next}\n`);
+          EOF
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/package.json package.json
+          if git diff --staged --quiet; then
+            echo "No version change to commit"
+          else
+            git commit -m "chore: bump version to ${{ steps.version.outputs.value }} [skip ci]"
+            git push
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
