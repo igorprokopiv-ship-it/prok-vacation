@@ -1,5 +1,7 @@
 import {
+  AlarmClock,
   ChevronDown,
+  ExternalLink,
   Maximize2,
   Map as MapIcon,
   MapPinned,
@@ -10,20 +12,21 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useAppDialog } from '@/components/AppDialogs'
 import {
   AttachmentPicker,
   type AttachmentPickOption,
 } from '@/components/AttachmentPicker'
 import { Button } from '@/components/ui/button'
+import { RichText } from '@/components/RichText'
 import {
-  showDuration,
   showGuideSection,
   stopDetailFields,
   stopHasVisibleDetails,
   type GuideSectionKey,
   visibleGuideSections,
 } from '@/data/stopFields'
-import type { ItineraryDay, ItineraryStop } from '@/data/types'
+import type { DayMapLink, ItineraryDay, ItineraryStop } from '@/data/types'
 import {
   getGuidesForStop,
   getMapPages,
@@ -33,6 +36,7 @@ import {
   stopHasTickets,
   stopHasVisibleGuideContent,
 } from '@/lib/data'
+import { displayDuration } from '@/lib/duration'
 import { cn } from '@/lib/utils'
 
 const GUIDE_SECTION_LABELS: Record<GuideSectionKey, string> = {
@@ -74,7 +78,185 @@ export type ViewerTarget =
       edit?: boolean
     }
 
-export type AdminAction = 'toggle-highlight' | 'delete-event'
+export type AdminAction = 'toggle-highlight' | 'toggle-timed' | 'delete-event'
+
+function DayMapsBar({
+  maps,
+  adminMode,
+  onChange,
+}: {
+  maps: DayMapLink[]
+  adminMode: boolean
+  onChange?: (next: DayMapLink[]) => void | Promise<void>
+}) {
+  const dialog = useAppDialog()
+  const [busy, setBusy] = useState(false)
+  const run = async (fn: () => void | Promise<void>) => {
+    setBusy(true)
+    try {
+      await fn()
+    } catch (e) {
+      await dialog.alert(e instanceof Error ? e.message : 'Failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (!maps.length && !adminMode) return null
+
+  return (
+    <div className="rounded-xl bg-paper/80 p-3 ring-1 ring-line/70">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">
+          Day maps
+        </p>
+        {adminMode && onChange ? (
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={busy}
+            onClick={() => {
+              void (async () => {
+                const values = await dialog.prompt({
+                  title: 'Add day map',
+                  confirmLabel: 'Add',
+                  fields: [
+                    {
+                      name: 'url',
+                      label: 'URL',
+                      placeholder: 'https://maps.app.goo.gl/...',
+                      required: true,
+                    },
+                    {
+                      name: 'label',
+                      label: 'Label',
+                      defaultValue: maps.length
+                        ? `Map ${maps.length + 1}`
+                        : 'Walking route',
+                      required: true,
+                    },
+                  ],
+                })
+                if (!values?.url.trim()) return
+                await run(() =>
+                  onChange([
+                    ...maps,
+                    {
+                      id: `map-${Date.now().toString(36)}`,
+                      label: values.label.trim() || 'Day map',
+                      url: values.url.trim(),
+                    },
+                  ]),
+                )
+              })()
+            }}
+          >
+            <Plus className="h-3.5 w-3.5" /> Map
+          </Button>
+        ) : null}
+      </div>
+      {maps.length ? (
+        <ul className="mt-2 space-y-1.5">
+          {maps.map((m) => (
+            <li
+              key={m.id}
+              className="flex items-center gap-2 rounded-lg bg-paper-deep/60 px-2.5 py-2"
+            >
+              <a
+                href={m.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex min-w-0 flex-1 items-center gap-2 text-sm font-semibold text-sea hover:underline"
+              >
+                <MapPinned className="h-4 w-4 shrink-0" />
+                <span className="truncate">{m.label}</span>
+                <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70" />
+              </a>
+              {adminMode && onChange ? (
+                <span className="flex shrink-0 gap-0.5">
+                  <button
+                    type="button"
+                    className="rounded p-1 text-ink-soft hover:bg-paper hover:text-ink"
+                    aria-label="Edit map"
+                    disabled={busy}
+                    onClick={() => {
+                      void (async () => {
+                        const values = await dialog.prompt({
+                          title: 'Edit day map',
+                          confirmLabel: 'Save',
+                          fields: [
+                            {
+                              name: 'url',
+                              label: 'URL',
+                              defaultValue: m.url,
+                              required: true,
+                            },
+                            {
+                              name: 'label',
+                              label: 'Label',
+                              defaultValue: m.label,
+                              required: true,
+                            },
+                          ],
+                        })
+                        if (!values) return
+                        if (!values.url.trim()) {
+                          await run(() =>
+                            onChange(maps.filter((x) => x.id !== m.id)),
+                          )
+                          return
+                        }
+                        await run(() =>
+                          onChange(
+                            maps.map((x) =>
+                              x.id === m.id
+                                ? {
+                                    ...x,
+                                    url: values.url.trim(),
+                                    label: values.label.trim() || 'Day map',
+                                  }
+                                : x,
+                            ),
+                          ),
+                        )
+                      })()
+                    }}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded p-1 text-ink-soft hover:bg-paper hover:text-accent"
+                    aria-label="Remove map"
+                    disabled={busy}
+                    onClick={() => {
+                      void (async () => {
+                        const ok = await dialog.confirm({
+                          title: 'Remove map',
+                          message: `Remove “${m.label}”?`,
+                          confirmLabel: 'Remove',
+                          destructive: true,
+                        })
+                        if (!ok) return
+                        await run(() =>
+                          onChange(maps.filter((x) => x.id !== m.id)),
+                        )
+                      })()
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-1 text-sm text-ink-soft">No day maps yet.</p>
+      )}
+    </div>
+  )
+}
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -202,6 +384,7 @@ function buildTimeline(
 
 function StopCard({
   stop,
+  nextStop,
   expanded,
   adminMode,
   onToggle,
@@ -212,6 +395,7 @@ function StopCard({
   hideOptionPill,
 }: {
   stop: ItineraryStop
+  nextStop?: ItineraryStop | null
   expanded: boolean
   adminMode: boolean
   onToggle: () => void
@@ -300,12 +484,14 @@ function StopCard({
     })
   }
 
+  const durationLabel = displayDuration(stop, nextStop)
+
   const header = (
     <>
       <div className="w-14 shrink-0 pt-0.5">
         <div className="font-mono text-sm font-bold text-accent">{stop.time}</div>
-        {showDuration(stop.kind) && stop.duration ? (
-          <div className="text-[11px] text-ink-soft">{stop.duration}</div>
+        {durationLabel ? (
+          <div className="text-[11px] text-ink-soft">{durationLabel}</div>
         ) : null}
       </div>
       <div className="min-w-0 flex-1">
@@ -314,11 +500,17 @@ function StopCard({
             {stop.optionLabel}
           </div>
         ) : null}
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           {isHighlight ? (
             <Star className="h-3.5 w-3.5 shrink-0 fill-accent text-accent" />
           ) : null}
           <div className="font-semibold leading-snug text-ink">{stop.title}</div>
+          {stop.timedEntry ? (
+            <span className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent">
+              <AlarmClock className="h-3 w-3" />
+              Timed
+            </span>
+          ) : null}
         </div>
         {stop.kind && stop.kind !== 'attraction' ? (
           <div className="mt-0.5 text-[11px] tracking-wide text-ink-soft">
@@ -373,7 +565,12 @@ function StopCard({
                     <DetailRow label="Bags" value={details.bags} />
                   ) : null}
                   {details.transit ? (
-                    <DetailRow label="Transit" value={details.transit} />
+                    <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
+                      <dt className="font-semibold text-ink">Transit</dt>
+                      <dd className="text-ink-soft">
+                        <RichText value={details.transit} />
+                      </dd>
+                    </div>
                   ) : null}
                   {details.vibe ? (
                     <DetailRow label="Vibe" value={details.vibe} />
@@ -382,7 +579,12 @@ function StopCard({
                     <DetailRow label="Must try" value={details.mustTry} />
                   ) : null}
                   {details.notes ? (
-                    <DetailRow label="Notes" value={details.notes} />
+                    <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
+                      <dt className="font-semibold text-ink">Notes</dt>
+                      <dd className="text-ink-soft">
+                        <RichText value={details.notes} />
+                      </dd>
+                    </div>
                   ) : null}
                 </dl>
               ) : null}
@@ -404,7 +606,7 @@ function StopCard({
                               key={`${key}-${i}`}
                               className="relative rounded-lg bg-paper-deep/70 px-3 py-2 pl-4 text-sm leading-relaxed text-ink-soft before:absolute before:left-1.5 before:top-3 before:h-1.5 before:w-1.5 before:rounded-full before:bg-accent"
                             >
-                              {item}
+                              <RichText value={item} />
                             </li>
                           ))}
                         </ul>
@@ -484,6 +686,19 @@ function StopCard({
                         />
                         {isHighlight ? 'Unhighlight' : 'Highlight'}
                       </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onAdminAction('toggle-timed', stop)}
+                      >
+                        <AlarmClock
+                          className={cn(
+                            'h-3.5 w-3.5',
+                            stop.timedEntry && 'text-accent',
+                          )}
+                        />
+                        {stop.timedEntry ? 'Untimed' : 'Timed'}
+                      </Button>
                       {onEdit ? (
                         <Button variant="outline" size="sm" onClick={onEdit}>
                           <Pencil className="h-3.5 w-3.5" /> Edit
@@ -522,12 +737,14 @@ export function SchedulePanel({
   onOpen,
   onAdminAction,
   onAddEvent,
+  onSetDayMaps,
 }: {
   day: ItineraryDay
   adminMode?: boolean
   onOpen: (target: ViewerTarget) => void
   onAdminAction?: (action: AdminAction, stop: ItineraryStop, extra?: string) => void
   onAddEvent?: () => void
+  onSetDayMaps?: (maps: DayMapLink[]) => void | Promise<void>
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const choicesByGroup = useMemo(
@@ -560,8 +777,25 @@ export function SchedulePanel({
     [day.stops, selectedByGroup],
   )
 
+  const timelineStops = useMemo(
+    () =>
+      timeline
+        .filter((item): item is { type: 'stop'; stop: ItineraryStop } =>
+          item.type === 'stop',
+        )
+        .map((item) => item.stop),
+    [timeline],
+  )
+
+  const dayMaps = day.mapsUrls ?? []
+
   return (
     <div className="space-y-2">
+      <DayMapsBar
+        maps={dayMaps}
+        adminMode={adminMode}
+        onChange={onSetDayMaps}
+      />
       <div className="flex items-start justify-between gap-2 px-1">
         <p className="text-sm text-ink-soft">
           Full timeline — tap a row for details
@@ -622,10 +856,14 @@ export function SchedulePanel({
             </div>
           )
         }
+        const stopIndex = timelineStops.findIndex((s) => s.id === item.stop.id)
+        const nextStop =
+          stopIndex >= 0 ? timelineStops[stopIndex + 1] ?? null : null
         return (
           <StopCard
             key={item.stop.id}
             stop={item.stop}
+            nextStop={nextStop}
             adminMode={adminMode}
             expanded={expandedId === item.stop.id}
             isHighlight={highlightIds.has(item.stop.id)}

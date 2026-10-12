@@ -8,6 +8,7 @@ import {
   Pencil,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useAppDialog } from '@/components/AppDialogs'
 import { AdminLoginDialog } from '@/components/AdminLoginDialog'
 import { DayDrawer } from '@/components/DayDrawer'
 import { DeviceIdentityGate } from '@/components/DeviceIdentityGate'
@@ -45,6 +46,7 @@ import {
   adminPatchDay,
   adminSetDayHighlights,
   adminSetMapsUrl,
+  adminUnlinkGuide,
   adminUpdateStop,
   adminUploadHero,
   adminUploadMap,
@@ -97,6 +99,7 @@ const inputClass =
   'w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-sea'
 
 export default function App() {
+  const dialog = useAppDialog()
   const [deviceUser, setDeviceUserState] = useState<string | null>(() => getDeviceUser())
   const [adminMode, setAdminMode] = useState(false)
   const [adminLoginOpen, setAdminLoginOpen] = useState(false)
@@ -267,12 +270,12 @@ export default function App() {
 
   const openPagesWindow = (title: string, pages: string[]) => {
     if (!pages.length) {
-      alert(title ? `${title}: no pages yet` : 'No pages yet')
+      void dialog.alert(title ? `${title}: no pages yet` : 'No pages yet')
       return
     }
     const win = window.open('', '_blank')
     if (!win) {
-      alert('Pop-up blocked — allow pop-ups to open attachments.')
+      void dialog.alert('Pop-up blocked — allow pop-ups to open attachments.')
       return
     }
     const esc = (s: string) =>
@@ -348,13 +351,19 @@ export default function App() {
   ) => {
     if (!day) return
     if (action === 'delete-event') {
-      if (!confirm(`Delete “${stop.title}”?`)) return
+      const ok = await dialog.confirm({
+        title: 'Delete event',
+        message: `Delete “${stop.title}”?`,
+        confirmLabel: 'Delete',
+        destructive: true,
+      })
+      if (!ok) return
       try {
         const doc = await adminDeleteStop(tripSlug, day.id, stop.id)
         applyAdminDoc(doc)
         setOverlay(null)
       } catch (e) {
-        alert(e instanceof Error ? e.message : 'Failed')
+        await dialog.alert(e instanceof Error ? e.message : 'Failed')
       }
       return
     }
@@ -367,7 +376,18 @@ export default function App() {
         const doc = await adminSetDayHighlights(tripSlug, day.id, next)
         applyAdminDoc(doc)
       } catch (e) {
-        alert(e instanceof Error ? e.message : 'Failed')
+        await dialog.alert(e instanceof Error ? e.message : 'Failed')
+      }
+      return
+    }
+    if (action === 'toggle-timed') {
+      try {
+        const doc = await adminUpdateStop(tripSlug, day.id, stop.id, {
+          timedEntry: !stop.timedEntry,
+        })
+        applyAdminDoc(doc)
+      } catch (e) {
+        await dialog.alert(e instanceof Error ? e.message : 'Failed')
       }
     }
   }
@@ -380,7 +400,7 @@ export default function App() {
         const time = promptValue.trim()
         const title = promptExtra.trim()
         if (!time || !title) {
-          alert('Enter time and title')
+          await dialog.alert('Enter time and title')
           return
         }
         const doc = await adminCreateStop(tripSlug, day.id, {
@@ -408,7 +428,7 @@ export default function App() {
       setPromptDuration('')
       setPromptKind('attraction')
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed')
+      await dialog.alert(e instanceof Error ? e.message : 'Failed')
     } finally {
       setPromptBusy(false)
     }
@@ -626,7 +646,9 @@ export default function App() {
             if (!file) return
             e.preventDefault()
             void uploadHeroFile(file).catch((err) =>
-              alert(err instanceof Error ? err.message : 'Upload failed'),
+              void dialog.alert(
+                err instanceof Error ? err.message : 'Upload failed',
+              ),
             )
           }}
         >
@@ -678,7 +700,9 @@ export default function App() {
                   void pickFile('image/*').then((file) => {
                     if (!file) return
                     void uploadHeroFile(file).catch((err) =>
-                      alert(err instanceof Error ? err.message : 'Upload failed'),
+                      void dialog.alert(
+                        err instanceof Error ? err.message : 'Upload failed',
+                      ),
                     )
                   })
                 }}
@@ -691,12 +715,23 @@ export default function App() {
                   size="sm"
                   className="bg-paper/90"
                   onClick={() => {
-                    if (!confirm('Remove day picture?')) return
-                    void adminClearHero(tripSlug, day.id)
-                      .then(applyAdminDoc)
-                      .catch((e) =>
-                        alert(e instanceof Error ? e.message : 'Failed'),
-                      )
+                    void (async () => {
+                      const ok = await dialog.confirm({
+                        title: 'Remove picture',
+                        message: 'Remove day picture?',
+                        confirmLabel: 'Remove',
+                        destructive: true,
+                      })
+                      if (!ok) return
+                      try {
+                        const doc = await adminClearHero(tripSlug, day.id)
+                        applyAdminDoc(doc)
+                      } catch (e) {
+                        await dialog.alert(
+                          e instanceof Error ? e.message : 'Failed',
+                        )
+                      }
+                    })()
                   }}
                 >
                   Remove
@@ -723,6 +758,12 @@ export default function App() {
               adminMode={adminMode}
               onOpen={(t) => void openViewer(t)}
               onAdminAction={(a, s) => void onAdminAction(a, s)}
+              onSetDayMaps={async (maps) => {
+                const doc = await adminPatchDay(tripSlug, day.id, {
+                  mapsUrls: maps,
+                })
+                applyAdminDoc(doc)
+              }}
               onAddEvent={() => {
                 setPromptValue('')
                 setPromptExtra('')
@@ -753,19 +794,32 @@ export default function App() {
               if (newId) setDayId(newId)
               setDrawerOpen(false)
             })
-            .catch((e) => alert(e instanceof Error ? e.message : 'Failed'))
+            .catch((e) =>
+              void dialog.alert(e instanceof Error ? e.message : 'Failed'),
+            )
         }}
         onRemoveDay={(id) => {
-          if (!confirm('Remove this day from the vacation?')) return
-          void adminDeleteDay(tripSlug, id)
-            .then((doc) => {
+          void (async () => {
+            const ok = await dialog.confirm({
+              title: 'Remove day',
+              message: 'Remove this day from the vacation?',
+              confirmLabel: 'Remove',
+              destructive: true,
+            })
+            if (!ok) return
+            try {
+              const doc = await adminDeleteDay(tripSlug, id)
               applyAdminDoc(doc)
               if (id === day.id) {
-                const next = (doc.itinerary?.days as { id: string }[] | undefined)?.[0]
+                const next = (
+                  doc.itinerary?.days as { id: string }[] | undefined
+                )?.[0]
                 setDayId(next?.id ?? '')
               }
-            })
-            .catch((e) => alert(e instanceof Error ? e.message : 'Failed'))
+            } catch (e) {
+              await dialog.alert(e instanceof Error ? e.message : 'Failed')
+            }
+          })()
         }}
       />
 
@@ -831,14 +885,17 @@ export default function App() {
               {showDuration(promptKind) ? (
                 <label className="block space-y-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                    Duration
+                    Duration override
                   </span>
                   <input
                     value={promptDuration}
                     onChange={(e) => setPromptDuration(e.target.value)}
-                    placeholder="5h 55m"
+                    placeholder="Optional — e.g. 5h 55m for flights"
                     className={inputClass}
                   />
+                  <span className="text-[11px] text-ink-soft">
+                    Leave blank to use the span until the next event.
+                  </span>
                 </label>
               ) : null}
             </div>
@@ -927,11 +984,20 @@ export default function App() {
               history: guide.history,
               route: guide.route,
             }
+            // Only send id when updating an existing linked guide — empty string
+            // must not create a slug collision or accidental re-link.
             if (guide.id) payload.id = guide.id
+            const hasContent = Boolean(
+              payload.logistics.length ||
+                payload.proTips.length ||
+                payload.history.length ||
+                payload.route.length,
+            )
+            if (!hasContent && !guide.id) return
             const guideDoc = await adminUpsertGuide(tripSlug, payload)
             const guideId = (guideDoc.guide?.id as string) || guide.id
             let doc = guideDoc
-            if (guideId) {
+            if (guideId && hasContent) {
               const current =
                 day.stops.find((s) => s.id === stopId) ?? overlay.stop
               const ids =
@@ -944,6 +1010,16 @@ export default function App() {
                 doc = await adminLinkGuide(tripSlug, day.id, stopId, guideId)
               }
             }
+            applyAdminDoc(doc)
+          }}
+          onUnlinkGuide={async (guideId) => {
+            const stopId = overlay.stop.id
+            const doc = await adminUnlinkGuide(
+              tripSlug,
+              day.id,
+              stopId,
+              guideId,
+            )
             applyAdminDoc(doc)
           }}
           onAddTicket={async (label) => {

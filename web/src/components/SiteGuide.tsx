@@ -1,10 +1,11 @@
-import { Pencil, Plus, Trash2, X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useAppDialog } from '@/components/AppDialogs'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/EmptyState'
+import { GuideSectionsEditor } from '@/components/GuideSectionsEditor'
 import {
   guideHasVisibleContent,
-  showGuideSection,
   type GuideSectionKey,
   visibleGuideSections,
 } from '@/data/stopFields'
@@ -35,6 +36,7 @@ export function SiteGuide({
   /** Filters which guide sections are shown / editable. */
   stopKind?: StopKind
 }) {
+  const dialog = useAppDialog()
   const sections = useMemo(
     () =>
       visibleGuideSections(stopKind).map((key) => ({
@@ -48,16 +50,21 @@ export function SiteGuide({
   const [draft, setDraft] = useState<Site | null>(active ?? null)
   const [busy, setBusy] = useState(false)
 
+  const guideIdsKey = guides.map((g) => g.id).join('|')
+
   useEffect(() => {
     if (!guides.some((g) => g.id === activeId)) {
       setActiveId(guides[0]?.id ?? '')
     }
-  }, [guides, activeId])
+  }, [guideIdsKey, activeId, guides])
 
   useEffect(() => {
     const next = guides.find((g) => g.id === activeId) ?? guides[0] ?? null
-    setDraft(next ? { ...next, attachments: next.attachments ?? [] } : null)
-  }, [activeId, guides])
+    setDraft((d) => {
+      if (d && next && d.id === next.id) return d
+      return next ? { ...next, attachments: next.attachments ?? [] } : null
+    })
+  }, [activeId, guideIdsKey, guides])
 
   if (!guides.length || !draft) {
     return (
@@ -83,39 +90,48 @@ export function SiteGuide({
   const photo = getSitePhoto(draft.id)
   const hasContent = guideHasVisibleContent(draft, stopKind)
 
-  const updateSection = (key: SectionKey, items: string[]) => {
-    setDraft({ ...draft, [key]: items })
-  }
-
-  const editItem = (key: SectionKey, index: number) => {
+  const editItem = async (key: SectionKey, index: number) => {
     const current = draft[key][index] ?? ''
-    const next = window.prompt('Edit item', current)
+    const next = await dialog.promptRichText({
+      title: 'Edit item',
+      label: SECTION_LABELS[key],
+      defaultValue: current,
+      required: false,
+      confirmLabel: 'Save',
+    })
     if (next === null) return
-    const trimmed = next.trim()
-    if (!trimmed) {
-      updateSection(
-        key,
-        draft[key].filter((_, i) => i !== index),
-      )
-      return
-    }
-    updateSection(
-      key,
-      draft[key].map((item, i) => (i === index ? trimmed : item)),
-    )
+    setDraft((d) => {
+      if (!d) return d
+      const list = d[key] ?? []
+      if (!next) {
+        return { ...d, [key]: list.filter((_, i) => i !== index) }
+      }
+      return {
+        ...d,
+        [key]: list.map((item, i) => (i === index ? next : item)),
+      }
+    })
   }
 
   const removeItem = (key: SectionKey, index: number) => {
-    updateSection(
-      key,
-      draft[key].filter((_, i) => i !== index),
-    )
+    setDraft((d) => {
+      if (!d) return d
+      return { ...d, [key]: (d[key] ?? []).filter((_, i) => i !== index) }
+    })
   }
 
-  const addItem = (key: SectionKey) => {
-    const next = window.prompt('New item')
-    if (!next?.trim()) return
-    updateSection(key, [...draft[key], next.trim()])
+  const addItem = async (key: SectionKey) => {
+    const next = await dialog.promptRichText({
+      title: 'Add note',
+      message: `Starts in ${SECTION_LABELS[key]} — drag to another section anytime.`,
+      label: 'Note',
+      confirmLabel: 'Add',
+    })
+    if (!next) return
+    setDraft((d) => {
+      if (!d) return d
+      return { ...d, [key]: [...(d[key] ?? []), next] }
+    })
   }
 
   const save = async () => {
@@ -208,65 +224,51 @@ export function SiteGuide({
                 detail="No logistics, tips, history, or route yet."
               />
             ) : (
-              sections.map(({ key, label }) => {
-                if (!showGuideSection(stopKind, key)) return null
-                const items = draft[key]
-                if (!items.length && !adminMode) return null
-                return (
-                  <section key={key}>
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <h3 className="font-display text-lg font-bold text-ink">
-                        {label}
-                      </h3>
-                      {adminMode ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addItem(key)}
-                        >
-                          <Plus className="h-3.5 w-3.5" /> Add
-                        </Button>
-                      ) : null}
-                    </div>
-                    {items.length ? (
-                      <ul className="space-y-2">
-                        {items.map((item, i) => (
-                          <li
-                            key={`${key}-${i}`}
-                            className="relative rounded-lg bg-paper-deep/70 px-3 py-2 pl-4 text-sm leading-relaxed text-ink-soft before:absolute before:left-1.5 before:top-3 before:h-1.5 before:w-1.5 before:rounded-full before:bg-accent"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <span className="min-w-0 flex-1">{item}</span>
-                              {adminMode ? (
-                                <span className="flex shrink-0 gap-0.5">
-                                  <button
-                                    type="button"
-                                    className="rounded p-1 text-ink-soft hover:bg-paper hover:text-ink"
-                                    aria-label="Edit item"
-                                    onClick={() => editItem(key, i)}
-                                  >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="rounded p-1 text-ink-soft hover:bg-paper hover:text-accent"
-                                    aria-label="Delete item"
-                                    onClick={() => removeItem(key, i)}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
-                                </span>
-                              ) : null}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : adminMode ? (
-                      <p className="text-sm text-ink-soft">No items yet.</p>
-                    ) : null}
-                  </section>
-                )
-              })
+              <>
+                {adminMode ? (
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-paper-deep/50 px-3 py-2">
+                    <p className="text-xs text-ink-soft">
+                      Drag notes between sections to categorize.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void addItem('logistics')}
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Note
+                    </Button>
+                  </div>
+                ) : null}
+                <GuideSectionsEditor
+                  sections={sections.filter(
+                    ({ key }) =>
+                      adminMode || (draft[key]?.length ?? 0) > 0,
+                  )}
+                  values={{
+                    logistics: draft.logistics,
+                    proTips: draft.proTips,
+                    history: draft.history,
+                    route: draft.route,
+                  }}
+                  editing={adminMode}
+                  onChange={(next) =>
+                    setDraft((d) =>
+                      d
+                        ? {
+                            ...d,
+                            logistics: next.logistics,
+                            proTips: next.proTips,
+                            history: next.history,
+                            route: next.route,
+                          }
+                        : d,
+                    )
+                  }
+                  onEdit={(key, i) => void editItem(key, i)}
+                  onRemove={removeItem}
+                  onAdd={(key) => void addItem(key)}
+                />
+              </>
             )}
           </div>
         </div>

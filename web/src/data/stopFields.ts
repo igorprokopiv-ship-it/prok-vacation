@@ -1,10 +1,12 @@
 import type { ItineraryStop, Site, StopKind } from '@/data/types'
+import { isEmptyRichText } from '@/lib/richText'
 
 export type GuideSectionKey = keyof Pick<
   Site,
   'logistics' | 'proTips' | 'history' | 'route'
 >
 
+/** Transit-only editable override field (flights, Eurostar, etc.). */
 export function showDuration(kind: StopKind): boolean {
   return kind === 'transit'
 }
@@ -82,8 +84,14 @@ export function stopDetailFields(stop: ItineraryStop): {
     bookingRef:
       showTransitExtras(kind) && stop.bookingRef ? stop.bookingRef : undefined,
     bags: showTransitExtras(kind) && stop.bags ? stop.bags : undefined,
-    transit: showTransitExtras(kind) && stop.transit ? stop.transit : undefined,
-    notes: stop.notes || undefined,
+    transit:
+      showTransitExtras(kind) &&
+      stop.transit &&
+      !isEmptyRichText(stop.transit)
+        ? stop.transit
+        : undefined,
+    notes:
+      stop.notes && !isEmptyRichText(stop.notes) ? stop.notes : undefined,
     vibe: vibe.length ? vibe.join(' · ') : undefined,
     mustTry: mustTry.length ? mustTry.join(' · ') : undefined,
   }

@@ -2,51 +2,41 @@
   {
     "id": "tower-of-london",
     "name": "Tower of London",
-    "aliases": [
-      "Tower",
-      "Crown Jewels"
-    ],
+    "aliases": [],
     "logistics": [
-      "Walk southeast from Apex City of London Hotel (~3–5 min) to the West Gate entrance.",
-      "Hours: 10:00–17:30; last admission 15:00.",
-      "Cost: £111 + £14 family audio (£37 adults / £18.50 under 15).",
-      "Try to catch the 14:30 or 15:00 Yeoman Warder tour.",
-      "Moat surrounds the fortress; the only way in is through Byward Tower."
+      "<p>Hours: 10:00–17:30 (Last admission 15:00)</p>",
+      "Cost: £111 + £14 family audio (£37 adults / £18.50 under 15)."
     ],
     "proTips": [
-      "Yeoman Warder tour: included with admission; every ~30 min near the entrance; 45–60 min; led by military veterans who live on site with their families.",
-      "Doesn't run in rain (umbrella safety); does not include Crown Jewels or White Tower — see those on your own.",
-      "Pick up Family Audio Guide at the kiosk just past the entrance."
+      "<p>Yeoman Warder tour.<br></p><ul><li>included with admission, <b>worth it</b></li><li>every ~30 min near the entrance</li><li>45–60 min</li><li>led by military veterans who live on site with their families</li><li>Doesn't run in rain (umbrella safety)</li><li>does not include Crown Jewels or White Tower (see those on your own)</li></ul><p></p>"
     ],
     "history": [
       "Historic castle and fortress founded in 1066; military history and royal armouries.",
-      "White Tower built by William the Conqueror in 1078 after 1066 to intimidate the Saxons; onion domes added in the 16th century for Queen Anne Boleyn's coronation.",
+      "White Tower built by William the Conqueror in 1078 after 1066 to intimidate the Saxons (built on top of an old Roman wall fort). Onion domes added in the 16th century for Queen Anne Boleyn's coronation.",
       "Crown Jewels: 23,000+ gemstones including Cullinan I; stolen once in 1671 by Colonel Thomas Blood, who was inexplicably pardoned.",
-      "Raven legend: the kingdom and fortress fall if the six resident ravens ever leave; the Ravenmaster feeds them raw meat and blood-soaked biscuits.",
-      "Torture here was tightly regulated — Privy Council permission required; only 48 recorded cases."
+      "Raven legend: the kingdom and fortress fall if the six resident ravens ever leave; the Ravenmaster feeds them raw meat and blood-soaked biscuits."
     ],
     "route": [
-      "Byward Tower — defended the main entrance since the 13th century; original wooden portcullis (dropping gate) still in place.",
-      "Traitor's Gate — Edward I water gate; Tudor prisoners including Anne Boleyn arrived here; note the extra-small second door.",
-      "Torture Tower / Lower Wakefield Tower — Tudor interrogation replicas; only 48 recorded torture cases.",
-      "Medieval Palace (St Thomas's, Wakefield, Lanthorn) — Henry III / Edward I apartments; Wakefield vaulted ceiling and throne; Henry VI killed here; Oratory in St Thomas's with recreated medieval altar where Edward I prayed.",
-      "White Tower — Royal Armouries (Henry VIII's oversized decorated armour), Chapel of St John (11th-century); wooden stairs once removable/burnable for defense; also used as a prison.",
+      "Walk southeast from Apex City of London Hotel (~3–5 min) to the West Gate entrance.",
+      "<p>Moat surrounds the fortress, the only way in is through Byward Tower.</p>",
+      "<p>Byward Tower&nbsp;</p><p></p><ul><li>Defended the main entrance since the 13th century</li><li>Original wooden portcullis (dropping gate) still in place.</li></ul><p></p>",
+      "Pick up Family Audio Guide at the kiosk just past the entrance.",
+      "<p>Traitor's Gate</p><p></p><ul><li>Originally built by Edward I as a water gate from the river</li><li>Earned its name because Tudor prisoners, including Anne Boleyn, arrived through it</li><li>Note the extra-small second door.</li></ul><p></p>",
+      "<p>Torture Tower / Lower Wakefield Tower.&nbsp;</p><p></p><ul><li>Houses replicas of standard Tudor interrogation instruments, including the rack and the manacles.&nbsp;</li><li>Torture was actually highly regulated here; it required special permission from the monarch's Privy Council and is recorded in only 48 specific cases.</li></ul><p></p>",
+      "<p>Medieval Palace (St Thomas's, Wakefield, Lanthorn Towers).&nbsp;</p><p></p><ul><li>Recreates the luxurious 13th-century lifestyle and royal apartments of Kings Henry III and Edward I.&nbsp;</li><li>&nbsp;Were kings and queens lived and entertained.</li><li>Wakefield Tower has great vaulted ceiling and throne. Henry VI was killed here</li></ul><p></p><ul><li>The Oratory in St Thomas's Tower features a recreated medieval altar where Edward I would pray.</li></ul>",
+      "<p>White Tower</p><li>Built by William the Conqueror in 1078 after conquest of 1066 to intimidate the Saxons</li><ul><li>Iconic onion domes were 16th-century addition to celebrate the coronation of queen Anne Bolin</li><li>Wooden stairs that could have been burned making it even harder for someone to get in</li><li>Was used as a prison</li><li>Royal Armories. Excessively large combat beautifully decorated armor of Henry VIII</li><li>Chapel of St John. Preserved from 11th-century</li></ul>",
       "Place of Executions — Anne Boleyn executed here.",
-      "Waterloo Barracks / Crown Jewels — Duke of Wellington; then Beauchamp Tower (famous prisoners)."
+      "<p>Waterloo Barracks, build by Duke of Wellington\n     after defeating Napolean</p>",
+      "<p>Crown Jewels (Waterloo Block)</p><p></p><ul><li>Contains over 23,000 gemstones, including the Cullinan I, the largest clear-cut diamond in the world.</li><li>The collection is strictly guarded by the military and has only been successfully stolen once, in 1671 by Colonel Thomas Blood, who was inexplicably pardoned by the King shortly after</li></ul><p></p>",
+      "<p>Bechum Tower, were famous prisoners were kept</p>"
     ],
     "attachments": []
   },
   {
     "id": "london-wall",
     "name": "London Wall",
-    "aliases": [
-      "Roman Wall",
-      "Londinium Wall"
-    ],
-    "logistics": [
-      "Short walk after Tower of London viewpoint (~17:45 stop).",
-      "Free exterior fragment."
-    ],
+    "aliases": [],
+    "logistics": [],
     "proTips": [
       "Look for the change in masonry where Roman courses meet medieval rebuild."
     ],
@@ -55,23 +45,17 @@
       "Enclosed Londinium and dictated City of London boundaries for over a millennium.",
       "At peak: ~2 miles long, 20 ft high, 8 ft thick; this fragment is one of the largest surviving sections."
     ],
-    "route": [
-      "View the surviving fragment near the Tower; note Roman lower courses vs medieval upper."
-    ],
+    "route": [],
     "attachments": []
   },
   {
     "id": "harry-potter-studios",
     "name": "Warner Bros. Studio Tour London — The Making of Harry Potter",
-    "aliases": [
-      "Harry Potter Studios",
-      "Leavesden",
-      "HP Studios"
-    ],
+    "aliases": [],
     "logistics": [
-      "Transit ~1.25h from Tower Hill via Euston Square → Watford Junction → studio shuttle.",
-      "Hours: 09:00–20:00. Cost: £188 tickets + £14.25 audio + lunch budget.",
-      "Sells out months ahead — book ASAP."
+      "<p>Hours: 09:00–20:00</p>",
+      "Sells out months ahead — book ASAP.",
+      "<p>Friday, London kids are at school</p>"
     ],
     "proTips": [
       "Grab free Activity Passports at entry (trivia, souvenir stamps, Golden Snitch scavenger hunt).",
@@ -79,15 +63,14 @@
       "Backlot is fully outdoors (Knight Bus, Privet Drive, Butterbeer) — bring a hooded jacket or umbrella in late October."
     ],
     "history": [
-      "Housed at working Leavesden studios where all eight Harry Potter films were produced over ten years.",
       "After Deathly Hallows Part 2 wrapped, the crew preserved thousands of props, costumes, and sets as a behind-the-scenes exhibition."
     ],
     "route": [
-      "Hub / Tour Entrance / Experience Corridor — Ukrainian Ironbelly dragon suspended from the ceiling; short cinema intro then the screen lifts to reveal the entrance.",
-      "The Great Hall — solid York stone floor (built for a decade of filming), forced perspective, practical lighting in the ceiling.",
-      "Filmmakers & Interior Sets — Potions Classroom cauldrons stir via motion-triggered motors at Snape's desk; Dumbledore's office phone directories rebound in leather.",
+      "<p>Hub / Tour Entrance / Experience Corridor<br></p><ul><li>US, Ukrainian,&nbsp; and Korean Ironbelly dragon suspended from the ceiling</li><li>Short cinema intro then the screen lifts to reveal the entrance.</li></ul><p></p>",
+      "<p>The Great Hall. Solid York stone floor (built for a decade of filming), forced perspective, practical lighting in the ceiling.</p>",
+      "<p>Filmmakers &amp; Interior Sets. Potions Classroom cauldrons stir via motion-triggered motors at Snape's desk; Dumbledore's office phone directories rebound in leather.</p>",
       "Ministry of Magic — largest set (30,000 sq ft); Forbidden Forest animatronics (Aragog, Hippogriff).",
-      "Backlot & Backlot Stage — Hogwarts Bridge; triple-decker Knight Bus weighted against tipping; Butterbeer Bar (vegan, non-alcoholic).",
+      "<p>Backlot &amp; Backlot Stage — Hogwarts Bridge; triple-decker Knight Bus weighted against tipping; <b>Butterbeer Ba</b>r (vegan, non-alcoholic).</p>",
       "Gringotts & The Vaults — faux-marble pillars; ~38,000 pieces of rubber treasure in the Lestrange Vault; functional vault door.",
       "1:24 Hogwarts model (86 artists, 2,500 fiber-optic lights); Wand Room (17,000+ boxes).",
       "Quidditch & SFX/VFX — mechanical rigs and multi-axis motion bases.",
@@ -101,14 +84,9 @@
   {
     "id": "magdalen-college",
     "name": "Magdalen College",
-    "aliases": [
-      "Magdalen",
-      "Oxford Magdalen"
-    ],
+    "aliases": [],
     "logistics": [
-      "Hours: 10:00–16:00 Oct–Mar (winter). Cost: £10 per adult/person.",
-      "Must be at visitor gate right at 10:00 opening (Sunday Oxford branch).",
-      "On Fri Oxford option: taxi should drop you here first — closes earliest."
+      "Must be at visitor gate right at 10:00 opening (Sunday Oxford branch)."
     ],
     "proTips": [
       "Focus on grounds, cloisters, chapel, and Deer Park / river atmosphere."
@@ -117,10 +95,7 @@
       "Working Oxford college balancing teaching with medieval architecture, cloisters, chapel, and Deer Park by the river.",
       "C.S. Lewis debated literature here with J.R.R. Tolkien."
     ],
-    "route": [
-      "Beautiful grounds and medieval architecture.",
-      "Cloisters, chapel, river/Deer Park walk."
-    ],
+    "route": [],
     "attachments": []
   },
   {

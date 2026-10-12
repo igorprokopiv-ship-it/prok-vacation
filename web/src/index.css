@@ -42,4 +42,51 @@
   a {
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Keep guide notes on the app typeface — ignore pasted font faces/sizes. */
+  .rich-text,
+  .rich-text * {
+    font-family: inherit !important;
+    font-size: inherit !important;
+  }
+
+  .rich-text p {
+    margin: 0 0 0.35em;
+  }
+
+  .rich-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .rich-text ul,
+  .rich-text ol {
+    margin: 0.25em 0;
+    padding-left: 1.25rem;
+  }
+
+  .rich-text ul {
+    list-style: disc;
+  }
+
+  .rich-text ol {
+    list-style: decimal;
+  }
+
+  .rich-text li {
+    margin: 0.15em 0;
+  }
+
+  .rich-text li > p {
+    margin: 0;
+  }
+
+  .rich-text strong,
+  .rich-text b {
+    font-weight: 700;
+  }
+
+  .rich-text em,
+  .rich-text i {
+    font-style: italic;
+  }
 }

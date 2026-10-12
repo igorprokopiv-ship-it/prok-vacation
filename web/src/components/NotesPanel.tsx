@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { RichText } from '@/components/RichText'
+import { RichTextEditor } from '@/components/RichTextEditor'
 import {
   listNotes,
   saveNote,
   type NoteRow,
 } from '@/lib/contentSync'
 import { getDeviceUser } from '@/lib/deviceIdentity'
+import { isEmptyRichText, normalizeRichText } from '@/lib/richText'
 
 export function NotesPanel({
   tripId,
@@ -29,7 +32,7 @@ export function NotesPanel({
   }, [tripId, dayId])
 
   const add = async () => {
-    const body = draft.trim()
+    const body = normalizeRichText(draft)
     if (!body) return
     const now = new Date().toISOString()
     const author = getDeviceUser() || deviceUser
@@ -55,15 +58,12 @@ export function NotesPanel({
       <p className="text-sm text-ink-soft">
         Notes as <span className="font-semibold text-ink">{deviceUser}</span>. They sync when online.
       </p>
-      <textarea
+      <RichTextEditor
         value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        rows={3}
-        spellCheck
+        onChange={setDraft}
         placeholder="What just happened / don’t forget…"
-        className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-sea"
       />
-      <Button onClick={() => void add()} disabled={!draft.trim()}>
+      <Button onClick={() => void add()} disabled={isEmptyRichText(draft)}>
         Save note
       </Button>
       <ul className="space-y-3">
@@ -72,7 +72,7 @@ export function NotesPanel({
             key={n.id}
             className="rounded-xl border border-line/70 bg-paper px-3 py-3 text-sm text-ink"
           >
-            <div className="whitespace-pre-wrap">{n.body}</div>
+            <RichText value={n.body} />
             <div className="mt-2 text-[11px] text-ink-soft">
               {n.created_by ? <span className="font-semibold text-ink">{n.created_by} · </span> : null}
               {new Date(n.last_modified_on).toLocaleString()}

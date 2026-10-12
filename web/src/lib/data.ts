@@ -2,7 +2,6 @@ import bundledAssets from '@/data/assets.json'
 import bundledItinerary from '@/data/itinerary.json'
 import bundledSites from '@/data/sites.json'
 import {
-  showDuration,
   stopHasVisibleDetails,
   visibleGuideSections,
 } from '@/data/stopFields'
@@ -126,7 +125,6 @@ export function stopCanExpand(stop: ItineraryStop): boolean {
   if (stopHasVisibleDetails(stop)) return true
   if (stop.mapsUrl || stopHasTickets(stop) || stopHasMap(stop)) return true
   if (getGuidesForStop(stop).length > 0) return true
-  if (showDuration(stop.kind) && stop.duration) return true
   return false
 }
 

@@ -1,5 +1,6 @@
 import { MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { useAppDialog } from '@/components/AppDialogs'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -32,6 +33,7 @@ export function TripPicker({
   onTripsChanged?: () => void | Promise<void>
   onRequestAdmin?: () => void
 }) {
+  const appDialog = useAppDialog()
   const [menuTrip, setMenuTrip] = useState<TripSummary | null>(null)
   const [dialog, setDialog] = useState<
     null | 'create' | 'rename' | 'dates' | 'delete'
@@ -74,28 +76,30 @@ export function TripPicker({
     try {
       if (dialog === 'create') {
         if (!title.trim() || !startDate) {
-          alert('Title and start date required')
+          await appDialog.alert('Title and start date required')
           return
         }
         await adminCreateTrip({ title: title.trim(), start_date: startDate })
         await onTripsChanged?.()
       } else if (dialog === 'rename' && menuTrip) {
         if (!title.trim()) {
-          alert('Title required')
+          await appDialog.alert('Title required')
           return
         }
         await adminPatchTrip(menuTrip.slug, { title: title.trim() })
         await onTripsChanged?.()
       } else if (dialog === 'dates' && menuTrip) {
         if (!startDate) {
-          alert('Start date required')
+          await appDialog.alert('Start date required')
           return
         }
         await adminPatchTrip(menuTrip.slug, { start_date: startDate })
         await onTripsChanged?.()
       } else if (dialog === 'delete' && menuTrip) {
         if (confirmTitle.trim() !== menuTrip.title) {
-          alert('Type the vacation title exactly to confirm delete')
+          await appDialog.alert(
+            'Type the vacation title exactly to confirm delete',
+          )
           return
         }
         await adminSoftDeleteTrip(menuTrip.slug)
@@ -104,7 +108,7 @@ export function TripPicker({
       setDialog(null)
       setMenuTrip(null)
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed')
+      await appDialog.alert(e instanceof Error ? e.message : 'Failed')
     } finally {
       setBusy(false)
     }

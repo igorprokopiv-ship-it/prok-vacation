@@ -327,6 +327,7 @@ class PatchStopBody(BaseModel):
     optionGroup: Optional[str] = None
     optionLabel: Optional[str] = None
     primary: Optional[bool] = None
+    timedEntry: Optional[bool] = None
     mapPages: Optional[list[str]] = None
     tickets: Optional[list[dict[str, Any]]] = None
 
@@ -422,6 +423,7 @@ def create_stop(
         "optionGroup": body.optionGroup,
         "optionLabel": body.optionLabel,
         "primary": body.primary,
+        "timedEntry": False,
         "kind": kind,
     }
     insert_stop_sorted(day, stop)
@@ -801,6 +803,12 @@ class CreateDayBody(BaseModel):
     date: Optional[str] = None
 
 
+class DayMapLinkBody(BaseModel):
+    id: Optional[str] = None
+    label: str = "Day map"
+    url: str
+
+
 class PatchDayBody(BaseModel):
     city: Optional[str] = None
     headline: Optional[str] = None
@@ -813,6 +821,7 @@ class PatchDayBody(BaseModel):
     weather: Optional[str] = None
     sunrise: Optional[str] = None
     sunset: Optional[str] = None
+    mapsUrls: Optional[list[DayMapLinkBody]] = None
 
 
 @router.post("/trips")
@@ -924,6 +933,7 @@ def create_day(
         "sunset": None,
         "heroImage": None,
         "food": None,
+        "mapsUrls": [],
         "highlights": [],
         "stops": [],
     }
@@ -946,8 +956,27 @@ def patch_day(
     itinerary, sites, assets = load_pack(slug)
     day = find_day(itinerary, day_id)
     data = body.model_dump(exclude_unset=True)
+    if "mapsUrls" in data and data["mapsUrls"] is not None:
+        cleaned = []
+        for i, raw in enumerate(data["mapsUrls"]):
+            url = (raw.get("url") or "").strip() if isinstance(raw, dict) else ""
+            if not url:
+                continue
+            label = (
+                (raw.get("label") or "").strip()
+                if isinstance(raw, dict)
+                else ""
+            ) or "Day map"
+            mid = (
+                (raw.get("id") or "").strip()
+                if isinstance(raw, dict)
+                else ""
+            ) or f"map-{i + 1}-{uuid4().hex[:4]}"
+            cleaned.append({"id": mid, "label": label, "url": url})
+        data["mapsUrls"] = cleaned
     for k, v in data.items():
         day[k] = v
+    day.setdefault("mapsUrls", [])
     if "date" in data and data["date"]:
         d = parse_iso_date(data["date"])
         day["date"] = d.isoformat()

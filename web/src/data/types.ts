@@ -45,7 +45,10 @@ export interface ItineraryStop {
   id: string;
   time: string;
   title: string;
-  /** Stored duration; UI only for transit. */
+  /**
+   * Optional duration override — editable only for transit (flights, long rail).
+   * Timeline always shows override if set, else the span to the next event.
+   */
   duration: string;
   /** Opening hours; UI for meal + attraction. */
   hours: string | null;
@@ -71,6 +74,15 @@ export interface ItineraryStop {
   optionLabel: string | null;
   primary: boolean;
   kind: StopKind;
+  /** Timed entry ticket / dinner reservation — call out in the timeline. */
+  timedEntry?: boolean;
+}
+
+/** Day-level Google Maps (or similar) route link — multiple allowed per day. */
+export interface DayMapLink {
+  id: string;
+  label: string;
+  url: string;
 }
 
 export interface ItineraryDay {
@@ -88,6 +100,8 @@ export interface ItineraryDay {
   heroImage: string | null;
   /** Hidden in UI when null or name empty. */
   food: FoodFocus | null;
+  /** Multi-stop day walking / driving maps. */
+  mapsUrls?: DayMapLink[];
   highlights: DayHighlight[];
   stops: ItineraryStop[];
 }
