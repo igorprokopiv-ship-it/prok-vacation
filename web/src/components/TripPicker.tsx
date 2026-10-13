@@ -1,5 +1,5 @@
 import { Download, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useAppDialog } from '@/components/AppDialogs'
 import { PrintableItinerary } from '@/components/PrintableItinerary'
 import { Button } from '@/components/ui/button'
@@ -44,33 +44,50 @@ export function TripPicker({
   >(null)
   const [title, setTitle] = useState('')
   const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [confirmTitle, setConfirmTitle] = useState('')
   const [busy, setBusy] = useState(false)
   const [printBackup, setPrintBackup] = useState<VacationBackup | null>(null)
+  /** Survives Radix onOpenChange clearing `dialog` before Save runs. */
+  const dialogActionRef = useRef<
+    null | 'create' | 'rename' | 'dates' | 'delete'
+  >(null)
+
+  const closeFormDialog = () => {
+    dialogActionRef.current = null
+    setDialog(null)
+    setMenuTrip(null)
+  }
 
   const openCreate = () => {
     if (!adminMode) {
       onRequestAdmin?.()
       return
     }
+    dialogActionRef.current = 'create'
+    setMenuTrip(null)
     setTitle('')
     setStartDate(new Date().toISOString().slice(0, 10))
+    setEndDate('')
     setDialog('create')
   }
 
   const openRename = (t: TripSummary) => {
+    dialogActionRef.current = 'rename'
     setMenuTrip(t)
     setTitle(t.title)
     setDialog('rename')
   }
 
   const openDates = (t: TripSummary) => {
+    dialogActionRef.current = 'dates'
     setMenuTrip(t)
     setStartDate(t.start_date?.slice(0, 10) || '')
     setDialog('dates')
   }
 
   const openDelete = (t: TripSummary) => {
+    dialogActionRef.current = 'delete'
     setMenuTrip(t)
     setConfirmTitle('')
     setDialog('delete')
@@ -111,30 +128,37 @@ export function TripPicker({
   }
 
   const submit = async () => {
+    const mode = dialogActionRef.current ?? dialog
+    if (!mode || mode === 'export') return
+
     setBusy(true)
     try {
-      if (dialog === 'create') {
+      if (mode === 'create') {
         if (!title.trim() || !startDate) {
           await appDialog.alert('Title and start date required')
           return
         }
-        await adminCreateTrip({ title: title.trim(), start_date: startDate })
+        await adminCreateTrip({
+          title: title.trim(),
+          start_date: startDate,
+          ...(endDate.trim() ? { end_date: endDate.trim() } : {}),
+        })
         await onTripsChanged?.()
-      } else if (dialog === 'rename' && menuTrip) {
+      } else if (mode === 'rename' && menuTrip) {
         if (!title.trim()) {
           await appDialog.alert('Title required')
           return
         }
         await adminPatchTrip(menuTrip.slug, { title: title.trim() })
         await onTripsChanged?.()
-      } else if (dialog === 'dates' && menuTrip) {
+      } else if (mode === 'dates' && menuTrip) {
         if (!startDate) {
           await appDialog.alert('Start date required')
           return
         }
         await adminPatchTrip(menuTrip.slug, { start_date: startDate })
         await onTripsChanged?.()
-      } else if (dialog === 'delete' && menuTrip) {
+      } else if (mode === 'delete' && menuTrip) {
         if (confirmTitle.trim() !== menuTrip.title) {
           await appDialog.alert(
             'Type the vacation title exactly to confirm delete',
@@ -144,8 +168,7 @@ export function TripPicker({
         await adminSoftDeleteTrip(menuTrip.slug)
         await onTripsChanged?.()
       }
-      setDialog(null)
-      setMenuTrip(null)
+      closeFormDialog()
     } catch (e) {
       await appDialog.alert(e instanceof Error ? e.message : 'Failed')
     } finally {
@@ -290,8 +313,11 @@ export function TripPicker({
       </Dialog>
 
       <Dialog
+        key={dialog === 'export' ? 'export-other' : (dialog ?? 'closed')}
         open={Boolean(dialog) && dialog !== 'export'}
-        onOpenChange={(o) => !o && setDialog(null)}
+        onOpenChange={(o) => {
+          if (!o) closeFormDialog()
+        }}
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -314,12 +340,28 @@ export function TripPicker({
             />
           ) : null}
           {dialog === 'create' || dialog === 'dates' ? (
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className={inputClass}
-            />
+            <label className="block space-y-1">
+              <span className="text-xs font-medium text-ink-soft">Start date</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className={inputClass}
+              />
+            </label>
+          ) : null}
+          {dialog === 'create' ? (
+            <label className="block space-y-1">
+              <span className="text-xs font-medium text-ink-soft">
+                End date (optional)
+              </span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className={inputClass}
+              />
+            </label>
           ) : null}
           {dialog === 'delete' && menuTrip ? (
             <div className="space-y-2">

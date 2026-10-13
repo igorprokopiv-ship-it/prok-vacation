@@ -1079,6 +1079,7 @@ def shift_day_dates(itinerary: dict, delta_days: int) -> None:
 class CreateTripBody(BaseModel):
     title: str
     start_date: str
+    end_date: Optional[str] = None
     slug: Optional[str] = None
 
 
@@ -1125,6 +1126,9 @@ def create_trip(body: CreateTripBody, _: None = Depends(require_admin)) -> dict[
     if not title:
         raise HTTPException(400, "Title required")
     start = parse_iso_date(body.start_date)
+    end = parse_iso_date(body.end_date) if body.end_date else start
+    if end < start:
+        raise HTTPException(400, "End date must be on or after start date")
     slug = slugify(body.slug or title)
     dest = CONTENT_TRIPS / slug
     if dest.exists():
@@ -1137,7 +1141,7 @@ def create_trip(body: CreateTripBody, _: None = Depends(require_admin)) -> dict[
         "slug": slug,
         "title": title,
         "start_date": start.isoformat(),
-        "end_date": start.isoformat(),
+        "end_date": end.isoformat(),
         "status": "planning",
         "record_status": "active",
     }

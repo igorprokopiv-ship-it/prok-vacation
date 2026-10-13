@@ -313,7 +313,7 @@ export default function App() {
           {
             id: EU2026_ID,
             slug: 'eu2026',
-            title: 'EU2026 European Grand Tour',
+            title: '2026 Europe Vacation',
             start_date: '2026-10-28',
             end_date: '2026-11-08',
             status: 'active',

@@ -229,9 +229,9 @@ def startup() -> None:
     try:
         with psycopg.connect(DATABASE_URL, row_factory=dict_row) as conn:
             run_migrations(conn)
-            seed_eu2026(conn)
+            seed_all_filesystem_trips(conn)
             conn.commit()
-        print("migrations ok; eu2026 seed applied")
+        print("migrations ok; trip packs seeded")
     except Exception as exc:
         print(f"WARNING: migration/connect failed: {exc}", file=sys.stderr)
 
@@ -862,6 +862,25 @@ def _seed_pack(conn: psycopg.Connection, slug: str) -> None:
             meta.get("record_status") or "active",
         ),
     )
+
+
+def seed_all_filesystem_trips(conn: psycopg.Connection) -> None:
+    if not CONTENT_TRIPS.is_dir():
+        return
+    for d in sorted(CONTENT_TRIPS.iterdir()):
+        if not d.is_dir():
+            continue
+        meta_path = d / "trip.json"
+        if not meta_path.is_file():
+            continue
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        if meta.get("record_status") == "deleted":
+            continue
+        slug = d.name
+        if slug == "eu2026":
+            seed_eu2026(conn)
+        else:
+            _seed_pack(conn, slug)
 
 
 def _admin_refresh_pack(slug: str) -> None:

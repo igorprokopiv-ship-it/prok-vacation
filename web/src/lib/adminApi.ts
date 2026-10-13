@@ -276,6 +276,7 @@ export async function adminSetDayFood(
 export async function adminCreateTrip(body: {
   title: string
   start_date: string
+  end_date?: string
   slug?: string
 }) {
   const res = await adminFetch('/api/admin/trips', {
