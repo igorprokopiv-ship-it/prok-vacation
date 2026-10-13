@@ -1,6 +1,8 @@
 import {
   AlarmClock,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   Maximize2,
   Map as MapIcon,
@@ -34,6 +36,7 @@ import {
   getTicketSets,
   stopCanExpand,
   stopHasMap,
+  stopHasPhoto,
   stopHasTickets,
   stopHasVisibleGuideContent,
   stopTitle,
@@ -42,6 +45,8 @@ import { displayDuration } from '@/lib/duration'
 import {
   collectOptionChoices,
   defaultLabelForGroup,
+  moveOptionInOrder,
+  resolvedOptionOrder,
   type OptionChoice,
 } from '@/lib/options'
 import { cn } from '@/lib/utils'
@@ -54,8 +59,9 @@ const SITE_SECTION_LABELS: Record<GuideSectionKey, string> = {
   route: 'The Route',
 }
 
-/** Prefer full Expand when site section text is long enough to benefit from a wider panel. */
+/** Prefer full Expand when guide text is long, or when a site photo is set. */
 function siteNeedsFullExpand(stop: ItineraryStop): boolean {
+  if (stopHasPhoto(stop)) return true
   const site = getSiteForStop(stop)
   if (!site) return false
   const sections = visibleGuideSections(siteKind(site))
@@ -288,8 +294,9 @@ type TimelineItem =
 function buildTimeline(
   stops: ItineraryStop[],
   selectedByGroup: Record<string, string>,
+  optionOrder?: string[] | null,
 ): TimelineItem[] {
-  const choicesByGroup = collectOptionChoices(stops)
+  const choicesByGroup = collectOptionChoices(stops, optionOrder)
   const items: TimelineItem[] = []
   let lastGroup: string | null = null
   let lastLabel: string | null = null
@@ -538,8 +545,19 @@ function StopCard({
                   {details.bookingRef ? (
                     <DetailRow label="Booking" value={details.bookingRef} />
                   ) : null}
-                  {details.bags ? (
-                    <DetailRow label="Bags" value={details.bags} />
+                  {details.bags?.length ? (
+                    <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
+                      <dt className="font-semibold text-ink">Bags</dt>
+                      <dd className="text-ink-soft">
+                        <ul className="list-disc space-y-1 pl-4">
+                          {details.bags.map((bag, i) => (
+                            <li key={i} className="break-words">
+                              {bag}
+                            </li>
+                          ))}
+                        </ul>
+                      </dd>
+                    </div>
                   ) : null}
                   {details.transit ? (
                     <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
@@ -725,6 +743,7 @@ export function SchedulePanel({
   onAddOption,
   onRenameOption,
   onDeleteOption,
+  onReorderOptions,
 }: {
   day: ItineraryDay
   adminMode?: boolean
@@ -739,6 +758,7 @@ export function SchedulePanel({
     toLabel: string,
   ) => void | Promise<void>
   onDeleteOption?: (group: string, label: string) => void | Promise<void>
+  onReorderOptions?: (order: string[]) => void | Promise<void>
 }) {
   const dialog = useAppDialog()
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -746,9 +766,10 @@ export function SchedulePanel({
   const [seedPicker, setSeedPicker] = useState<{
     label: string
   } | null>(null)
+  const optionOrder = day.optionOrder
   const choicesByGroup = useMemo(
-    () => collectOptionChoices(day.stops),
-    [day.stops],
+    () => collectOptionChoices(day.stops, optionOrder),
+    [day.stops, optionOrder],
   )
   const hasOptions = choicesByGroup.size > 0
   const [selectedByGroup, setSelectedByGroup] = useState<Record<string, string>>({})
@@ -773,8 +794,8 @@ export function SchedulePanel({
   )
 
   const timeline = useMemo(
-    () => buildTimeline(day.stops, selectedByGroup),
-    [day.stops, selectedByGroup],
+    () => buildTimeline(day.stops, selectedByGroup, optionOrder),
+    [day.stops, selectedByGroup, optionOrder],
   )
 
   const timelineStops = useMemo(
@@ -821,13 +842,14 @@ export function SchedulePanel({
   ) => {
     const selected =
       selectedByGroup[group] ?? defaultLabelForGroup(choices)
+    const canReorder = Boolean(adminMode && onReorderOptions && choices.length > 1)
     return (
       <div
         key={`toggle-${group}`}
         className="space-y-2 rounded-xl bg-paper-deep/50 p-2"
       >
         <div className="flex flex-wrap gap-2">
-          {choices.map((c) => (
+          {choices.map((c, index) => (
             <div
               key={c.label}
               className={cn(
@@ -846,7 +868,8 @@ export function SchedulePanel({
               >
                 {c.label}
               </button>
-              {adminMode && (onRenameOption || onDeleteOption) ? (
+              {adminMode &&
+              (onRenameOption || onDeleteOption || canReorder) ? (
                 <span
                   className={cn(
                     'flex shrink-0 items-center border-l',
@@ -855,6 +878,56 @@ export function SchedulePanel({
                       : 'border-line',
                   )}
                 >
+                  {canReorder ? (
+                    <>
+                      <button
+                        type="button"
+                        className={cn(
+                          'p-2 transition hover:opacity-80 disabled:opacity-30',
+                          selected === c.label
+                            ? 'text-white/90'
+                            : 'text-ink-soft hover:text-ink',
+                        )}
+                        aria-label={`Move ${c.label} left`}
+                        disabled={optionBusy || index === 0}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const current = resolvedOptionOrder(
+                            day.stops,
+                            optionOrder,
+                          )
+                          const next = moveOptionInOrder(current, c.label, -1)
+                          if (next === current) return
+                          void runOption(() => onReorderOptions?.(next))
+                        }}
+                      >
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        className={cn(
+                          'p-2 transition hover:opacity-80 disabled:opacity-30',
+                          selected === c.label
+                            ? 'text-white/90'
+                            : 'text-ink-soft hover:text-ink',
+                        )}
+                        aria-label={`Move ${c.label} right`}
+                        disabled={optionBusy || index === choices.length - 1}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const current = resolvedOptionOrder(
+                            day.stops,
+                            optionOrder,
+                          )
+                          const next = moveOptionInOrder(current, c.label, 1)
+                          if (next === current) return
+                          void runOption(() => onReorderOptions?.(next))
+                        }}
+                      >
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </button>
+                    </>
+                  ) : null}
                   {onRenameOption ? (
                     <button
                       type="button"

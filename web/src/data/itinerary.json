@@ -125,6 +125,13 @@
       },
       "highlights": [
         {
+          "stopId": "stop-day1-passport",
+          "title": "LGW Passport Control",
+          "time": "10:55",
+          "duration": "",
+          "summary": "LGW Passport Control"
+        },
+        {
           "stopId": "stop-day1-tower",
           "title": "Tower of London",
           "time": "14:30",
@@ -1547,7 +1554,7 @@
           "title": "Fly TO 3910 ORY → FCO",
           "time": "09:15",
           "duration": "2h",
-          "summary": "Land 11:20. FreeNow / itTaxi available."
+          "summary": "<p>Land 11:20</p>"
         },
         {
           "stopId": "stop-day7-opt1-pantheon",
@@ -1962,7 +1969,7 @@
           "title": "Dinner at Da Cicero",
           "time": "19:30",
           "duration": "",
-          "summary": "EU4 food column also lists Da Cueri — timeline uses Da Cicero. Pinsa / meat & cheese platters vibe."
+          "summary": "Dinner at Da Cicero"
         }
       ],
       "stops": [
@@ -2209,7 +2216,7 @@
           "title": "Dinner at Ristorante Grano",
           "time": "19:30",
           "duration": "",
-          "summary": "Bread & olive oil, tuna tartare, grilled octopus, pasta with calamari, tiramisu."
+          "summary": "Dinner at Ristorante Grano"
         }
       ],
       "stops": [
@@ -2365,7 +2372,7 @@
           "title": "Tour bus to Pompeii",
           "time": "07:00",
           "duration": "",
-          "summary": "<p></p><ul><li>7:30 departure, be there by 7:00</li><li>Bring water, Pompeii has very little shade.</li><li>Includes guide, three-course Neapolitan lunch with views across the Bay of Naples, Mt Vesuvius&nbsp;</li><li><b>One rest stop halfway at a highway rest stop</b></li></ul><p></p><p><br></p>"
+          "summary": "Tour bus to Pompeii"
         },
         {
           "stopId": "stop-day10-pompeii",
@@ -2540,18 +2547,25 @@
       },
       "highlights": [
         {
-          "stopId": "stop-day11-fi931",
-          "title": "Hanna flight to Iceland",
+          "stopId": "stop-day11-fi931-boy",
+          "title": "Boy's flight to Iceland",
           "time": "11:25",
           "duration": "5h 05m",
-          "summary": "Everyone Economy this leg. Land KEF 15:30. ~1h 20–25m layover."
+          "summary": "<p></p><ul><li>Everyone flies economy this leg</li><li>FI 931: 11:25 FCO to 15:30 KEF</li></ul><p></p>"
         },
         {
-          "stopId": "stop-day11-fi645-boy",
-          "title": "FI 645 KEF → IAD (Boys)",
-          "time": "16:50",
-          "duration": "6h 40m",
-          "summary": "Boys Economy. Land IAD 18:30."
+          "stopId": "stop-day11-fi931-hanna",
+          "title": "Hanna's flight to Iceland",
+          "time": "11:25",
+          "duration": "5h 05m",
+          "summary": "<p></p><ul><li>Everyone flies economy this leg</li><li>FI 931: 11:25 FCO to 15:30 KEF</li></ul><p></p>"
+        },
+        {
+          "stopId": "stop-day11-land",
+          "title": "Land at IAD",
+          "time": "18:30",
+          "duration": "",
+          "summary": "Land at IAD"
         }
       ],
       "stops": [
@@ -2592,12 +2606,21 @@
           "timedEntry": false
         },
         {
-          "id": "stop-day11-fi931",
+          "id": "stop-day11-fi931-boy",
+          "time": "11:25",
+          "siteId": "flight-boys-iceland",
+          "optionGroup": "return-fi645",
+          "optionLabel": "Boys",
+          "primary": true,
+          "timedEntry": true
+        },
+        {
+          "id": "stop-day11-fi931-hanna",
           "time": "11:25",
           "siteId": "flight-hanna-iceland",
-          "optionGroup": null,
-          "optionLabel": null,
-          "primary": true,
+          "optionGroup": "return-fi645",
+          "optionLabel": "Hanna",
+          "primary": false,
           "timedEntry": true
         },
         {
@@ -2607,7 +2630,7 @@
           "optionGroup": "return-fi645",
           "optionLabel": "Boys",
           "primary": true,
-          "timedEntry": true
+          "timedEntry": false
         },
         {
           "id": "stop-day11-fi645-hanna",
@@ -2616,7 +2639,7 @@
           "optionGroup": "return-fi645",
           "optionLabel": "Hanna",
           "primary": false,
-          "timedEntry": true
+          "timedEntry": false
         },
         {
           "id": "stop-day11-land",

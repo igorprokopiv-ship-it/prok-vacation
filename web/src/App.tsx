@@ -10,6 +10,10 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import { useAppDialog } from '@/components/AppDialogs'
 import { AdminLoginDialog } from '@/components/AdminLoginDialog'
+import {
+  AttachmentPicker,
+  type AttachmentPickOption,
+} from '@/components/AttachmentPicker'
 import { DayDrawer } from '@/components/DayDrawer'
 import { DeviceIdentityGate } from '@/components/DeviceIdentityGate'
 import { HighlightsPanel } from '@/components/HighlightsPanel'
@@ -34,12 +38,14 @@ import type { ItineraryStop, Site } from '@/data/types'
 import {
   dayOptionGroupId,
   isPrimaryLabelForGroup,
-  stopsToClearForConverge,
+  resolvedOptionOrder,
+  planConvergeAt,
   stopsWithOptionLabel,
 } from '@/lib/options'
 import {
   adminClearHero,
   adminClearMap,
+  adminClearSitePhoto,
   adminCreateDay,
   adminCreateStop,
   adminDeleteDay,
@@ -50,10 +56,12 @@ import {
   adminMe,
   adminPatchDay,
   adminSetDayHighlights,
+  adminSetSitePhoto,
   adminUnlinkGuide,
   adminUpdateStop,
   adminUploadHero,
   adminUploadMap,
+  adminUploadSitePhoto,
   adminUploadTicket,
   adminUpsertGuide,
 } from '@/lib/adminApi'
@@ -61,6 +69,7 @@ import {
   applyTripDocument,
   getItinerary,
   getMapPages,
+  getSitePhoto,
   getSites,
   getSiteForStop,
   getTicketSets,
@@ -115,6 +124,11 @@ export default function App() {
   const [promptValue, setPromptValue] = useState('')
   const [promptExtra, setPromptExtra] = useState('')
   const [promptBusy, setPromptBusy] = useState(false)
+  const [heroPicker, setHeroPicker] = useState<{
+    title: string
+    options: AttachmentPickOption[]
+    onSelect: (id: string) => void
+  } | null>(null)
 
   const tripSlug = tripMeta?.slug ?? 'eu2026'
   const itinerary = getItinerary()
@@ -166,6 +180,73 @@ export default function App() {
     if (!day) return
     const doc = await adminUploadHero(tripSlug, day.id, file)
     applyAdminDoc(doc)
+  }
+
+  /** Unique site photos on this day (path → site name), for reuse as day hero. */
+  const daySitePhotoOptions = useMemo(() => {
+    if (!day) return [] as AttachmentPickOption[]
+    void tick
+    const seen = new Set<string>()
+    const opts: AttachmentPickOption[] = []
+    for (const stop of day.stops) {
+      const site = getSiteForStop(stop)
+      const photo = site?.id ? getSitePhoto(site.id) : undefined
+      if (!photo || seen.has(photo)) continue
+      seen.add(photo)
+      opts.push({
+        id: photo,
+        label: site?.name || stopTitle(stop),
+      })
+    }
+    return opts
+  }, [day, tick])
+
+  const openHeroPhotoActions = () => {
+    if (!day) return
+    const options: AttachmentPickOption[] = [
+      { id: '__upload__', label: 'Upload new picture' },
+      ...daySitePhotoOptions
+        .filter((o) => o.id !== day.heroImage)
+        .map((o) => ({ id: o.id, label: `Reuse: ${o.label}` })),
+    ]
+    if (options.length === 1) {
+      void pickFile('image/*').then((file) => {
+        if (!file) return
+        void uploadHeroFile(file).catch((err) =>
+          void dialog.alert(
+            err instanceof Error ? err.message : 'Upload failed',
+          ),
+        )
+      })
+      return
+    }
+    setHeroPicker({
+      title: 'Day picture',
+      options,
+      onSelect: (id) => {
+        if (id === '__upload__') {
+          void pickFile('image/*').then((file) => {
+            if (!file) return
+            void uploadHeroFile(file).catch((err) =>
+              void dialog.alert(
+                err instanceof Error ? err.message : 'Upload failed',
+              ),
+            )
+          })
+          return
+        }
+        void (async () => {
+          try {
+            const doc = await adminPatchDay(tripSlug, day.id, {
+              heroImage: id,
+            })
+            applyAdminDoc(doc)
+          } catch (e) {
+            await dialog.alert(e instanceof Error ? e.message : 'Failed')
+          }
+        })()
+      },
+    })
   }
 
   async function runSync(id: string) {
@@ -384,26 +465,57 @@ export default function App() {
       return
     }
     if (action === 'mark-converge') {
-      const targets = stopsToClearForConverge(day.stops, stop)
-      if (!targets.length) {
+      const plan = planConvergeAt(day.stops, stop, stopTitle)
+      if (!plan) {
         await dialog.alert(
-          'No option branch to converge. Assign events to options first, then mark converge on the first shared event.',
+          'No option branch to converge. Assign events to options first, then mark converge on the first shared event after the fork.',
         )
         return
       }
+      if (plan.unresolved.length) {
+        const names = plan.unresolved.map((s) => stopTitle(s)).join(', ')
+        await dialog.alert(
+          `Can't move converge here yet — assign these events to Boys/Hanna (or another option) first: ${names}`,
+        )
+        return
+      }
+      if (!plan.clear.length && !plan.restore.length) {
+        await dialog.alert('Already converging here.')
+        return
+      }
+      const bits: string[] = []
+      if (plan.restore.length) {
+        bits.push(
+          `put ${plan.restore.length} earlier event(s) back under options`,
+        )
+      }
+      if (plan.clear.length) {
+        bits.push(
+          `clear branch from “${stopTitle(stop)}”${
+            plan.clear.length > 1
+              ? ` and ${plan.clear.length - 1} later event(s)`
+              : ''
+          }`,
+        )
+      } else {
+        bits.push(`reunite everyone at “${stopTitle(stop)}”`)
+      }
       const ok = await dialog.confirm({
         title: 'Mark converge',
-        message: `Clear branch assignment from “${stopTitle(stop)}”${
-          targets.length > 1
-            ? ` and ${targets.length - 1} later event(s) in this option group`
-            : ''
-        }? Everyone reunites here.`,
+        message: `${bits.join(', and ')}?`,
         confirmLabel: 'Mark converge',
       })
       if (!ok) return
       try {
         let doc = null as Awaited<ReturnType<typeof adminUpdateStop>> | null
-        for (const s of targets) {
+        for (const r of plan.restore) {
+          doc = await adminUpdateStop(tripSlug, day.id, r.stop.id, {
+            optionGroup: r.group,
+            optionLabel: r.label,
+            primary: r.primary,
+          })
+        }
+        for (const s of plan.clear) {
           doc = await adminUpdateStop(tripSlug, day.id, s.id, {
             optionGroup: null,
             optionLabel: null,
@@ -719,16 +831,7 @@ export default function App() {
                 variant="outline"
                 size="sm"
                 className="bg-paper/90"
-                onClick={() => {
-                  void pickFile('image/*').then((file) => {
-                    if (!file) return
-                    void uploadHeroFile(file).catch((err) =>
-                      void dialog.alert(
-                        err instanceof Error ? err.message : 'Upload failed',
-                      ),
-                    )
-                  })
-                }}
+                onClick={() => openHeroPhotoActions()}
               >
                 <ImagePlus className="h-3.5 w-3.5" /> Photo
               </Button>
@@ -791,11 +894,17 @@ export default function App() {
               onAddOption={async (label, seedStopId) => {
                 const g = dayOptionGroupId(day.stops, day.id)
                 const primary = isPrimaryLabelForGroup(day.stops, g, label)
-                const doc = await adminUpdateStop(tripSlug, day.id, seedStopId, {
+                let doc = await adminUpdateStop(tripSlug, day.id, seedStopId, {
                   optionGroup: g,
                   optionLabel: label,
                   primary,
                 })
+                const order = resolvedOptionOrder(day.stops, day.optionOrder)
+                if (!order.includes(label)) {
+                  doc = await adminPatchDay(tripSlug, day.id, {
+                    optionOrder: [...order, label],
+                  })
+                }
                 applyAdminDoc(doc)
               }}
               onRenameOption={async (group, fromLabel, toLabel) => {
@@ -814,6 +923,21 @@ export default function App() {
                     primary: s.primary,
                   })
                 }
+                const order = resolvedOptionOrder(day.stops, day.optionOrder)
+                const nextOrder = order.map((l) =>
+                  l === fromLabel ? toLabel : l,
+                )
+                if (nextOrder.join('\0') !== order.join('\0')) {
+                  doc = await adminPatchDay(tripSlug, day.id, {
+                    optionOrder: nextOrder,
+                  })
+                } else if (day.optionOrder?.includes(fromLabel)) {
+                  doc = await adminPatchDay(tripSlug, day.id, {
+                    optionOrder: day.optionOrder.map((l) =>
+                      l === fromLabel ? toLabel : l,
+                    ),
+                  })
+                }
                 if (doc) applyAdminDoc(doc)
               }}
               onDeleteOption={async (group, label) => {
@@ -828,7 +952,20 @@ export default function App() {
                     primary: true,
                   })
                 }
-                if (doc) applyAdminDoc(doc)
+                const nextOrder = resolvedOptionOrder(
+                  day.stops,
+                  day.optionOrder,
+                ).filter((l) => l !== label)
+                doc = await adminPatchDay(tripSlug, day.id, {
+                  optionOrder: nextOrder,
+                })
+                applyAdminDoc(doc)
+              }}
+              onReorderOptions={async (order) => {
+                const doc = await adminPatchDay(tripSlug, day.id, {
+                  optionOrder: order,
+                })
+                applyAdminDoc(doc)
               }}
             />
           </TabsContent>
@@ -934,6 +1071,7 @@ export default function App() {
         <EventExpand
           mode="create"
           dayStops={day.stops}
+          optionOrder={day.optionOrder}
           adminMode={adminMode}
           initialEditMode
           onClose={() => setOverlay(null)}
@@ -991,6 +1129,7 @@ export default function App() {
             day.stops.find((s) => s.id === overlay.stop.id) ?? overlay.stop
           }
           dayStops={day.stops}
+          optionOrder={day.optionOrder}
           adminMode={adminMode}
           initialEditMode={Boolean(overlay.edit)}
           onClose={() => setOverlay(null)}
@@ -1052,9 +1191,8 @@ export default function App() {
             )
             applyAdminDoc(doc)
           }}
-          onAddTicket={async (label) => {
-            const file = await pickFile('.pdf,image/*')
-            if (!file) return
+          pickFile={pickFile}
+          onAddTicket={async (label, file) => {
             const doc = await adminUploadTicket(
               tripSlug,
               day.id,
@@ -1079,9 +1217,7 @@ export default function App() {
               o?.type === 'expand' ? { ...o, edit: true } : o,
             )
           }}
-          onAddMap={async () => {
-            const file = await pickFile('.pdf,image/*')
-            if (!file) return
+          onAddMap={async (file) => {
             const doc = await adminUploadMap(
               tripSlug,
               day.id,
@@ -1095,6 +1231,65 @@ export default function App() {
           }}
           onRemoveMap={async () => {
             const doc = await adminClearMap(tripSlug, day.id, overlay.stop.id)
+            applyAdminDoc(doc)
+            setOverlay((o) =>
+              o?.type === 'expand' ? { ...o, edit: true } : o,
+            )
+          }}
+          dayHeroImage={day.heroImage}
+          onUploadPhoto={async () => {
+            const stop =
+              day.stops.find((s) => s.id === overlay.stop.id) ?? overlay.stop
+            const site = getSiteForStop(stop)
+            if (!site?.id) {
+              await dialog.alert('Event has no linked site')
+              return
+            }
+            const file = await pickFile('image/*')
+            if (!file) return
+            const doc = await adminUploadSitePhoto(tripSlug, site.id, file)
+            applyAdminDoc(doc)
+            setOverlay((o) =>
+              o?.type === 'expand' ? { ...o, edit: true } : o,
+            )
+            const photo =
+              (typeof doc.photo === 'string' && doc.photo) ||
+              getSitePhoto(site.id)
+            if (photo && photo !== day.heroImage) {
+              const also = await dialog.confirm({
+                title: 'Use as day picture?',
+                message:
+                  'Also use this photo as the day banner? (same image, no copy)',
+                confirmLabel: 'Use for day',
+              })
+              if (also) {
+                const heroDoc = await adminPatchDay(tripSlug, day.id, {
+                  heroImage: photo,
+                })
+                applyAdminDoc(heroDoc)
+              }
+            }
+          }}
+          onClearPhoto={async () => {
+            const stop =
+              day.stops.find((s) => s.id === overlay.stop.id) ?? overlay.stop
+            const site = getSiteForStop(stop)
+            if (!site?.id) return
+            const doc = await adminClearSitePhoto(tripSlug, site.id)
+            applyAdminDoc(doc)
+            setOverlay((o) =>
+              o?.type === 'expand' ? { ...o, edit: true } : o,
+            )
+          }}
+          onReusePhoto={async (path) => {
+            const stop =
+              day.stops.find((s) => s.id === overlay.stop.id) ?? overlay.stop
+            const site = getSiteForStop(stop)
+            if (!site?.id) {
+              await dialog.alert('Event has no linked site')
+              return
+            }
+            const doc = await adminSetSitePhoto(tripSlug, site.id, path)
             applyAdminDoc(doc)
             setOverlay((o) =>
               o?.type === 'expand' ? { ...o, edit: true } : o,
@@ -1213,6 +1408,21 @@ export default function App() {
             setOverlay((o) =>
               o?.type === 'expand' ? { ...o, edit: true } : o,
             )
+          }}
+        />
+      ) : null}
+
+      {heroPicker ? (
+        <AttachmentPicker
+          open
+          onOpenChange={(open) => {
+            if (!open) setHeroPicker(null)
+          }}
+          title={heroPicker.title}
+          options={heroPicker.options}
+          onSelect={(id) => {
+            heroPicker.onSelect(id)
+            setHeroPicker(null)
           }}
         />
       ) : null}

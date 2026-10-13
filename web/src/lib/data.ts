@@ -145,11 +145,17 @@ export function stopHasGuide(stop: ItineraryStop): boolean {
   return Boolean(getSiteForStop(stop))
 }
 
+export function stopHasPhoto(stop: ItineraryStop): boolean {
+  const site = getSiteForStop(stop)
+  return Boolean(site?.id && getSitePhoto(site.id))
+}
+
 /** Expand opens when there is anything worth a full-event read view. */
 export function stopCanExpand(stop: ItineraryStop): boolean {
   const site = getSiteForStop(stop)
   if (siteHasVisibleDetails(site)) return true
   if (site?.mapsUrl || stopHasTickets(stop) || stopHasMap(stop)) return true
+  if (stopHasPhoto(stop)) return true
   if (site && guideHasContent(site)) return true
   return false
 }

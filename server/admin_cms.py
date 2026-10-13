@@ -643,6 +643,119 @@ def clear_guide_map(
     return {"guide": guide, "itinerary": itinerary, "sites": sites, "assets": assets}
 
 
+def _ensure_site_assets(assets: dict, guide_id: str) -> dict:
+    sites_assets = assets.setdefault("sites", {})
+    entry = sites_assets.get(guide_id)
+    if not isinstance(entry, dict):
+        entry = {}
+        sites_assets[guide_id] = entry
+    return entry
+
+
+def _set_site_photo(assets: dict, guide_id: str, photo: str | None) -> None:
+    entry = _ensure_site_assets(assets, guide_id)
+    if photo:
+        entry["photo"] = photo
+    else:
+        entry.pop("photo", None)
+        if not entry:
+            assets.get("sites", {}).pop(guide_id, None)
+
+
+def _owned_site_photo_dir(guide_id: str) -> Path:
+    return WEB_PUBLIC / "images" / "sites" / guide_id
+
+
+def _is_owned_site_photo(guide_id: str, photo: str | None) -> bool:
+    if not photo:
+        return False
+    prefix = f"/images/sites/{guide_id}/"
+    return photo.startswith(prefix)
+
+
+class SetPhotoBody(BaseModel):
+    path: str
+
+
+@router.post("/trips/{slug}/guides/{guide_id}/photo")
+async def upload_guide_photo(
+    slug: str,
+    guide_id: str,
+    file: UploadFile = File(...),
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    itinerary, sites, assets = load_pack(slug)
+    guide = require_site(sites, guide_id)
+    out_dir = _owned_site_photo_dir(guide_id)
+    pages = convert_upload_to_jpegs(file, out_dir, "photo")
+    photo = pages[0] if pages else None
+    _set_site_photo(assets, guide_id, photo)
+    save_pack(slug, itinerary, sites, assets)
+    return {
+        "guide": guide,
+        "photo": photo,
+        "itinerary": itinerary,
+        "sites": sites,
+        "assets": assets,
+    }
+
+
+@router.put("/trips/{slug}/guides/{guide_id}/photo")
+def set_guide_photo(
+    slug: str,
+    guide_id: str,
+    body: SetPhotoBody,
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    """Point this site at an existing image path (reuse day hero / another site)."""
+    itinerary, sites, assets = load_pack(slug)
+    guide = require_site(sites, guide_id)
+    path = (body.path or "").strip()
+    if not path.startswith("/images/"):
+        raise HTTPException(400, "path must be an /images/... URL")
+    prev = (assets.get("sites") or {}).get(guide_id) or {}
+    prev_photo = prev.get("photo") if isinstance(prev, dict) else None
+    if _is_owned_site_photo(guide_id, prev_photo) and prev_photo != path:
+        owned = _owned_site_photo_dir(guide_id)
+        if owned.is_dir():
+            shutil.rmtree(owned, ignore_errors=True)
+    _set_site_photo(assets, guide_id, path)
+    save_pack(slug, itinerary, sites, assets)
+    return {
+        "guide": guide,
+        "photo": path,
+        "itinerary": itinerary,
+        "sites": sites,
+        "assets": assets,
+    }
+
+
+@router.delete("/trips/{slug}/guides/{guide_id}/photo")
+def clear_guide_photo(
+    slug: str,
+    guide_id: str,
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    itinerary, sites, assets = load_pack(slug)
+    guide = require_site(sites, guide_id)
+    prev = (assets.get("sites") or {}).get(guide_id) or {}
+    prev_photo = prev.get("photo") if isinstance(prev, dict) else None
+    _set_site_photo(assets, guide_id, None)
+    # Only delete files we own; shared/reused paths stay on disk.
+    if _is_owned_site_photo(guide_id, prev_photo):
+        owned = _owned_site_photo_dir(guide_id)
+        if owned.is_dir():
+            shutil.rmtree(owned, ignore_errors=True)
+    save_pack(slug, itinerary, sites, assets)
+    return {
+        "guide": guide,
+        "photo": None,
+        "itinerary": itinerary,
+        "sites": sites,
+        "assets": assets,
+    }
+
+
 # Stop-scoped ticket/map aliases → operate on the linked site
 @router.post("/trips/{slug}/days/{day_id}/stops/{stop_id}/tickets")
 async def upload_ticket(
@@ -1003,6 +1116,7 @@ class PatchDayBody(BaseModel):
     sunrise: Optional[str] = None
     sunset: Optional[str] = None
     mapsUrls: Optional[list[DayMapLinkBody]] = None
+    optionOrder: Optional[list[str]] = None
 
 
 @router.post("/trips")

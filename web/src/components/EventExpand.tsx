@@ -1,6 +1,7 @@
 import {
   AlarmClock,
   ChevronDown,
+  ImagePlus,
   Map as MapIcon,
   MapPinned,
   Pencil,
@@ -118,7 +119,7 @@ export type AttachmentType = 'ticket' | 'map' | 'mapsUrl'
 
 type AttachmentRow =
   | { type: 'ticket'; id: string; label: string; pages: string[] }
-  | { type: 'map'; id: string; pageIndex: number; page: string }
+  | { type: 'map'; id: 'map'; pages: string[] }
   | { type: 'mapsUrl'; id: 'mapsUrl'; url: string }
 
 type AttachmentDraft = {
@@ -170,19 +171,18 @@ function attachmentDraftFromSite(site: Site | null | undefined): AttachmentDraft
   }
 }
 
-function buildAttachmentRows(draft: AttachmentDraft): AttachmentRow[] {
+function buildAttachmentRows(
+  draft: AttachmentDraft,
+  opts?: { pendingMap?: boolean },
+): AttachmentRow[] {
   const rows: AttachmentRow[] = []
   for (const t of draft.tickets) {
     rows.push({ type: 'ticket', id: t.id, label: t.label, pages: t.pages })
   }
-  draft.mapPages.forEach((page, pageIndex) => {
-    rows.push({
-      type: 'map',
-      id: `map-${pageIndex}`,
-      pageIndex,
-      page,
-    })
-  })
+  // One map attachment per upload (pages stay together, like tickets).
+  if (draft.mapPages.length || opts?.pendingMap) {
+    rows.push({ type: 'map', id: 'map', pages: draft.mapPages })
+  }
   if (draft.mapsUrl) {
     rows.push({ type: 'mapsUrl', id: 'mapsUrl', url: draft.mapsUrl })
   }
@@ -201,6 +201,7 @@ export function EventExpand({
   mode = 'edit',
   stop: stopProp,
   dayStops = [],
+  optionOrder,
   onClose,
   adminMode = false,
   initialEditMode = false,
@@ -212,6 +213,11 @@ export function EventExpand({
   onRemoveTicket,
   onAddMap,
   onRemoveMap,
+  onUploadPhoto,
+  onClearPhoto,
+  onReusePhoto,
+  dayHeroImage,
+  pickFile,
   onAssignOption,
   onClearOption,
   onOpenTicket,
@@ -220,6 +226,7 @@ export function EventExpand({
   mode?: 'edit' | 'create'
   stop?: ItineraryStop
   dayStops?: ItineraryStop[]
+  optionOrder?: string[] | null
   onClose: () => void
   adminMode?: boolean
   initialEditMode?: boolean
@@ -227,10 +234,19 @@ export function EventExpand({
   onSaveGuide?: (guide: Site) => void | Promise<void>
   onCreate?: (payload: CreateEventPayload) => void | Promise<void>
   onUnlinkGuide?: (guideId: string) => void | Promise<void>
-  onAddTicket?: (label: string) => void | Promise<void>
+  /** Upload a ticket file; called on Save for newly staged tickets. */
+  onAddTicket?: (label: string, file: File) => void | Promise<void>
   onRemoveTicket?: (ticketId: string) => void | Promise<void>
-  onAddMap?: () => void | Promise<void>
+  /** Upload a map file; called on Save when a map was staged. */
+  onAddMap?: (file: File) => void | Promise<void>
   onRemoveMap?: () => void | Promise<void>
+  onUploadPhoto?: () => void | Promise<void>
+  onClearPhoto?: () => void | Promise<void>
+  /** Reuse an existing image path as this site's photo (e.g. day hero). */
+  onReusePhoto?: (path: string) => void | Promise<void>
+  /** Current day hero path — offered for reuse as site photo. */
+  dayHeroImage?: string | null
+  pickFile?: (accept: string) => Promise<File | null>
   onSetMapsUrl?: (url: string | null) => void | Promise<void>
   onConvertTicketToMap?: (ticketId: string) => void | Promise<void>
   onConvertMapToTicket?: (label: string) => void | Promise<void>
@@ -291,6 +307,12 @@ export function EventExpand({
     route: site?.route ?? [],
   })
   const [attachDraft, setAttachDraft] = useState<AttachmentDraft>(baselineAttach)
+  /** Staged ticket files — uploaded on Save so the form can mark dirty. */
+  const [pendingTicketFiles, setPendingTicketFiles] = useState<
+    Record<string, File>
+  >({})
+  /** Staged map file — uploaded on Save. */
+  const [pendingMapFile, setPendingMapFile] = useState<File | null>(null)
 
   const sections = useMemo(() => visibleGuideSections(kind), [kind])
   const details = siteDetailFields(site)
@@ -304,8 +326,13 @@ export function EventExpand({
     },
     kind,
   )
+  const pendingTicketIds = useMemo(
+    () => new Set(Object.keys(pendingTicketFiles)),
+    [pendingTicketFiles],
+  )
   const attachmentRows = buildAttachmentRows(
     editing || isCreate ? attachDraft : baselineAttach,
+    { pendingMap: Boolean(pendingMapFile) },
   )
   const canUploadAttachments = Boolean(!isCreate && stop.id && effectiveSiteId)
   const viewTickets = baselineAttach.tickets
@@ -339,6 +366,8 @@ export function EventExpand({
       route: s?.route ?? [],
     })
     setAttachDraft(attachmentDraftFromSite(s))
+    setPendingTicketFiles({})
+    setPendingMapFile(null)
   }
 
   const resetFromSite = (s: Site | undefined) => {
@@ -561,7 +590,10 @@ export function EventExpand({
       JSON.stringify(site?.history ?? []) ||
     JSON.stringify(sectionsDraft.route) !== JSON.stringify(site?.route ?? [])
 
-  const attachDirty = !attachmentDraftEqual(attachDraft, baselineAttach)
+  const attachDirty =
+    !attachmentDraftEqual(attachDraft, baselineAttach) ||
+    pendingMapFile != null ||
+    pendingTicketIds.size > 0
   const stopDirty =
     !isCreate &&
     (time !== stop.time || timedEntry !== Boolean(stop.timedEntry))
@@ -628,7 +660,9 @@ export function EventExpand({
           .filter((t) => !attachDraft.tickets.some((x) => x.id === t.id))
           .map((t) => t.id)
         const mapCleared =
-          baselineAttach.mapPages.length > 0 && attachDraft.mapPages.length === 0
+          baselineAttach.mapPages.length > 0 &&
+          attachDraft.mapPages.length === 0 &&
+          !pendingMapFile
 
         for (const id of removedTicketIds) {
           await onRemoveTicket?.(id)
@@ -636,14 +670,35 @@ export function EventExpand({
         if (mapCleared) {
           await onRemoveMap?.()
         }
+        for (const t of attachDraft.tickets) {
+          const file = pendingTicketFiles[t.id]
+          if (file) await onAddTicket?.(t.label, file)
+        }
+        if (pendingMapFile) {
+          await onAddMap?.(pendingMapFile)
+        }
 
-        const draftBase = site
-          ? { ...site, attachments: site.attachments ?? [] }
+        const freshSite = effectiveSiteId
+          ? getSite(effectiveSiteId)
+          : undefined
+        const freshAttach = attachmentDraftFromSite(freshSite ?? site)
+        setPendingTicketFiles({})
+        setPendingMapFile(null)
+        setAttachDraft({
+          ...freshAttach,
+          mapsUrl: attachDraft.mapsUrl,
+        })
+
+        const draftBase = freshSite ?? site
+          ? {
+              ...(freshSite ?? site)!,
+              attachments: (freshSite ?? site)!.attachments ?? [],
+            }
           : emptySiteDraft(title.trim() || displayName, kind)
 
         await onSaveGuide({
           ...draftBase,
-          id: site?.id || '',
+          id: (freshSite ?? site)?.id || '',
           name: title.trim() || displayName,
           kind,
           duration: showDuration(kind) ? duration.trim() : '',
@@ -663,8 +718,8 @@ export function EventExpand({
           history: sectionsDraft.history,
           route: sectionsDraft.route,
           mapsUrl: attachDraft.mapsUrl,
-          tickets: attachDraft.tickets,
-          mapPages: attachDraft.mapPages,
+          tickets: freshAttach.tickets,
+          mapPages: freshAttach.mapPages,
         })
       }
 
@@ -689,9 +744,17 @@ export function EventExpand({
         confirmLabel: 'Convert',
       })
       if (!ok) return
+      const pending = pendingTicketFiles[row.id]
+      setPendingTicketFiles((prev) => {
+        if (!(row.id in prev)) return prev
+        const next = { ...prev }
+        delete next[row.id]
+        return next
+      })
+      setPendingMapFile(pending ?? null)
       setAttachDraft((d) => ({
         tickets: d.tickets.filter((t) => t.id !== row.id),
-        mapPages: row.pages,
+        mapPages: pending ? [] : row.pages,
         mapsUrl: d.mapsUrl,
       }))
       return
@@ -705,12 +768,21 @@ export function EventExpand({
       })
       if (!label?.trim()) return
       const ticketId = `ticket-${Date.now().toString(36)}`
+      const pending = pendingMapFile
+      setPendingMapFile(null)
+      if (pending) {
+        setPendingTicketFiles((prev) => ({ ...prev, [ticketId]: pending }))
+      }
       setAttachDraft((d) => ({
         tickets: [
           ...d.tickets,
-          { id: ticketId, label: label.trim(), pages: [row.page] },
+          {
+            id: ticketId,
+            label: label.trim(),
+            pages: pending ? [] : row.pages,
+          },
         ],
-        mapPages: d.mapPages.filter((_, i) => i !== row.pageIndex),
+        mapPages: [],
         mapsUrl: d.mapsUrl,
       }))
       return
@@ -727,14 +799,14 @@ export function EventExpand({
   }
 
   const existingOptions = useMemo(
-    () => flatOptionChoices(dayStops),
-    [dayStops],
+    () => flatOptionChoices(dayStops, optionOrder),
+    [dayStops, optionOrder],
   )
   const showBranch = useMemo(
     () =>
       !isCreate &&
-      shouldShowBranchPicker({ ...stop, time }, dayStops),
-    [isCreate, stop, time, dayStops],
+      shouldShowBranchPicker({ ...stop, time }, dayStops, optionOrder),
+    [isCreate, stop, time, dayStops, optionOrder],
   )
 
   const kindLabel = kind
@@ -750,11 +822,6 @@ export function EventExpand({
     } finally {
       setBusy(false)
     }
-  }
-
-  const syncAttachAfterUpload = () => {
-    const s = effectiveSiteId ? getSite(effectiveSiteId) : undefined
-    setAttachDraft(attachmentDraftFromSite(s))
   }
 
   const fieldLabelClass =
@@ -1067,8 +1134,19 @@ export function EventExpand({
                   {details.bookingRef ? (
                     <DetailRow label="Booking" value={details.bookingRef} />
                   ) : null}
-                  {details.bags ? (
-                    <DetailRow label="Bags" value={details.bags} />
+                  {details.bags?.length ? (
+                    <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
+                      <dt className="font-semibold text-ink">Bags</dt>
+                      <dd className="text-ink-soft">
+                        <ul className="list-disc space-y-1 pl-4">
+                          {details.bags.map((bag, i) => (
+                            <li key={i} className="break-words">
+                              {bag}
+                            </li>
+                          ))}
+                        </ul>
+                      </dd>
+                    </div>
                   ) : null}
                   {details.transit && !isEmptyRichText(details.transit) ? (
                     <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
@@ -1110,6 +1188,79 @@ export function EventExpand({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/50 to-transparent" />
                 </div>
+              ) : null}
+
+              {editing ? (
+                <section className="space-y-2">
+                  <h3 className={fieldLabelClass}>Photo</h3>
+                  {photo ? (
+                    <div className="relative h-36 overflow-hidden rounded-xl">
+                      <img
+                        src={photo}
+                        alt={displayName}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-xs text-ink-soft">
+                      {canUploadAttachments
+                        ? 'Add a photo to show in expand mode.'
+                        : 'Photo upload is available after the event is saved with a linked site.'}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={busy || !canUploadAttachments}
+                      onClick={() =>
+                        void run(async () => {
+                          await onUploadPhoto?.()
+                        })
+                      }
+                    >
+                      <ImagePlus className="h-3.5 w-3.5" />{' '}
+                      {photo ? 'Replace photo' : 'Photo'}
+                    </Button>
+                    {dayHeroImage && dayHeroImage !== photo ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={busy || !canUploadAttachments}
+                        onClick={() =>
+                          void run(async () => {
+                            await onReusePhoto?.(dayHeroImage)
+                          })
+                        }
+                      >
+                        Use day picture
+                      </Button>
+                    ) : null}
+                    {photo ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={busy || !canUploadAttachments}
+                        onClick={() => {
+                          void (async () => {
+                            const ok = await dialog.confirm({
+                              title: 'Remove photo',
+                              message: 'Remove site photo?',
+                              confirmLabel: 'Remove',
+                              destructive: true,
+                            })
+                            if (!ok) return
+                            await run(async () => {
+                              await onClearPhoto?.()
+                            })
+                          })()
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Remove
+                      </Button>
+                    ) : null}
+                  </div>
+                </section>
               ) : null}
 
               <GuideSectionsEditor
@@ -1168,13 +1319,21 @@ export function EventExpand({
                       {row.type === 'ticket' ? (
                         <span className="min-w-0 flex-1 font-medium text-ink">
                           {row.label}
+                          {pendingTicketIds.has(row.id) ? (
+                            <span className="text-ink-soft"> · pending</span>
+                          ) : null}
                         </span>
                       ) : null}
                       {row.type === 'map' ? (
                         <span className="min-w-0 flex-1 font-medium text-ink">
-                          {attachDraft.mapPages.length > 1
-                            ? `Venue map · ${row.pageIndex + 1}`
-                            : 'Venue map'}
+                          Venue map
+                          {pendingMapFile ? (
+                            <span className="text-ink-soft"> · pending</span>
+                          ) : row.pages.length > 1 ? (
+                            ` · ${row.pages.length} pages`
+                          ) : (
+                            ''
+                          )}
                         </span>
                       ) : null}
                       {row.type === 'mapsUrl' ? (
@@ -1196,6 +1355,12 @@ export function EventExpand({
                                 destructive: true,
                               })
                               if (!ok) return
+                              setPendingTicketFiles((prev) => {
+                                if (!(row.id in prev)) return prev
+                                const next = { ...prev }
+                                delete next[row.id]
+                                return next
+                              })
                               setAttachDraft((d) => ({
                                 ...d,
                                 tickets: d.tickets.filter(
@@ -1205,19 +1370,15 @@ export function EventExpand({
                             } else if (row.type === 'map') {
                               const ok = await dialog.confirm({
                                 title: 'Remove map',
-                                message:
-                                  attachDraft.mapPages.length > 1
-                                    ? `Remove map page ${row.pageIndex + 1}?`
-                                    : 'Remove venue map?',
+                                message: 'Remove venue map?',
                                 confirmLabel: 'Remove',
                                 destructive: true,
                               })
                               if (!ok) return
+                              setPendingMapFile(null)
                               setAttachDraft((d) => ({
                                 ...d,
-                                mapPages: d.mapPages.filter(
-                                  (_, i) => i !== row.pageIndex,
-                                ),
+                                mapPages: [],
                               }))
                             } else {
                               const ok = await dialog.confirm({
@@ -1241,7 +1402,7 @@ export function EventExpand({
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={busy || !canUploadAttachments}
+                    disabled={busy || !canUploadAttachments || !pickFile}
                     onClick={() => {
                       void (async () => {
                         const label = await dialog.promptText({
@@ -1251,10 +1412,20 @@ export function EventExpand({
                           confirmLabel: 'Add',
                         })
                         if (!label?.trim()) return
-                        await run(async () => {
-                          await onAddTicket?.(label.trim())
-                          syncAttachAfterUpload()
-                        })
+                        const file = await pickFile?.('.pdf,image/*')
+                        if (!file) return
+                        const id = `pending-ticket-${Date.now().toString(36)}`
+                        setPendingTicketFiles((prev) => ({
+                          ...prev,
+                          [id]: file,
+                        }))
+                        setAttachDraft((d) => ({
+                          ...d,
+                          tickets: [
+                            ...d.tickets,
+                            { id, label: label.trim(), pages: [] },
+                          ],
+                        }))
                       })()
                     }}
                   >
@@ -1263,16 +1434,26 @@ export function EventExpand({
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={busy || !canUploadAttachments}
-                    onClick={() =>
-                      void run(async () => {
-                        await onAddMap?.()
-                        syncAttachAfterUpload()
-                      })
-                    }
+                    disabled={busy || !canUploadAttachments || !pickFile}
+                    onClick={() => {
+                      void (async () => {
+                        const file = await pickFile?.('.pdf,image/*')
+                        if (!file) return
+                        setPendingMapFile(file)
+                        // Keep existing pages until Save replaces them server-side.
+                        if (!attachDraft.mapPages.length) {
+                          setAttachDraft((d) => ({
+                            ...d,
+                            mapPages: [],
+                          }))
+                        }
+                      })()
+                    }}
                   >
                     <Plus className="h-3.5 w-3.5" />{' '}
-                    {attachDraft.mapPages.length ? 'Replace map' : 'Map'}
+                    {attachDraft.mapPages.length || pendingMapFile
+                      ? 'Replace map'
+                      : 'Map'}
                   </Button>
                   <Button
                     variant="outline"

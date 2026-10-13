@@ -73,7 +73,7 @@ export function siteDetailFields(site: Site | null | undefined): {
   hours?: string
   cost?: string
   bookingRef?: string
-  bags?: string
+  bags?: string[]
   transit?: string
   summary?: string
   vibe?: string
@@ -89,7 +89,7 @@ export function siteDetailFields(site: Site | null | undefined): {
     cost: showCost(kind) && site.cost ? site.cost : undefined,
     bookingRef:
       showTransitExtras(kind) && site.bookingRef ? site.bookingRef : undefined,
-    bags: bags.length ? bags.join(' · ') : undefined,
+    bags: bags.length ? bags : undefined,
     transit:
       showTransitExtras(kind) &&
       site.transit &&

@@ -57,12 +57,10 @@
   {
     "id": "arc-de-triomphe",
     "name": "Arc de Triomphe",
-    "logistics": [],
-    "proTips": [
-      "<p><b>Rekindling of the flame</b>. daily at 18:30 since 1923, uninterrupted even during the WWII occupation</p>",
-      "<p>Inspired by the Roman Arch of Titus</p>",
-      "<p>50 meters (164 feet) tall, 45 meters wide, and 22 meters deep.</p>"
+    "logistics": [
+      "<p><b>Rekindling of the flame</b>. daily at 18:30 since 1923, uninterrupted even during the WWII occupation</p>"
     ],
+    "proTips": [],
     "history": [
       "<p>Built as a monument honoring those who fought for France. Commissioned by Napoleon in 1806 after his victory at Austerlitz</p>",
       "<p>Completed in 1836, finishing in time for Napoleon's funeral procession (when his remains were returned to Paris in 1840 and passed beneath it)</p>",
@@ -84,7 +82,10 @@
     "duration": "",
     "hours": "10:00 – 22:30 (18:30 rekindling of the flame)",
     "cost": "Free base; €64 to go to the top (not worth it)",
-    "notes": [],
+    "notes": [
+      "<p>50 meters (164 feet) tall, 45 meters wide, and 22 meters deep.</p>",
+      "<p>Inspired by the Roman Arch of Titus</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -102,8 +103,6 @@
       "Free. Adjacent to Louvre Courtyard / Tuileries axis."
     ],
     "proTips": [
-      "<p>8 Rose Marble Corinthian columns are carved from solid pink marble</p>",
-      "<p>The Quadriga (4 bronze horse chariot) on top right is a copy. Napoleon originally looted the famous Horses of Saint Mark from Venice, but France was forced to return them after his empire collapsed in 1815</p>",
       "<p>Stand under the central arch and look west. It perfectly frames a straight line through the obelisk at Place de la Concorde, down the Champs-Élysées, and straight through the massive Arc de Triomphe de l'Étoile in the distance.</p>",
       "Enter Louvre via underground stairs by this arch to bypass outdoor pyramid lines."
     ],
@@ -117,7 +116,10 @@
     "duration": "",
     "hours": "N/A",
     "cost": "Free",
-    "notes": [],
+    "notes": [
+      "<p>8 Rose Marble Corinthian columns are carved from solid pink marble</p>",
+      "<p>The Quadriga (4 bronze horse chariot) on top right is a copy. Napoleon originally looted the famous Horses of Saint Mark from Venice, but France was forced to return them after his empire collapsed in 1815</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -135,9 +137,7 @@
       "<p><b>Meeting point for many tours.</b></p>",
       "<p><b>Enter the Palatine hill and Forum from here, if you leave through a gate you can't come back in</b></p>"
     ],
-    "proTips": [
-      "<p>Most of the decorations are reused from older monuments dedicated to Marcus Aurelius and Hadrian</p>"
-    ],
+    "proTips": [],
     "history": [
       "Construction stared in 312AD to honor Emperor Constantine's defeat of Maxentius at the Battle of the Milvian Bridge on October 28, 312 AD<p></p><ul><li>Reunified Rome Empire</li><li>Before the battle Constantine looked up at the sun and saw a symbol of light and above it \"in this sing, conquer\". Not the cross, Chi-Rho.  Constanine had his soldier paint the symbol on their shields</li></ul><p></p>",
       "<p>Celebrates the decennalia, marking ten years of Constantine's rule.&amp;nbsp;</p>",
@@ -149,7 +149,9 @@
     "duration": "",
     "hours": "08:30 – 16:30 (last admission 15:30)",
     "cost": "Included in Colosseum ticket",
-    "notes": [],
+    "notes": [
+      "<p>Most of the decorations are reused from older monuments dedicated to Marcus Aurelius and Hadrian</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -284,13 +286,7 @@
     "name": "Baths of Caracalla",
     "logistics": [],
     "proTips": [
-      "VR helps reconstruct the scale — use it.",
-      "<p>Hypocaust floor-heating systems and the intricate mosaic tiling still visible on the ground</p>",
-      "<p>One's biggest ever build, can host 1,600 bathers at the same time, seeing as many as 6,000 to 8,000 visitors in a single day</p>",
-      "<p>Massive ancient leisure center. 62 acres. 2 public libraries (Greek and Latin), gymnasiums for wrestling and boxing, massage rooms, saunas, and landscaped gardens.</p>",
-      "<p>Beneath the floors lies a massive, two-story labyrinth of tunnels where hundreds of enslaved workers and oxen operated immense wood-burning furnaces. These furnaces fed the hypocaust system, forcing intensely hot air through hollow terracotta tubes in the walls and under the raised floors to heat the massive pools above</p>",
-      "<p>The brick ruins visible today were originally completely covered in thick slabs of polished marble, glass mosaics, and hundreds of colossal statues.</p>",
-      "<p>An entirely new branch of Rome's primary aqueduct network was constructed specifically to feed these baths</p>"
+      "VR helps reconstruct the scale — use it."
     ],
     "history": [
       "<p>The second largest Roman public baths, built between AD 212 and 216, by Emperor Caracalla.&amp;nbsp;</p>",
@@ -303,7 +299,14 @@
     "duration": "",
     "hours": "09:00 – 16:30 (last admission 15:30)",
     "cost": "€44",
-    "notes": [],
+    "notes": [
+      "<p>Hypocaust floor-heating systems and the intricate mosaic tiling still visible on the ground</p>",
+      "<p>One's biggest ever build, can host 1,600 bathers at the same time, seeing as many as 6,000 to 8,000 visitors in a single day</p>",
+      "<p>Massive ancient leisure center. 62 acres. 2 public libraries (Greek and Latin), gymnasiums for wrestling and boxing, massage rooms, saunas, and landscaped gardens.</p>",
+      "<p>Beneath the floors lies a massive, two-story labyrinth of tunnels where hundreds of enslaved workers and oxen operated immense wood-burning furnaces. These furnaces fed the hypocaust system, forcing intensely hot air through hollow terracotta tubes in the walls and under the raised floors to heat the massive pools above</p>",
+      "<p>The brick ruins visible today were originally completely covered in thick slabs of polished marble, glass mosaics, and hundreds of colossal statues.</p>",
+      "<p>An entirely new branch of Rome's primary aqueduct network was constructed specifically to feed these baths</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -322,13 +325,9 @@
     "logistics": [
       "Free exterior viewing."
     ],
-    "proTips": [
-      "Big Ben is the 13-ton bell inside, not the tower itself."
-    ],
+    "proTips": [],
     "history": [
-      "Clock accuracy controlled by adding/removing pre-decimal penny coins on the pendulum.",
-      "Hidden prison room about a third of the way up; last used in 1880 for a Member of Parliament.",
-      "“Big Ben” is the ~13-ton bell inside the Queen Elizabeth Tower."
+      "Hidden prison room about a third of the way up; last used in 1880 for a Member of Parliament."
     ],
     "route": [],
     "attachments": [],
@@ -336,7 +335,10 @@
     "duration": "",
     "hours": "09:00 - 17:00",
     "cost": "Free",
-    "notes": [],
+    "notes": [
+      "“Big Ben” is the ~13-ton bell inside the Queen Elizabeth Tower.",
+      "Clock accuracy controlled by adding/removing pre-decimal penny coins on the pendulum."
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -477,7 +479,7 @@
     ],
     "tickets": [],
     "mapPages": [],
-    "summary": "Baguette."
+    "summary": null
   },
   {
     "id": "breakfast-at-the-hotel",
@@ -656,12 +658,9 @@
       "Exterior walk free. State rooms open in summer only (ends ~late Sep)."
     ],
     "proTips": [
-      "#1 attraction in London by footfall.",
       "Best palace facade photo from Queen Victoria Memorial steps."
     ],
-    "history": [
-      "<p>The King's official London residence</p>"
-    ],
+    "history": [],
     "route": [
       "<p>Facade and Balcony. The eastern front is clad in Portland stone and features the famous center balcony used by the Royal Family for national events.</p>",
       "<p>Queen Victoria Memorial</p><p></p><ul><li>A massive marble and bronze monument directly in front of the palace.</li><li>Features the golden Winged Victory statue at the very top.</li><li>Stand on the elevated steps of the memorial for the best unobstructed photo spot of the palace facade.</li></ul><p></p>",
@@ -673,7 +672,10 @@
     "duration": "",
     "hours": "09:30 – 18:30",
     "cost": "Free",
-    "notes": [],
+    "notes": [
+      "#1 attraction in London by footfall.",
+      "<p>The King's official London residence</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -696,7 +698,9 @@
     "duration": "",
     "hours": null,
     "cost": "£7",
-    "notes": [],
+    "notes": [
+      "<p>Double decker bus, grab the front seats on the top deck for the best views</p>"
+    ],
     "mapsUrl": "https://maps.app.goo.gl/JDWVaCUq5hwanTZ46",
     "bookingRef": null,
     "bags": [],
@@ -705,7 +709,7 @@
     "mustTry": [],
     "tickets": [],
     "mapPages": [],
-    "summary": "<p>Double decker bus, grab the front seats on the top deck for the best views</p>"
+    "summary": null
   },
   {
     "id": "bus-to-charing-cross-2",
@@ -719,11 +723,13 @@
     "duration": "",
     "hours": null,
     "cost": "£7",
-    "notes": [],
+    "notes": [
+      "<p>Double decker bus, grab the front seats on the top deck for the best views</p>"
+    ],
     "mapsUrl": "https://maps.app.goo.gl/dWDkS8TVVRDCZomRA",
     "bookingRef": null,
     "bags": [],
-    "transit": "<p></p><ul><li>Walk towards Great Tower Street</li><li>Double decker bus, grab the front seats on the top deck for the best views</li><li>Route 15 toward Trafalgar Square / Charing Cross (13 stops, 15 min)</li></ul><p></p>",
+    "transit": "<p></p><ul><li>Walk towards Great Tower Street</li><li>Route 15 toward Trafalgar Square / Charing Cross (13 stops, 15 min)</li></ul><p></p>",
     "vibe": [],
     "mustTry": [],
     "tickets": [],
@@ -742,11 +748,13 @@
     "duration": "",
     "hours": null,
     "cost": "£7",
-    "notes": [],
+    "notes": [
+      "<p>Double decker bus, grab the front seats on the top deck for the best views</p>"
+    ],
     "mapsUrl": "https://maps.app.goo.gl/dWDkS8TVVRDCZomRA",
     "bookingRef": null,
     "bags": [],
-    "transit": "<p></p><ul><li>Walk to Great Tower Street bus stop.</li><li>Double decker bus, grab the front seats on the top deck for the best views</li><li>Route 15 toward Trafalgar Square / Charing Cross (13 stops, 15 min)</li></ul><p></p>",
+    "transit": "<p></p><ul><li>Walk to Great Tower Street bus stop.</li><li>Route 15 toward Trafalgar Square / Charing Cross (13 stops, 15 min)</li></ul><p></p>",
     "vibe": [],
     "mustTry": [],
     "tickets": [],
@@ -757,7 +765,9 @@
     "id": "cab-to-casa-modelli",
     "name": "Cab to Casa Modelli",
     "logistics": [],
-    "proTips": [],
+    "proTips": [
+      "<p>FreeNow / itTaxi available</p>"
+    ],
     "history": [],
     "route": [],
     "attachments": [],
@@ -774,15 +784,13 @@
     "mustTry": [],
     "tickets": [],
     "mapPages": [],
-    "summary": "Flat rate cab or Leonardo Express to Termini (non-stop; buy & validate/stamp ticket). National Unity and Armed Forces Day — free museums, packed, Piazza Venezia ceremony + street closures."
+    "summary": "<p>Flat rate cab or Leonardo Express to Termini (non-stop; buy &amp; validate/stamp ticket). National Unity and Armed Forces Day — free museums, packed, Piazza Venezia ceremony + street closures.</p>"
   },
   {
     "id": "capitoline-hill",
     "name": "Capitoline Hill / Piazza del Campidoglio",
     "logistics": [],
-    "proTips": [
-      "The statue is of Marcus Aurelius<p></p><ul><li>Current status is a laser-measured bronze replica installed in 1981. The original dates back to around 175 AD, and is in Capitoline Museum</li><li>Almost all large bronze statues from antiquity were melted down during the Middle Ages for their metal. This one only survived because early Christians mistakenly thought it was a statue of Constantine, the first Christian emperor.</li><li>The original statue was entirely gilded in gold. You can still see faint traces of the gilding on the original today. According to a myth, when the very last flakes of gold finally fall off the statue, it will signal the Day of Judgment</li></ul><p></p>"
-    ],
+    "proTips": [],
     "history": [
       "Roman Capitoline hill<p></p><ul><li>Citadel of early Rome</li><li>Was the smallest of the seven hills of Rome, but politically and religiously, it was the most important</li><li>It was where the government operated, where triumphant generals finished their parades, and where the most sacred religious rites took place</li><li>Temple of Jupiter Optimus Maximus was here</li></ul>",
       "Piazza del Campidoglio<p></p><ul><li>By the 1530s, the area had deteriorated into a muddy mess known as \"goat hill.\"</li><li>Pope Paul III commissioned Michelangelo to completely redesign the space.</li><li>Michelangelo turned the square 180 degrees. Instead of facing the ancient ruins behind the hill, he oriented it outward to symbolize the shift of power away from antiquity and toward papal authority.</li><li>He designed a stunning, intricate 12-pointed star pattern for the ground to make the square feel like the \"navel of the world.\" The pavement wasn't actually constructed until 1940, when the government finally ordered it finished based on the original 16th-century engravings.</li></ul>"
@@ -793,7 +801,9 @@
     "duration": "",
     "hours": "N/A",
     "cost": "Free",
-    "notes": [],
+    "notes": [
+      "The statue is of Marcus Aurelius<p></p><ul><li>Current status is a laser-measured bronze replica installed in 1981. The original dates back to around 175 AD, and is in Capitoline Museum</li><li>Almost all large bronze statues from antiquity were melted down during the Middle Ages for their metal. This one only survived because early Christians mistakenly thought it was a statue of Constantine, the first Christian emperor.</li><li>The original statue was entirely gilded in gold. You can still see faint traces of the gilding on the original today. According to a myth, when the very last flakes of gold finally fall off the statue, it will signal the Day of Judgment</li></ul><p></p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -971,11 +981,7 @@
       "<ul><li>Ticket types</li><li>Colosseum + Forum, 18, 30 days out</li><li>Arena + Forum, 18, 30 days out</li><li>Forum, 18, 39 days out (no restriction)</li><li>Full Experience + Arena, 24, 7 days</li><li>Full Experience + Underground, 24, 30 days out</li><li>Full Experience + Attic, 24, 7 days out</li></ul>",
       "<b>App has audio guy that only works inside the coliseum&nbsp;</b>"
     ],
-    "proTips": [
-      "<p>Can hold 50,000 people</p>",
-      "<p>Original name was Flavian Amphitheatre</p>",
-      "<p>Naval battles were held until the underground elevator were built</p>"
-    ],
+    "proTips": [],
     "history": [
       "<p>The Flavian Amphitheatre, commissioned around AD 70-72 by Emperor Vespasian as a gift to the Roman people for gladiatorial contests</p>",
       "<p>Opened by Vespasian's son, Emperor Titus, in 80 AD with 100 days of games.</p>",
@@ -1005,7 +1011,11 @@
     "duration": "",
     "hours": "08:30 – 16:30 (last admission 15:30)",
     "cost": "€52",
-    "notes": [],
+    "notes": [
+      "<p>Naval battles were held until the underground elevator were built</p>",
+      "<p>Original name was Flavian Amphitheatre</p>",
+      "<p>Can hold 50,000 people</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -1108,7 +1118,7 @@
     ],
     "tickets": [],
     "mapPages": [],
-    "summary": "EU4 food column also lists Da Cueri — timeline uses Da Cicero. Pinsa / meat & cheese platters vibe."
+    "summary": null
   },
   {
     "id": "dinner-at-five-guys",
@@ -1193,7 +1203,7 @@
     ],
     "tickets": [],
     "mapPages": [],
-    "summary": "Bread & olive oil, tuna tartare, grilled octopus, pasta with calamari, tiramisu."
+    "summary": null
   },
   {
     "id": "dinner-at-the-george-inn",
@@ -1393,14 +1403,10 @@
     "name": "Eiffel Tower",
     "logistics": [
       "<p>Goal to see the sunset from 2nd floor</p>",
-      "<p>Lights up 10 mins after sunset, sparkles on the hour there after until 23:00</p>",
-      "<p>Requires 60 tons of paint every seven years to prevent oxidation</p>"
+      "<p>Lights up 10 mins after sunset, sparkles on the hour there after until 23:00</p>"
     ],
     "proTips": [
-      "<p>2nd floor is the best spot, summit is optional (especially in Nov)</p>",
-      "<p>Can grow and bend away from the sun by up to 18 cm in the summer</p>",
-      "<p>Gustave Eiffel had the names of 72 French scientists, engineers, and mathematicians engraved in gold letters around the first floor to commemorate their contributions to the industrial age</p>",
-      "<p>There is a secret bunker under the South pillar originally built as a military radio station.</p>"
+      "<p>2nd floor is the best spot, summit is optional (especially in Nov)</p>"
     ],
     "history": [
       "<p>Constructed for the 1889 World's Fair, 2 years to build, finished on time</p>",
@@ -1409,14 +1415,19 @@
       "<p>During the 1920s, con artist Victor Lustig famously \"sold\" the tower for scrap metal, twice.</p>"
     ],
     "route": [
-      "<p>Take the 674 stairs on the way down from 2nd floor</p>"
+      "<p>Take the 674 stairs on the way down from 2nd floor</p>",
+      "<p>Gustave Eiffel had the names of 72 French scientists, engineers, and mathematicians engraved in gold letters around the first floor to commemorate their contributions to the industrial age</p>",
+      "<p>There is a secret bunker under the South pillar originally built as a military radio station.</p>"
     ],
     "attachments": [],
     "kind": "attraction",
     "duration": "",
     "hours": "9:00 – 00:00",
     "cost": "€110.20",
-    "notes": [],
+    "notes": [
+      "<p>Requires 60 tons of paint every seven years to prevent oxidation</p>",
+      "<p>Can grow and bend away from the sun by up to 18 cm in the summer</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -1519,7 +1530,7 @@
   },
   {
     "id": "flight-boy-dc",
-    "name": "FI 645 KEF → IAD (Boys)",
+    "name": "Boy's flight to DC",
     "logistics": [],
     "proTips": [],
     "history": [],
@@ -1532,10 +1543,7 @@
     "notes": [],
     "mapsUrl": null,
     "bookingRef": "A4X3SC (Hanna Business)",
-    "bags": [
-      "Hanna: 1 checked 32kg + carry-on + personal",
-      "10kg max personal & carry-on together"
-    ],
+    "bags": [],
     "transit": null,
     "vibe": [],
     "mustTry": [],
@@ -1551,7 +1559,7 @@
       }
     ],
     "mapPages": [],
-    "summary": "Boys Economy. Land IAD 18:30."
+    "summary": "<p></p><ul><li>Boys Economy</li><li>FI 645: 16:50 KEF to 18:30 IAD</li></ul><p></p>"
   },
   {
     "id": "flight-boys-london",
@@ -1569,8 +1577,9 @@
     "mapsUrl": null,
     "bookingRef": "A2VZ2R",
     "bags": [
-      "1 carry-on 21.6×15.7×7.8 + 1 personal 15.7×11.8×5.9",
-      "10kg max"
+      "1 carry-on: 21.6×15.7×7.8",
+      "1 personal: 15.7×11.8×5.9",
+      "10kg max total"
     ],
     "transit": null,
     "vibe": [],
@@ -1590,8 +1599,45 @@
     "summary": "<p></p><ul><li>Economy class, Prok, Max, Troy.&nbsp;</li><li>FI 644: 20:40 IAD to 06:35 KEF</li></ul><p></p>"
   },
   {
+    "id": "flight-boys-iceland",
+    "name": "Boy's flight to Iceland",
+    "logistics": [],
+    "proTips": [],
+    "history": [],
+    "route": [],
+    "attachments": [],
+    "kind": "transit",
+    "duration": "5h 05m",
+    "hours": null,
+    "cost": "$1,313 pp",
+    "notes": [],
+    "mapsUrl": null,
+    "bookingRef": "A38FNO",
+    "bags": [
+      "1 carry-on: 21.6×15.7×7.8",
+      "1 personal: 15.7×11.8×5.9",
+      "10kg max total"
+    ],
+    "transit": null,
+    "vibe": [],
+    "mustTry": [],
+    "tickets": [
+      {
+        "id": "ticket",
+        "label": "Ticket",
+        "pages": [
+          "/images/tickets/flight-boys-iceland/ticket/ticket-page-1.jpg",
+          "/images/tickets/flight-boys-iceland/ticket/ticket-page-2.jpg",
+          "/images/tickets/flight-boys-iceland/ticket/ticket-page-3.jpg"
+        ]
+      }
+    ],
+    "mapPages": [],
+    "summary": "<p></p><ul><li>Everyone flies economy this leg</li><li>FI 931: 11:25 FCO to 15:30 KEF</li></ul><p></p>"
+  },
+  {
     "id": "flight-hanna-dc",
-    "name": "FI 645 KEF → IAD (Hanna)",
+    "name": "Hanna's flight to DC",
     "logistics": [],
     "proTips": [],
     "history": [],
@@ -1620,11 +1666,11 @@
       }
     ],
     "mapPages": [],
-    "summary": "Hanna Business. Land IAD 18:30."
+    "summary": "<p></p><ul><li>Hanna Business</li><li>FI 645: 16:50 KEF to 18:30 IAD</li></ul><p></p>"
   },
   {
     "id": "flight-hanna-iceland",
-    "name": "Hanna flight to Iceland",
+    "name": "Hanna's flight to Iceland",
     "logistics": [],
     "proTips": [],
     "history": [],
@@ -1633,13 +1679,14 @@
     "kind": "transit",
     "duration": "5h 05m",
     "hours": null,
-    "cost": "Plebs $1,313 pp; Royalty segment under A4RA46",
+    "cost": "Under A4RA46",
     "notes": [],
     "mapsUrl": null,
-    "bookingRef": "A38FNO (Plebs) / A4RA46 (Hanna)",
+    "bookingRef": "A4RA46",
     "bags": [
-      "Plebs: 1 carry-on + personal, 10kg max.",
-      "Hanna: checked 32kg on long-haul booking."
+      "1 checked: 32kg",
+      "1 personal: 15.7×11.8×5.9",
+      "10 kg max total"
     ],
     "transit": null,
     "vibe": [],
@@ -1656,7 +1703,7 @@
       }
     ],
     "mapPages": [],
-    "summary": "Everyone Economy this leg. Land KEF 15:30. ~1h 20–25m layover."
+    "summary": "<p></p><ul><li>Everyone flies economy this leg</li><li>FI 931: 11:25 FCO to 15:30 KEF</li></ul><p></p>"
   },
   {
     "id": "flight-hanna-london",
@@ -1674,7 +1721,9 @@
     "mapsUrl": null,
     "bookingRef": "A3AIAO",
     "bags": [
-      "1 checked 32kg + carry-on + personal",
+      "1 checked 32kg",
+      "1 personal 15.7×11.8×5.9",
+      "1 carry-on: 21.6×15.7×7.8",
       "10kg max for personal & carry-on together"
     ],
     "transit": null,
@@ -1710,7 +1759,8 @@
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [
-      "1 carry-on 21.65×15.75×9.84 (Hanna & Igor only) + personal 15.75×11.8×7.87",
+      "1 carry-on: 21.65×15.75×9.84 \n(Hanna & Igor only)",
+      "1 personal: 15.75×11.8×7.87",
       "10kg max together"
     ],
     "transit": null,
@@ -1718,7 +1768,7 @@
     "mustTry": [],
     "tickets": [],
     "mapPages": [],
-    "summary": "Land 11:20. FreeNow / itTaxi available."
+    "summary": "<p>Land 11:20</p>"
   },
   {
     "id": "full-english-breakfast-at-hotel-the-lampery",
@@ -1745,7 +1795,7 @@
     ],
     "tickets": [],
     "mapPages": [],
-    "summary": "<p>£22 Full English — first full day in London, must do.</p>"
+    "summary": "<p>£22 Full English, must do first full day in London</p>"
   },
   {
     "id": "golden-hind",
@@ -1753,7 +1803,6 @@
     "logistics": [],
     "proTips": [],
     "history": [
-      "Replica of Sir Francis Drake's flagship — first English ship to circumnavigate the globe (1577–1580).",
       "Replica has sailed 140,000+ miles and completed its own circumnavigation."
     ],
     "route": [],
@@ -1771,7 +1820,7 @@
     "mustTry": [],
     "tickets": [],
     "mapPages": [],
-    "summary": null
+    "summary": "<p>Replica of Sir Francis Drake's flagship, first English ship to circumnavigate the globe (1577–1580).</p>"
   },
   {
     "id": "golden-jubilee-bridge",
@@ -1845,7 +1894,8 @@
       "Food Court"
     ],
     "mustTry": [
-      "French pastries, croissants"
+      "Croissants",
+      "French pastries"
     ],
     "tickets": [],
     "mapPages": [],
@@ -2597,7 +2647,7 @@
     "id": "notre-dame",
     "name": "Notre-Dame Cathedral",
     "logistics": [
-      "<p>Booking opens 2 days before.</p>",
+      "<p><b>Booking opens 2 days before.</b></p>",
       "<p>Two lines (with/without tickets).&nbsp;</p>",
       "<p>The Bell Towers</p><p></p><ul><li>Can walk up the 424 stairs (different line inside)</li><li>&nbsp;€16 extract, must be booked online in advance (not sold on-site).</li><li>The climb brings you face-to-face with the famous gargoyles and  13-tonne bell, \"Emmanuel.\"</li><li>Visitors are granted exactly 5 minutes at the summit to take in the 360° panorama of Paris.</li></ul><p></p>",
       "<p>The Treasury:&nbsp;</p><p></p><ul><li>€12 extra, purchased directly at the Treasury reception desk (no online sales).</li><li>Crown of Thorns and other Vatican treasures</li></ul><p></p>"
@@ -2646,10 +2696,9 @@
       "<p>The land beneath Parliament, originally known as Thorney Island, was first established as a royal residence by the Danish King Cnut the Great starting in 1016</p>",
       "<p>Anglo-Saxon King Edward the Confessor built his own royal palace and the original Westminster Abbey on that exact same site between 1042 and 1065</p>",
       "<p>William the Conqueror finally secured London in 1066, he did not establish Westminster as the center of power; he merely took over a location that was already the entrenched political and religious heart of England</p>",
-      "<p>Wooden roof from 1397</p>",
       "Medieval palace largely destroyed by fires in 1512 and 1834; today's building is 19th-century Gothic Revival.",
-      "<p>Westminster Hall once the biggest hall in Europe</p>",
-      "House of Commons met here to stay close to the king; nearby Banqueting House is where Charles I was executed in 1649."
+      "<p>House of Commons met here to stay close to the king</p>",
+      "<p>Nearby Banqueting House is where Charles I was executed in 1649</p>"
     ],
     "route": [],
     "attachments": [],
@@ -2657,7 +2706,10 @@
     "duration": "",
     "hours": "09:00 – 17:00",
     "cost": "Free (exterior)",
-    "notes": [],
+    "notes": [
+      "<p>Wooden roof from 1397</p>",
+      "<p>Westminster Hall once the biggest hall in Europe</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -2698,10 +2750,7 @@
   {
     "id": "palatine-hill",
     "name": "Palatine Hill",
-    "logistics": [
-      "<p>Centermost of the Seven Hills of Rome</p>",
-      "<p>Where imperial Palace is used to be&amp;nbsp;</p>"
-    ],
+    "logistics": [],
     "proTips": [
       "Best elevated views of Colosseum, Forum, and Circus Maximus.",
       "<p>Climb it, Look out over the Circus Maximus from the stadium viewing platforms on the southern edge of the hill</p>"
@@ -2718,7 +2767,10 @@
     "duration": "",
     "hours": "08:30 – 16:30 (last admission 15:30)",
     "cost": "Included in Colosseum ticket",
-    "notes": [],
+    "notes": [
+      "<p>Centermost of the Seven Hills of Rome</p>",
+      "<p>Where imperial Palace is used to be</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -2737,29 +2789,30 @@
       "<p>Two lines (cash vs credit), pick the shorter.&nbsp;</p>",
       "<b>Judgement call.</b>&nbsp;If the line are ok go before lunch, else go to lunch, if still crazy, keep walking to Piazza Novona and try again before dinner, worst case Friday"
     ],
-    "proTips": [
-      "<p>Best-preserved Roman temple. Originally a temple to the Roman gods, now an active Catholic Church</p>",
-      "<p>The tomb of the first king of Italy is here</p>",
-      "<p>Queen margarita's tomb is also here. Yes the pizza was named after her&amp;nbsp;</p>",
-      "<p>Raphael's tomb is here as well</p>",
-      "<p>16 one piece Granite columns shipped from Egypt.&amp;nbsp;Takes four people to hug them</p>",
-      "<p>Wooden roof support beams used to be bronze, until it was used to make the alter of st. Peters</p>",
-      "<p>Perfect sphere 140 ft tall 140 ft wide&amp;nbsp;</p>",
-      "<p>The dome is made out of poured concrete, it gets thinner the higher you go&amp;nbsp;</p>",
-      "<p>The light is dead center on the longest day of the year.  It lights the entrance on 4/21 (Rome's founding)</p>"
-    ],
+    "proTips": [],
     "history": [
       "<p>First build 27–25 BC by Marcus Agrippa during the reign of Emperor Augustus. This structure was destroyed by a major fire in 80 AD</p>",
       "<p>Rebuilt by Emperor Domitian in 80 AD, but struck by lightning and burned down again around 110 AD</p>",
       "<p>Reconstructed in concrete and brick under Emperor Hadrian, 125-128 AD. Even though Hadrian rebuilt it entirely, he kept Agrippa's original inscription crediting the first builder on the front facade</p>"
     ],
-    "route": [],
+    "route": [
+      "<p>16 one piece Granite columns shipped from Egypt</p><p></p><ul><li>Takes four people to hug them</li></ul><p></p>",
+      "<p>Wooden roof support beams used to be bronze, until it was used to make the alter of st. Peters</p>",
+      "<p>The dome is made out of poured concrete, it gets thinner the higher you go&amp;nbsp;</p>",
+      "<p>The light is dead center on the longest day of the year.  It lights the entrance on 4/21 (Rome's founding)</p>",
+      "<p>Perfect sphere 140 ft tall 140 ft wide&amp;nbsp;</p>",
+      "<p>The tomb of the first king of Italy is here</p>",
+      "<p>Queen margarita's tomb is also here. Yes the pizza was named after her&amp;nbsp;</p>",
+      "<p>Raphael's tomb is here as well</p>"
+    ],
     "attachments": [],
     "kind": "attraction",
     "duration": "",
     "hours": "09:00 – 18:00",
     "cost": "Free (normally €20)",
-    "notes": [],
+    "notes": [
+      "<p>Best-preserved Roman temple. Originally a temple to the Roman gods, now an active Catholic Church</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -2807,9 +2860,7 @@
     "id": "piazza-del-popolo",
     "name": "Piazza del Popolo",
     "logistics": [],
-    "proTips": [
-      "<p>Translated to \"People's Square\"</p>"
-    ],
+    "proTips": [],
     "history": [
       "<p>Was Rome's primary site for public executions for centuries. The papal executioners routinely used a heavy wooden mallet or a guillotine here to carry out death sentences, a practice that continued in this square as late as 1826</p>"
     ],
@@ -2821,7 +2872,9 @@
     "duration": "",
     "hours": null,
     "cost": null,
-    "notes": [],
+    "notes": [
+      "<p>Translated to \"People's Square\"</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -2836,14 +2889,14 @@
     "id": "piazza-navona",
     "name": "Piazza Navona",
     "logistics": [],
-    "proTips": [
-      "<p>3 fountains, Fontana dei Quattro Fiumi  (center) topped with an Egyptian obelisk, Fontana del Moro (south), and Fontana del Nettuno (north)</p>"
-    ],
+    "proTips": [],
     "history": [
       "<p>Built on the exact footprint of the ancient Stadium of Domitian (commissioned in 80 AD), preserving its oval shape.&nbsp;</p>",
       "<p>During the 17th century under Pope Innocent X, it was transformed into a showcase of spectacular Baroque Roman architecture and art</p>"
     ],
-    "route": [],
+    "route": [
+      "<p>3 fountains, Fontana dei Quattro Fiumi  (center) topped with an Egyptian obelisk, Fontana del Moro (south), and Fontana del Nettuno (north)</p>"
+    ],
     "attachments": [],
     "kind": "attraction",
     "duration": "",
@@ -2953,11 +3006,7 @@
     "logistics": [
       "<p>Bring water bottle, Pompeii has working fountains</p>",
       "<p>Pompeii has very little shade.</p>",
-      "<p>Only small bags are allowed</p>",
-      "<p>4 square miles (Manhattan is 7)</p>",
-      "<p>Stepping stones help cross the street</p>",
-      "<p>Width of the street math the heigh of the building, roman style of building</p>",
-      "<p>Roman grid system for roads. 2 main streets, Cardo (north - south), Decamanus (east - west), intersected in the Forum (Center of the city), the entrance to the forum would have been marked with Arches. City gates at the entrance</p>"
+      "<p>Only small bags are allowed</p>"
     ],
     "proTips": [],
     "history": [
@@ -2988,7 +3037,12 @@
     "duration": "",
     "hours": "09:00 – 17:00 (1 Nov–30 Mar; else until 19:00)",
     "cost": null,
-    "notes": [],
+    "notes": [
+      "<p>4 square miles (Manhattan is 7)</p>",
+      "<p>Stepping stones help cross the street</p>",
+      "<p>Width of the street math the heigh of the building, roman style of building</p>",
+      "<p>Roman grid system for roads. 2 main streets, Cardo (north - south), Decamanus (east - west), intersected in the Forum (Center of the city), the entrance to the forum would have been marked with Arches. City gates at the entrance</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -3147,8 +3201,7 @@
       "Sunday mornings heavily restricted by collegiate services — exteriors + Christ Church Meadow if needed."
     ],
     "history": [
-      "Bodleian is among Europe's oldest libraries (~400 years); the square is Oxford's visual epicenter.",
-      "Surrounding architecture forms the historic epicenter of the university."
+      "Bodleian is among Europe's oldest libraries (~400 years); the square is Oxford's visual epicenter."
     ],
     "route": [],
     "attachments": [],
@@ -3156,7 +3209,9 @@
     "duration": "",
     "hours": "Bodleian Library weekdays 9:00 – 17:00; Radcliffe Square 24/7",
     "cost": "Free exteriors; Bodleian interior needs tour ticket",
-    "notes": [],
+    "notes": [
+      "Surrounding architecture forms the historic epicenter of the university."
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -3216,9 +3271,7 @@
   {
     "id": "roman-forum",
     "name": "Roman Forum",
-    "logistics": [
-      "<p>Sits in the low valley directly between Palatine Hill and Capitoline Hill. Ancient Romans would walk down from their palaces on Palatine Hill, conduct their business in the Forum, and look up at the towering Temple of Jupiter on Capitoline Hill.</p>"
-    ],
+    "logistics": [],
     "proTips": [],
     "history": [],
     "route": [
@@ -3239,7 +3292,9 @@
     "duration": "",
     "hours": "08:30 – 16:30 (last admission 15:30)",
     "cost": "Included in Colosseum ticket",
-    "notes": [],
+    "notes": [
+      "<p>Sits in the low valley directly between Palatine Hill and Capitoline Hill. Ancient Romans would walk down from their palaces on Palatine Hill, conduct their business in the Forum, and look up at the towering Temple of Jupiter on Capitoline Hill.</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -3314,9 +3369,7 @@
     "id": "seine-cruise",
     "name": "Vedettes du Pont Neuf Seine River Cruise",
     "logistics": [],
-    "proTips": [
-      "Use as foot recovery between Sainte-Chapelle and Notre-Dame."
-    ],
+    "proTips": [],
     "history": [],
     "route": [],
     "attachments": [],
@@ -3324,7 +3377,9 @@
     "duration": "",
     "hours": "10:30 – 22:00",
     "cost": "€60",
-    "notes": [],
+    "notes": [
+      "Use as foot recovery between Sainte-Chapelle and Notre-Dame."
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -3350,13 +3405,10 @@
     "logistics": [
       "Official guided tours last ~60 minutes; tickets are emailed the day before."
     ],
-    "proTips": [
-      "Guided tour focuses on stage view and historical exhibition."
-    ],
+    "proTips": [],
     "history": [
       "Replica of Shakespeare's Elizabethan theatre. Original 1599 (Shakespeare held 12.5% share); burned 1613 after stage cannon misfire during Henry VIII.",
-      "Rebuilt with traditional Tudor methods (wooden pegs, no steel); holds ~1,500 spectators (about half the original capacity).",
-      "<p>Current theatre holds 1,500 spectators, half the capacity of the original&amp;nbsp;</p>"
+      "Rebuilt with traditional Tudor methods (wooden pegs, no steel); holds ~1,500 spectators (about half the original capacity)."
     ],
     "route": [],
     "attachments": [],
@@ -3364,7 +3416,9 @@
     "duration": "",
     "hours": "11:00 – 18:00",
     "cost": "£87 (£30 adult / £13.50 under 16).",
-    "notes": [],
+    "notes": [
+      "<p>Current theatre holds 1,500 spectators, half the capacity of the original&amp;nbsp;</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -3902,10 +3956,7 @@
       "<b>Do not sit, will get fined (€400)</b>"
     ],
     "proTips": [
-      "<p>Famously packed with hopeful models. Because the stunning architecture attracted so many portrait painters and artists, attractive locals and travelers would congregate on the steps specifically hoping to be hired as subjects</p>",
-      "<p>Great view from the top</p>",
-      "<p>Expect to be very crowded</p>",
-      "<p>135-step staircase</p>"
+      "<p>Great view from the top</p>"
     ],
     "history": [
       "<p>Built in 1723–1725 to bridge the gap between the Trinità dei Monti church at the top and the Spanish square below</p>",
@@ -3917,7 +3968,11 @@
     "duration": "",
     "hours": null,
     "cost": null,
-    "notes": [],
+    "notes": [
+      "<p>Famously packed with hopeful models. Because the stunning architecture attracted so many portrait painters and artists, attractive locals and travelers would congregate on the steps specifically hoping to be hired as subjects</p>",
+      "<p>Expect to be very crowded</p>",
+      "<p>135-step staircase</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -3933,10 +3988,10 @@
     "name": "St. Paul's Cathedral",
     "logistics": [
       "Not enough time for a full interior visit on this stop — exterior focus; optional 17:00 Choral Evensong if you want to see inside.",
-      "Audio guide included with paid entry."
+      "Audio guide included with paid entry.",
+      "Can climb the dome if you go inside."
     ],
     "proTips": [
-      "Can climb the dome if you go inside.",
       "Focus on the massive dome and Whispering Gallery from the exterior vantage."
     ],
     "history": [
@@ -3967,10 +4022,7 @@
     "logistics": [
       "<p>Buy the ticket there, do not buy before hand</p>"
     ],
-    "proTips": [
-      "<ul><li>551 steps, 343 if you take the elevator. Worth it</li><li>600 feet long</li><li>Can fit the statue of liberty including the pedestal inside it</li></ul>",
-      "Covered in mosaics not paintings<p></p><ul><li>Because St. Peter's basilica is so big, so many people go through it, and damp Roman winters, and the lack of modern climate control, the interior had severe issues with humidity and condensation.</li><li>The original oil paintings and frescoes began to warp, rot, and fade almost as soon as they were finished.</li><li>In late 16th century, the Vatican replaced all paintings with mosaics</li></ul><p></p>"
-    ],
+    "proTips": [],
     "history": [
       "<p>Started as Vatican hill, where oracles gave prophesies</p>",
       "<p>1st century AD, emperor Caligula built a stadium for chariot races. Nero expended it</p>",
@@ -3993,7 +4045,10 @@
     "duration": "",
     "hours": "7:00 – 19:10 (dome stairs open 8:00)",
     "cost": "€40",
-    "notes": [],
+    "notes": [
+      "<ul><li>551 steps, 343 if you take the elevator. Worth it</li><li>600 feet long</li><li>Can fit the statue of liberty including the pedestal inside it</li></ul>",
+      "Covered in mosaics not paintings<p></p><ul><li>Because St. Peter's basilica is so big, so many people go through it, and damp Roman winters, and the lack of modern climate control, the interior had severe issues with humidity and condensation.</li><li>The original oil paintings and frescoes began to warp, rot, and fade almost as soon as they were finished.</li><li>In late 16th century, the Vatican replaced all paintings with mosaics</li></ul><p></p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -4062,16 +4117,18 @@
     "duration": "",
     "hours": null,
     "cost": "£57.60",
-    "notes": [],
+    "notes": [
+      "<p>Use Google Pay at Gatwick fare gates (can't be the same phone)</p>"
+    ],
     "mapsUrl": "https://maps.app.goo.gl/keC72T5HJrfoJj3w5",
     "bookingRef": null,
     "bags": [],
-    "transit": "Use Google Pay at Gatwick fare gates (can't be the same phone). Thameslink to Bedford — 2 stops, ~29 min.",
+    "transit": "<p>Thameslink to Bedford — 2 stops, ~29 min.</p>",
     "vibe": [],
     "mustTry": [],
     "tickets": [],
     "mapPages": [],
-    "summary": "Google Pay contactless throughout London."
+    "summary": "<p>Google Pay contactless throughout London.</p>"
   },
   {
     "id": "the-london-family-picture",
@@ -4112,12 +4169,12 @@
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
-    "transit": null,
+    "transit": "<ul><li>7:30 departure, be there by 7:00</li><li>Bring water, Pompeii has very little shade.</li><li>Includes guide, three-course Neapolitan lunch with views across the Bay of Naples, Mt Vesuvius&nbsp;</li><li>One rest stop halfway at a highway rest stop</li></ul><p><br></p>",
     "vibe": [],
     "mustTry": [],
     "tickets": [],
     "mapPages": [],
-    "summary": "<p></p><ul><li>7:30 departure, be there by 7:00</li><li>Bring water, Pompeii has very little shade.</li><li>Includes guide, three-course Neapolitan lunch with views across the Bay of Naples, Mt Vesuvius&nbsp;</li><li><b>One rest stop halfway at a highway rest stop</b></li></ul><p></p><p><br></p>"
+    "summary": null
   },
   {
     "id": "tour-bus-to-rome",
@@ -4195,15 +4252,11 @@
     "id": "tower-of-london",
     "name": "Tower of London",
     "logistics": [
-      "<p>Hours: 10:00–17:30 (Last admission 15:00)</p>",
       "Cost: £111 + £14 family audio (£37 adults / £18.50 under 15)."
     ],
-    "proTips": [
-      "<p>Yeoman Warder tour.<br></p><ul><li>included with admission, <b>worth it</b></li><li>every ~30 min near the entrance</li><li>45–60 min</li><li>led by military veterans who live on site with their families</li><li>Doesn't run in rain (umbrella safety)</li><li>does not include Crown Jewels or White Tower (see those on your own)</li></ul><p></p>"
-    ],
+    "proTips": [],
     "history": [
-      "Historic castle and fortress founded in 1066; military history and royal armouries.",
-      "Raven legend: the kingdom and fortress fall if the six resident ravens ever leave; the Ravenmaster feeds them raw meat and blood-soaked biscuits."
+      "Historic castle and fortress founded in 1066; military history and royal armouries."
     ],
     "route": [
       "Walk southeast from Apex City of London Hotel (~3–5 min) to the West Gate entrance.",
@@ -4224,7 +4277,10 @@
     "duration": "",
     "hours": "10:00 – 17:30 (last admission 15:00)",
     "cost": "£111 + £14 family audio",
-    "notes": [],
+    "notes": [
+      "<p>Yeoman Warder tour.<br></p><ul><li>included with admission, <b>worth it</b></li><li>every ~30 min near the entrance</li><li>45–60 min</li><li>led by military veterans who live on site with their families</li><li>Doesn't run in rain (umbrella safety)</li><li>does not include Crown Jewels or White Tower (see those on your own)</li></ul><p></p>",
+      "Raven legend: the kingdom and fortress fall if the six resident ravens ever leave; the Ravenmaster feeds them raw meat and blood-soaked biscuits."
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -4281,9 +4337,7 @@
     "logistics": [
       "<p>Illegal to feed pigeons.</p>"
     ],
-    "proTips": [
-      "Fountains allegedly installed to keep crowd sizes down."
-    ],
+    "proTips": [],
     "history": [
       "Commemorates British naval victory at Trafalgar (1805), preventing Napoleon's Channel invasion.",
       "<p>The decorations are made from melted down French cannons</p>"
@@ -4296,7 +4350,9 @@
     "duration": "",
     "hours": null,
     "cost": null,
-    "notes": [],
+    "notes": [
+      "Fountains allegedly installed to keep crowd sizes down."
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -4356,10 +4412,7 @@
   {
     "id": "trajans-column",
     "name": "Trajan's Column",
-    "logistics": [
-      "<ul><li>125 feet tall</li><li>17x30-ton solid marble drums</li><li>The spiral band actually increases in width as it goes up (0.9 m to 1.25 m). Viewer standing on the ground could still make out the narrative unfolding 100 feet in the air</li><li>2,500 figures</li></ul>",
-      "<p>Was originally vibrant reds, blues, and golds, with real miniature bronze weapons attached to the soldiers' hands</p>"
-    ],
+    "logistics": [],
     "proTips": [],
     "history": [
       "<p>Erected 113 AD to celebrate Emperor Trajan's 2 successful campaigns in Dacia</p>",
@@ -4378,7 +4431,10 @@
     "duration": "",
     "hours": "N/A",
     "cost": "Free",
-    "notes": [],
+    "notes": [
+      "<ul><li>125 feet tall</li><li>17x30-ton solid marble drums</li><li>The spiral band actually increases in width as it goes up (0.9 m to 1.25 m). Viewer standing on the ground could still make out the narrative unfolding 100 feet in the air</li><li>2,500 figures</li></ul>",
+      "<p>Was originally vibrant reds, blues, and golds, with real miniature bronze weapons attached to the soldiers' hands</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -4405,7 +4461,7 @@
     "mapsUrl": "https://maps.app.goo.gl/YPk8Ty5ojLx71eUCA",
     "bookingRef": null,
     "bags": [],
-    "transit": "Bakerloo to Elephant & Castle (2 stops, 3 min) → Circle via Liverpool St (6 stops, 10 min).",
+    "transit": "<p></p><ul><li>Bakerloo to Elephant &amp; Castle (2 stops, 3 min)</li><li>Circle via Liverpool St (6 stops, 10 min).</li></ul><p></p>",
     "vibe": [],
     "mustTry": [],
     "tickets": [],
@@ -4580,9 +4636,7 @@
       "<p>Look at the live cam to see how busy it is</p>"
     ],
     "proTips": [
-      "<p>Legend is If you stand with your back toward the fountain, throw a coin over your left shoulder in to the fountain using your right hand, you're going to come back to Rome</p>",
-      "<p>Marks the terminal point of the Acqua Vergine, an extension of the ancient Roman Aqua Virgo aqueduct</p>",
-      "<p>Status of Neptune, god of the sea</p>"
+      "<p>Legend is If you stand with your back toward the fountain, throw a coin over your left shoulder in to the fountain using your right hand, you're going to come back to Rome</p>"
     ],
     "history": [],
     "route": [],
@@ -4591,7 +4645,10 @@
     "duration": "",
     "hours": "09:00 - 22:00 (close up basin area)",
     "cost": "€2.00 fee to enter the lower basin steps between 9:00 - 22:00, else free",
-    "notes": [],
+    "notes": [
+      "<p>Marks the terminal point of the Acqua Vergine, an extension of the ancient Roman Aqua Virgo aqueduct</p>",
+      "<p>Status of Neptune, god of the sea</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -4721,8 +4778,6 @@
     "id": "vatican-museums",
     "name": "Vatican Museums & Sistine Chapel",
     "logistics": [
-      "<p>70,000 works of art, 20,000 on display</p>",
-      "<p>54 galleries, 9 miles of corridors</p>",
       "Vatican museum guides<p></p><ul><li>End at the Sistine Chappel</li><li>Guides are a hit or miss</li><li>Max size is 25 people</li><li><b>After the tour, go back to the begin of the Vatican Museum, don't exit, and go at your own pace</b></li></ul><p></p>"
     ],
     "proTips": [],
@@ -4760,7 +4815,10 @@
     "duration": "",
     "hours": "08:00 – 20:00 (closed Sundays and holidays)",
     "cost": "€140",
-    "notes": [],
+    "notes": [
+      "<p>70,000 works of art, 20,000 on display</p>",
+      "<p>54 galleries, 9 miles of corridors</p>"
+    ],
     "mapsUrl": null,
     "bookingRef": null,
     "bags": [],
@@ -5643,6 +5701,6 @@
     "history": [],
     "route": [],
     "attachments": [],
-    "summary": "<p>Everyone on same Icelandair flight; arrive LGW 10:55.</p>"
+    "summary": "<p></p><ul><li>Everyone on same Icelandair flight</li><li>Arrive LGW 10:55.</li></ul><p></p>"
   }
 ]

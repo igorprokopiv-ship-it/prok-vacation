@@ -401,3 +401,42 @@ export async function adminClearHero(tripSlug: string, dayId: string) {
   )
   return res.json()
 }
+
+export async function adminUploadSitePhoto(
+  tripSlug: string,
+  guideId: string,
+  file: File,
+) {
+  const fd = new FormData()
+  fd.append('file', file)
+  const res = await adminFetch(
+    `/api/admin/trips/${tripSlug}/guides/${guideId}/photo`,
+    { method: 'POST', body: fd },
+  )
+  return res.json()
+}
+
+/** Reuse an existing /images/... path as this site's photo (no re-upload). */
+export async function adminSetSitePhoto(
+  tripSlug: string,
+  guideId: string,
+  path: string,
+) {
+  const res = await adminFetch(
+    `/api/admin/trips/${tripSlug}/guides/${guideId}/photo`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path }),
+    },
+  )
+  return res.json()
+}
+
+export async function adminClearSitePhoto(tripSlug: string, guideId: string) {
+  const res = await adminFetch(
+    `/api/admin/trips/${tripSlug}/guides/${guideId}/photo`,
+    { method: 'DELETE' },
+  )
+  return res.json()
+}

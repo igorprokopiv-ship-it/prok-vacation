@@ -80,6 +80,8 @@ export interface ItineraryDay {
   food: FoodFocus | null;
   /** Multi-stop day walking / driving maps. */
   mapsUrls?: DayMapLink[];
+  /** Display order of option labels for this day (overrides first-appearance order). */
+  optionOrder?: string[];
   highlights: DayHighlight[];
   stops: ItineraryStop[];
 }
