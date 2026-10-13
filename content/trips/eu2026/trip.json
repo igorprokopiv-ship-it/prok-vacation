@@ -4,5 +4,25 @@
   "title": "2026 Europe Vacation",
   "start_date": "2026-10-28",
   "end_date": "2026-11-08",
-  "status": "active"
+  "status": "active",
+  "locations": [
+    {
+      "id": "loc-london",
+      "name": "London",
+      "start_date": "2026-10-29",
+      "end_date": "2026-10-31"
+    },
+    {
+      "id": "loc-paris",
+      "name": "Paris",
+      "start_date": "2026-11-02",
+      "end_date": "2026-11-03"
+    },
+    {
+      "id": "loc-rome",
+      "name": "Rome",
+      "start_date": "2026-11-05",
+      "end_date": "2026-11-07"
+    }
+  ]
 }

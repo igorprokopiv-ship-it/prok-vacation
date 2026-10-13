@@ -24,6 +24,8 @@ export interface ContentManifest {
   totalBytes?: number
 }
 
+import type { TripLocation } from '@/lib/tripMeta'
+
 export interface TripSummary {
   id: string
   slug: string
@@ -33,6 +35,7 @@ export interface TripSummary {
   status?: string
   content_version?: string
   source?: string
+  locations?: TripLocation[]
 }
 
 export interface TripDocument {

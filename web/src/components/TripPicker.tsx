@@ -1,4 +1,4 @@
-import { Download, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import { Download, MapPin, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useAppDialog } from '@/components/AppDialogs'
 import { PrintableItinerary } from '@/components/PrintableItinerary'
@@ -14,10 +14,12 @@ import {
   adminCreateTrip,
   adminDownloadTripBackup,
   adminFetchTripBackup,
+  adminGetTripMeta,
   adminPatchTrip,
   adminSoftDeleteTrip,
   type VacationBackup,
 } from '@/lib/adminApi'
+import { formatLocationLine, type TripLocation } from '@/lib/tripMeta'
 
 const inputClass =
   'w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-sea'
@@ -40,7 +42,7 @@ export function TripPicker({
   const appDialog = useAppDialog()
   const [menuTrip, setMenuTrip] = useState<TripSummary | null>(null)
   const [dialog, setDialog] = useState<
-    null | 'create' | 'rename' | 'dates' | 'delete' | 'export'
+    null | 'create' | 'rename' | 'dates' | 'details' | 'delete' | 'export'
   >(null)
   const [title, setTitle] = useState('')
   const [startDate, setStartDate] = useState('')
@@ -50,8 +52,10 @@ export function TripPicker({
   const [printBackup, setPrintBackup] = useState<VacationBackup | null>(null)
   /** Survives Radix onOpenChange clearing `dialog` before Save runs. */
   const dialogActionRef = useRef<
-    null | 'create' | 'rename' | 'dates' | 'delete'
+    null | 'create' | 'rename' | 'dates' | 'details' | 'delete'
   >(null)
+  const [vacationNotes, setVacationNotes] = useState('')
+  const [locations, setLocations] = useState<TripLocation[]>([])
 
   const closeFormDialog = () => {
     dialogActionRef.current = null
@@ -83,7 +87,42 @@ export function TripPicker({
     dialogActionRef.current = 'dates'
     setMenuTrip(t)
     setStartDate(t.start_date?.slice(0, 10) || '')
+    setEndDate(t.end_date?.slice(0, 10) || '')
     setDialog('dates')
+  }
+
+  const openDetails = async (t: TripSummary) => {
+    dialogActionRef.current = 'details'
+    setMenuTrip(t)
+    setDialog('details')
+    setBusy(true)
+    try {
+      const meta = await adminGetTripMeta(t.slug)
+      setVacationNotes(meta.vacation_notes ?? '')
+      setLocations(meta.locations?.length ? [...meta.locations] : [])
+    } catch (e) {
+      await appDialog.alert(e instanceof Error ? e.message : 'Could not load trip')
+      closeFormDialog()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const addLocation = () => {
+    setLocations((prev) => [
+      ...prev,
+      { id: `loc-${crypto.randomUUID().slice(0, 8)}`, name: '', notes: '' },
+    ])
+  }
+
+  const updateLocation = (id: string, patch: Partial<TripLocation>) => {
+    setLocations((prev) =>
+      prev.map((loc) => (loc.id === id ? { ...loc, ...patch } : loc)),
+    )
+  }
+
+  const removeLocation = (id: string) => {
+    setLocations((prev) => prev.filter((loc) => loc.id !== id))
   }
 
   const openDelete = (t: TripSummary) => {
@@ -156,7 +195,25 @@ export function TripPicker({
           await appDialog.alert('Start date required')
           return
         }
-        await adminPatchTrip(menuTrip.slug, { start_date: startDate })
+        await adminPatchTrip(menuTrip.slug, {
+          start_date: startDate,
+          end_date: endDate.trim() || null,
+        })
+        await onTripsChanged?.()
+      } else if (mode === 'details' && menuTrip) {
+        const cleaned = locations
+          .map((loc) => ({
+            ...loc,
+            name: loc.name.trim(),
+            notes: loc.notes?.trim() || null,
+            start_date: loc.start_date?.trim() || null,
+            end_date: loc.end_date?.trim() || null,
+          }))
+          .filter((loc) => loc.name)
+        await adminPatchTrip(menuTrip.slug, {
+          vacation_notes: vacationNotes.trim() || null,
+          locations: cleaned,
+        })
         await onTripsChanged?.()
       } else if (mode === 'delete' && menuTrip) {
         if (confirmTitle.trim() !== menuTrip.title) {
@@ -222,6 +279,16 @@ export function TripPicker({
                   {[t.start_date, t.end_date].filter(Boolean).join(' → ') || t.slug}
                   {t.status ? ` · ${t.status}` : ''}
                 </div>
+                {t.locations?.length ? (
+                  <ul className="mt-2 space-y-0.5 text-xs text-ink-soft">
+                    {t.locations.map((loc) => (
+                      <li key={loc.id} className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3 shrink-0 text-sea" aria-hidden />
+                        {formatLocationLine(loc)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </button>
               {adminMode ? (
                 <div className="flex flex-col justify-center gap-1 border-l border-line/60 px-2 py-2">
@@ -245,7 +312,10 @@ export function TripPicker({
                   Rename
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => openDates(t)}>
-                  Start date
+                  Dates
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => void openDetails(t)}>
+                  Locations
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => openDelete(t)}>
                   <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -319,7 +389,9 @@ export function TripPicker({
           if (!o) closeFormDialog()
         }}
       >
-        <DialogContent className="max-w-sm">
+        <DialogContent
+          className={dialog === 'details' ? 'max-w-md' : 'max-w-sm'}
+        >
           <DialogHeader>
             <DialogTitle>
               {dialog === 'create'
@@ -327,8 +399,10 @@ export function TripPicker({
                 : dialog === 'rename'
                   ? 'Rename vacation'
                   : dialog === 'dates'
-                    ? 'Change start date'
-                    : 'Delete vacation'}
+                    ? 'Vacation dates'
+                    : dialog === 'details'
+                      ? 'Locations & notes'
+                      : 'Delete vacation'}
             </DialogTitle>
           </DialogHeader>
           {dialog === 'create' || dialog === 'rename' ? (
@@ -350,7 +424,7 @@ export function TripPicker({
               />
             </label>
           ) : null}
-          {dialog === 'create' ? (
+          {dialog === 'create' || dialog === 'dates' ? (
             <label className="block space-y-1">
               <span className="text-xs font-medium text-ink-soft">
                 End date (optional)
@@ -362,6 +436,108 @@ export function TripPicker({
                 className={inputClass}
               />
             </label>
+          ) : null}
+          {dialog === 'details' ? (
+            <div className="max-h-[55vh] space-y-4 overflow-y-auto pr-1">
+              <label className="block space-y-1">
+                <span className="text-xs font-medium text-ink-soft">
+                  Vacation notes
+                </span>
+                <textarea
+                  value={vacationNotes}
+                  onChange={(e) => setVacationNotes(e.target.value)}
+                  rows={3}
+                  placeholder="Packing ideas, reminders, links…"
+                  className={`${inputClass} resize-y`}
+                />
+              </label>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-medium text-ink-soft">
+                    Locations
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addLocation}
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add
+                  </Button>
+                </div>
+                {!locations.length ? (
+                  <p className="text-sm text-ink-soft">
+                    Add cities or regions and optional date ranges.
+                  </p>
+                ) : null}
+                {locations.map((loc) => (
+                  <div
+                    key={loc.id}
+                    className="space-y-2 rounded-xl border border-line/80 bg-paper-deep/30 p-3"
+                  >
+                    <div className="flex gap-2">
+                      <input
+                        value={loc.name}
+                        onChange={(e) =>
+                          updateLocation(loc.id, { name: e.target.value })
+                        }
+                        placeholder="Location name"
+                        className={inputClass}
+                      />
+                      <button
+                        type="button"
+                        className="shrink-0 rounded-lg p-2 text-ink-soft hover:bg-paper-deep"
+                        aria-label="Remove location"
+                        onClick={() => removeLocation(loc.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="block space-y-1">
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-ink-soft">
+                          From
+                        </span>
+                        <input
+                          type="date"
+                          value={loc.start_date?.slice(0, 10) ?? ''}
+                          onChange={(e) =>
+                            updateLocation(loc.id, {
+                              start_date: e.target.value || null,
+                            })
+                          }
+                          className={inputClass}
+                        />
+                      </label>
+                      <label className="block space-y-1">
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-ink-soft">
+                          To
+                        </span>
+                        <input
+                          type="date"
+                          value={loc.end_date?.slice(0, 10) ?? ''}
+                          onChange={(e) =>
+                            updateLocation(loc.id, {
+                              end_date: e.target.value || null,
+                            })
+                          }
+                          className={inputClass}
+                        />
+                      </label>
+                    </div>
+                    <textarea
+                      value={loc.notes ?? ''}
+                      onChange={(e) =>
+                        updateLocation(loc.id, { notes: e.target.value })
+                      }
+                      rows={2}
+                      placeholder="Notes for this location"
+                      className={`${inputClass} resize-y text-xs`}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : null}
           {dialog === 'delete' && menuTrip ? (
             <div className="space-y-2">

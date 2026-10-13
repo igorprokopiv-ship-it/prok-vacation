@@ -1,10 +1,10 @@
 {
   "tripId": "a1111111-1111-4111-8111-111111111111",
   "slug": "eu2026",
-  "version": "d13568bbdab5",
-  "generatedAt": "2026-10-13T21:28:12.790Z",
+  "version": "b92d6c898246",
+  "generatedAt": "2026-10-13T21:50:20.038Z",
   "fileCount": 136,
-  "totalBytes": 44678370,
+  "totalBytes": 44678769,
   "files": [
     {
       "path": "assets.json",
@@ -953,8 +953,8 @@
     },
     {
       "path": "trip.json",
-      "sha256": "106f95f5c60049bcdc24cd14cd0c8ca44da766afb6e99dfe9274bcc8a56c2be9",
-      "bytes": 186,
+      "sha256": "b38f5ffe0dea6a7f0db4c6a272d3aa1c00fe5d041ef009754edd751a9d21d7dd",
+      "bytes": 585,
       "mime": "application/json",
       "kind": "json"
     }

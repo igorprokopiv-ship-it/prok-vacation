@@ -1083,11 +1083,21 @@ class CreateTripBody(BaseModel):
     slug: Optional[str] = None
 
 
+class TripLocationBody(BaseModel):
+    id: str
+    name: str
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    notes: Optional[str] = None
+
+
 class PatchTripBody(BaseModel):
     title: Optional[str] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
     status: Optional[str] = None
+    vacation_notes: Optional[str] = None
+    locations: Optional[list[TripLocationBody]] = None
 
 
 class CreateDayBody(BaseModel):
@@ -1156,6 +1166,38 @@ def create_trip(body: CreateTripBody, _: None = Depends(require_admin)) -> dict[
     return {"trip": meta, "itinerary": itinerary, "sites": sites, "assets": assets}
 
 
+def _normalize_trip_locations(raw: Any) -> list[dict[str, Any]]:
+    if not isinstance(raw, list):
+        return []
+    out: list[dict[str, Any]] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        loc_id = str(item.get("id") or "").strip() or slugify(name)
+        if not name:
+            continue
+        loc: dict[str, Any] = {"id": loc_id, "name": name}
+        for key in ("start_date", "end_date"):
+            val = item.get(key)
+            if val:
+                loc[key] = parse_iso_date(str(val)).isoformat()
+        notes = item.get("notes")
+        if notes is not None and str(notes).strip():
+            loc["notes"] = str(notes).strip()
+        start_raw = loc.get("start_date")
+        end_raw = loc.get("end_date")
+        if start_raw and end_raw and parse_iso_date(end_raw) < parse_iso_date(start_raw):
+            raise HTTPException(400, f"Location '{name}': end date before start date")
+        out.append(loc)
+    return out
+
+
+@router.get("/trips/{slug}")
+def get_trip_admin(slug: str, _: None = Depends(require_admin)) -> dict[str, Any]:
+    return load_trip_meta(slug)
+
+
 @router.patch("/trips/{slug}")
 def patch_trip(
     slug: str,
@@ -1173,6 +1215,14 @@ def patch_trip(
         itinerary["title"] = title
     if "status" in data and data["status"] is not None:
         meta["status"] = data["status"]
+    if "vacation_notes" in data:
+        notes = data["vacation_notes"]
+        if notes is None or not str(notes).strip():
+            meta.pop("vacation_notes", None)
+        else:
+            meta["vacation_notes"] = str(notes).strip()
+    if "locations" in data:
+        meta["locations"] = _normalize_trip_locations(data["locations"])
     if "start_date" in data and data["start_date"]:
         new_start = parse_iso_date(data["start_date"])
         old_raw = meta.get("start_date")
@@ -1181,9 +1231,12 @@ def patch_trip(
             delta = (new_start - old_start).days
             shift_day_dates(itinerary, delta)
         meta["start_date"] = new_start.isoformat()
-    if "end_date" in data and data["end_date"]:
-        meta["end_date"] = parse_iso_date(data["end_date"]).isoformat()
-    else:
+    if "end_date" in data:
+        if data["end_date"]:
+            meta["end_date"] = parse_iso_date(data["end_date"]).isoformat()
+        else:
+            sync_end_date(meta, itinerary)
+    elif "start_date" in data:
         sync_end_date(meta, itinerary)
     write_json(pack_dir(slug) / "trip.json", meta)
     save_pack(slug, itinerary, sites, assets)
