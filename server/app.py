@@ -107,18 +107,19 @@ def list_filesystem_trips() -> list[dict[str, Any]]:
         meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.is_file() else {}
         if meta.get("record_status") == "deleted":
             continue
-        trips.append(
-            {
-                "id": meta.get("id") or (manifest or {}).get("tripId") or d.name,
-                "slug": d.name,
-                "title": meta.get("title") or d.name,
-                "start_date": meta.get("start_date"),
-                "end_date": meta.get("end_date"),
-                "status": meta.get("status") or "active",
-                "content_version": (manifest or {}).get("version") or "0",
-                "source": "filesystem",
-            }
-        )
+        item: dict[str, Any] = {
+            "id": meta.get("id") or (manifest or {}).get("tripId") or d.name,
+            "slug": d.name,
+            "title": meta.get("title") or d.name,
+            "start_date": meta.get("start_date"),
+            "end_date": meta.get("end_date"),
+            "status": meta.get("status") or "active",
+            "content_version": (manifest or {}).get("version") or "0",
+            "source": "filesystem",
+        }
+        if meta.get("locations"):
+            item["locations"] = meta["locations"]
+        trips.append(item)
     return trips
 
 
@@ -294,6 +295,18 @@ def list_trips() -> list[dict[str, Any]]:
                         if item.get("last_modified_on"):
                             item["last_modified_on"] = item["last_modified_on"].isoformat()
                         item["source"] = "postgres"
+                        slug = item.get("slug")
+                        meta_path = CONTENT_TRIPS / slug / "trip.json" if slug else None
+                        if meta_path and meta_path.is_file():
+                            pack_meta = json.loads(
+                                meta_path.read_text(encoding="utf-8")
+                            )
+                            if pack_meta.get("start_date"):
+                                item["start_date"] = pack_meta["start_date"]
+                            if pack_meta.get("end_date"):
+                                item["end_date"] = pack_meta["end_date"]
+                            if pack_meta.get("locations"):
+                                item["locations"] = pack_meta["locations"]
                         out.append(item)
                     return out
         except HTTPException:

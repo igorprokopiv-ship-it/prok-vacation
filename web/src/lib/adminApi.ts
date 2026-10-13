@@ -1,4 +1,5 @@
 import type { Assets, Itinerary, Site } from '@/data/types'
+import type { TripLocation } from '@/lib/tripMeta'
 
 export type AdminMe = { admin: boolean }
 
@@ -287,9 +288,33 @@ export async function adminCreateTrip(body: {
   return res.json()
 }
 
+export type AdminTripMeta = {
+  id?: string
+  slug: string
+  title?: string
+  start_date?: string | null
+  end_date?: string | null
+  status?: string
+  record_status?: string
+  vacation_notes?: string | null
+  locations?: TripLocation[]
+}
+
+export async function adminGetTripMeta(tripSlug: string): Promise<AdminTripMeta> {
+  const res = await adminFetch(`/api/admin/trips/${tripSlug}`)
+  return (await res.json()) as AdminTripMeta
+}
+
 export async function adminPatchTrip(
   tripSlug: string,
-  patch: { title?: string; start_date?: string; end_date?: string; status?: string },
+  patch: {
+    title?: string
+    start_date?: string
+    end_date?: string | null
+    status?: string
+    vacation_notes?: string | null
+    locations?: TripLocation[]
+  },
 ) {
   const res = await adminFetch(`/api/admin/trips/${tripSlug}`, {
     method: 'PATCH',
@@ -316,6 +341,8 @@ export type VacationBackup = {
     end_date?: string | null
     status?: string
     record_status?: string
+    vacation_notes?: string | null
+    locations?: TripLocation[]
   }
   itinerary: Itinerary
   sites: Site[]
