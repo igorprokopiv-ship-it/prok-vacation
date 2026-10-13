@@ -313,6 +313,19 @@ export async function saveNote(note: NoteRow): Promise<void> {
   await enqueueOutbox('note', row)
 }
 
+/** Soft-delete a note (hidden locally and synced via record_status). */
+export async function deleteNote(
+  note: NoteRow,
+  modifiedBy: string,
+): Promise<void> {
+  await saveNote({
+    ...note,
+    record_status: 'deleted',
+    last_modified_by: modifiedBy,
+    last_modified_on_device: 'web',
+  })
+}
+
 export async function listNotes(tripId: string): Promise<NoteRow[]> {
   const all = await idbGetAll<NoteRow>('notes')
   return all.filter((n) => n.trip_id === tripId && n.record_status !== 'deleted')
