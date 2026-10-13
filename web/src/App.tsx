@@ -970,7 +970,13 @@ export default function App() {
             />
           </TabsContent>
           <TabsContent value="notes" className="mt-0">
-            <NotesPanel tripId={tripId} dayId={day.id} deviceUser={deviceUser} />
+            <NotesPanel
+              tripId={tripId}
+              dayId={day.id}
+              dayStops={day.stops}
+              deviceUser={deviceUser}
+              adminMode={adminMode}
+            />
           </TabsContent>
         </main>
       </Tabs>
