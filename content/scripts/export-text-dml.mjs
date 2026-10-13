@@ -13,7 +13,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PACK = path.join(ROOT, 'content/trips/eu2026')
 const OUT =
   process.argv[2] ||
-  path.join(ROOT, 'db/dml/20261009_text_snapshot.sql')
+  path.join(ROOT, 'db/dml/20261013_text_snapshot.sql')
 
 function sqlString(value) {
   if (value === null || value === undefined) return 'NULL'

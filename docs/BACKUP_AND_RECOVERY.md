@@ -39,9 +39,11 @@ node content/scripts/export-text-dml.mjs
 Restore after migrations:
 
 ```bash
-psql "$DATABASE_URL" -f db/dml/20261009_text_snapshot.sql
+psql "$DATABASE_URL" -f db/dml/20261013_text_snapshot.sql
 npm run build:pack   # if content_blob / images are missing
 ```
+
+Older dated files under `db/dml/` remain as point-in-time backups.
 
 Then restart the server (or hit admin refresh) so `seed_eu2026` / pack sync matches the filesystem.
 
