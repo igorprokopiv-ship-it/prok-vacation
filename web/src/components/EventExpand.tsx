@@ -1,5 +1,6 @@
 import {
   AlarmClock,
+  ChevronDown,
   Map as MapIcon,
   MapPinned,
   Pencil,
@@ -15,12 +16,12 @@ import {
   type AttachmentPickOption,
 } from '@/components/AttachmentPicker'
 import { Button } from '@/components/ui/button'
-import { EmptyState } from '@/components/EmptyState'
 import { GuideSectionsEditor } from '@/components/GuideSectionsEditor'
 import { RichText } from '@/components/RichText'
 import { RichTextEditor } from '@/components/RichTextEditor'
+import { SitePickerDialog } from '@/components/SitePickerDialog'
 import { SortableStringList } from '@/components/SortableStringList'
-import type { ItineraryStop, Site, StopKind } from '@/data/types'
+import type { ItineraryStop, Site, StopKind, TicketSet } from '@/data/types'
 import { isEmptyRichText, normalizeRichText } from '@/lib/richText'
 import {
   asStringList,
@@ -31,17 +32,18 @@ import {
   showHours,
   showMealExtras,
   showTransitExtras,
-  stopDetailFields,
+  siteDetailFields,
+  siteKind,
   type GuideSectionKey,
   visibleGuideSections,
 } from '@/data/stopFields'
 import {
-  getGuidesForStop,
   getMapPages,
+  getSite,
+  getSiteForStop,
   getSitePhoto,
   getTicketSets,
-  stopHasMap,
-  stopHasTickets,
+  stopTitle,
 } from '@/lib/data'
 import {
   displayDuration,
@@ -49,9 +51,49 @@ import {
   nextStopInSequence,
   spanMinutes,
 } from '@/lib/duration'
+import {
+  flatOptionChoices,
+  shouldShowBranchPicker,
+} from '@/lib/options'
 import { cn } from '@/lib/utils'
 
+export type CreateEventPayload = {
+  time: string
+  siteId?: string | null
+  name: string
+  kind: StopKind
+  duration: string
+  hours: string | null
+  cost: string | null
+  summary: string | null
+  bookingRef: string | null
+  bags: string[]
+  transit: string | null
+  vibe: string[]
+  mustTry: string[]
+  timedEntry: boolean
+  notes: string[]
+  logistics: string[]
+  proTips: string[]
+  history: string[]
+  route: string[]
+  mapsUrl: string | null
+  tickets: TicketSet[]
+  mapPages: string[]
+}
+
+const EMPTY_STOP: ItineraryStop = {
+  id: '',
+  time: '09:00',
+  siteId: null,
+  optionGroup: null,
+  optionLabel: null,
+  primary: true,
+  timedEntry: false,
+}
+
 const SECTION_LABELS: Record<GuideSectionKey, string> = {
+  notes: 'Notes',
   logistics: 'Logistics',
   proTips: 'Pro-Tips',
   history: 'History',
@@ -76,8 +118,14 @@ export type AttachmentType = 'ticket' | 'map' | 'mapsUrl'
 
 type AttachmentRow =
   | { type: 'ticket'; id: string; label: string; pages: string[] }
-  | { type: 'map'; id: 'map'; pages: string[] }
+  | { type: 'map'; id: string; pageIndex: number; page: string }
   | { type: 'mapsUrl'; id: 'mapsUrl'; url: string }
+
+type AttachmentDraft = {
+  tickets: TicketSet[]
+  mapPages: string[]
+  mapsUrl: string | null
+}
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -88,11 +136,24 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-function emptyGuideDraft(name: string): Site {
+function emptySiteDraft(name: string, kind: StopKind = 'attraction'): Site {
   return {
     id: '',
     name,
-    aliases: [],
+    kind,
+    duration: '',
+    hours: null,
+    cost: null,
+    summary: null,
+    mapsUrl: null,
+    bookingRef: null,
+    bags: [],
+    transit: null,
+    vibe: [],
+    mustTry: [],
+    tickets: [],
+    mapPages: [],
+    notes: [],
     logistics: [],
     proTips: [],
     history: [],
@@ -101,49 +162,70 @@ function emptyGuideDraft(name: string): Site {
   }
 }
 
-function buildAttachments(stop: ItineraryStop): AttachmentRow[] {
+function attachmentDraftFromSite(site: Site | null | undefined): AttachmentDraft {
+  return {
+    tickets: getTicketSets(site).filter((t) => t.pages.length),
+    mapPages: [...getMapPages(site)],
+    mapsUrl: site?.mapsUrl ?? null,
+  }
+}
+
+function buildAttachmentRows(draft: AttachmentDraft): AttachmentRow[] {
   const rows: AttachmentRow[] = []
-  for (const t of getTicketSets(stop)) {
+  for (const t of draft.tickets) {
     rows.push({ type: 'ticket', id: t.id, label: t.label, pages: t.pages })
   }
-  const mapPages = getMapPages(stop)
-  if (mapPages.length) {
-    rows.push({ type: 'map', id: 'map', pages: mapPages })
-  }
-  if (stop.mapsUrl) {
-    rows.push({ type: 'mapsUrl', id: 'mapsUrl', url: stop.mapsUrl })
+  draft.mapPages.forEach((page, pageIndex) => {
+    rows.push({
+      type: 'map',
+      id: `map-${pageIndex}`,
+      pageIndex,
+      page,
+    })
+  })
+  if (draft.mapsUrl) {
+    rows.push({ type: 'mapsUrl', id: 'mapsUrl', url: draft.mapsUrl })
   }
   return rows
 }
 
+function attachmentDraftEqual(a: AttachmentDraft, b: AttachmentDraft): boolean {
+  return (
+    JSON.stringify(a.tickets) === JSON.stringify(b.tickets) &&
+    JSON.stringify(a.mapPages) === JSON.stringify(b.mapPages) &&
+    (a.mapsUrl || null) === (b.mapsUrl || null)
+  )
+}
+
 export function EventExpand({
-  stop,
+  mode = 'edit',
+  stop: stopProp,
   dayStops = [],
   onClose,
   adminMode = false,
   initialEditMode = false,
   onSaveStop,
   onSaveGuide,
+  onCreate,
   onUnlinkGuide,
   onAddTicket,
   onRemoveTicket,
   onAddMap,
   onRemoveMap,
-  onSetMapsUrl,
-  onConvertTicketToMap,
-  onConvertMapToTicket,
   onAssignOption,
   onClearOption,
   onOpenTicket,
   onOpenMap,
 }: {
-  stop: ItineraryStop
+  mode?: 'edit' | 'create'
+  stop?: ItineraryStop
   dayStops?: ItineraryStop[]
   onClose: () => void
   adminMode?: boolean
   initialEditMode?: boolean
   onSaveStop?: (patch: Record<string, unknown>) => void | Promise<void>
   onSaveGuide?: (guide: Site) => void | Promise<void>
+  onCreate?: (payload: CreateEventPayload) => void | Promise<void>
   onUnlinkGuide?: (guideId: string) => void | Promise<void>
   onAddTicket?: (label: string) => void | Promise<void>
   onRemoveTicket?: (ticketId: string) => void | Promise<void>
@@ -157,207 +239,225 @@ export function EventExpand({
   onOpenTicket?: (ticketId: string, title: string) => void
   onOpenMap?: (title: string, pageIndex?: number) => void
 }) {
+  const isCreate = mode === 'create'
+  const stop = stopProp ?? EMPTY_STOP
   const dialog = useAppDialog()
-  const [editing, setEditing] = useState(Boolean(adminMode && initialEditMode))
+  const [editing, setEditing] = useState(
+    Boolean(isCreate || (adminMode && initialEditMode)),
+  )
   const [busy, setBusy] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [branchOpen, setBranchOpen] = useState(false)
+  /** undefined = use stop.siteId; null = detached; string = picked/linked */
+  const [overrideSiteId, setOverrideSiteId] = useState<
+    string | null | undefined
+  >(isCreate ? null : undefined)
 
-  const guides = getGuidesForStop(stop)
-  const [activeId, setActiveId] = useState(guides[0]?.id ?? '')
-  const active = guides.find((g) => g.id === activeId) ?? guides[0]
-  /** Only show the guide editor when a guide is linked, or the user opts in. */
-  const [guideEditorOpen, setGuideEditorOpen] = useState(guides.length > 0)
-  const [guideDraft, setGuideDraft] = useState<Site | null>(
-    active ? { ...active, attachments: active.attachments ?? [] } : null,
+  const effectiveSiteId =
+    overrideSiteId !== undefined ? overrideSiteId : stop.siteId
+  const site = effectiveSiteId ? getSite(effectiveSiteId) : undefined
+  const baselineAttach = useMemo(
+    () => attachmentDraftFromSite(site),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      effectiveSiteId,
+      JSON.stringify(site?.tickets ?? []),
+      JSON.stringify(site?.mapPages ?? []),
+      site?.mapsUrl ?? null,
+    ],
   )
-  /** Guide ids detached this edit session — pending until Save (or already saved via Remove). */
-  const [pendingUnlinkIds, setPendingUnlinkIds] = useState<string[]>([])
 
-  const [time, setTime] = useState(stop.time)
-  const [title, setTitle] = useState(stop.title)
-  const [kind, setKind] = useState<StopKind>(stop.kind || 'attraction')
-  const [duration, setDuration] = useState(stop.duration || '')
-  const [hours, setHours] = useState(stop.hours || '')
-  const [cost, setCost] = useState(stop.cost || '')
-  const [booking, setBooking] = useState(stop.bookingRef || '')
-  const [bags, setBags] = useState(stop.bags || '')
-  const [transit, setTransit] = useState(stop.transit || '')
-  const [notes, setNotes] = useState(stop.notes || '')
-  const [vibe, setVibe] = useState<string[]>(() => asStringList(stop.vibe))
+  const [time, setTime] = useState(stop.time || '09:00')
+  const [title, setTitle] = useState(site?.name || (isCreate ? '' : stopTitle(stop)))
+  const [kind, setKind] = useState<StopKind>(siteKind(site))
+  const [duration, setDuration] = useState(site?.duration || '')
+  const [hours, setHours] = useState(site?.hours || '')
+  const [cost, setCost] = useState(site?.cost || '')
+  const [booking, setBooking] = useState(site?.bookingRef || '')
+  const [bags, setBags] = useState<string[]>(() => asStringList(site?.bags))
+  const [transit, setTransit] = useState(site?.transit || '')
+  const [summary, setSummary] = useState(site?.summary || '')
+  const [vibe, setVibe] = useState<string[]>(() => asStringList(site?.vibe))
   const [mustTry, setMustTry] = useState<string[]>(() =>
-    asStringList(stop.mustTry),
+    asStringList(site?.mustTry),
   )
-  const [optionLabel, setOptionLabel] = useState(stop.optionLabel || '')
   const [timedEntry, setTimedEntry] = useState(Boolean(stop.timedEntry))
 
+  const [sectionsDraft, setSectionsDraft] = useState({
+    notes: site?.notes ?? [],
+    logistics: site?.logistics ?? [],
+    proTips: site?.proTips ?? [],
+    history: site?.history ?? [],
+    route: site?.route ?? [],
+  })
+  const [attachDraft, setAttachDraft] = useState<AttachmentDraft>(baselineAttach)
+
   const sections = useMemo(() => visibleGuideSections(kind), [kind])
-  const details = stopDetailFields(stop)
-  const ticketSets = getTicketSets(stop).filter((t) => t.pages.length)
-  const maps = getMapPages(stop)
-  const hasTickets = stopHasTickets(stop)
-  const hasMap = stopHasMap(stop)
-  const attachments = buildAttachments(stop)
+  const details = siteDetailFields(site)
+  const displayName =
+    site?.name || title.trim() || (isCreate ? 'New event' : stopTitle(stop))
+  const photo = site?.id ? getSitePhoto(site.id) : undefined
+  const hasSectionBody = guideHasVisibleContent(
+    {
+      ...(site ?? emptySiteDraft(displayName, kind)),
+      ...sectionsDraft,
+    },
+    kind,
+  )
+  const attachmentRows = buildAttachmentRows(
+    editing || isCreate ? attachDraft : baselineAttach,
+  )
+  const canUploadAttachments = Boolean(!isCreate && stop.id && effectiveSiteId)
+  const viewTickets = baselineAttach.tickets
+  const viewMaps = baselineAttach.mapPages
+  const viewMapsUrl = baselineAttach.mapsUrl
+
   const [picker, setPicker] = useState<{
     title: string
     options: AttachmentPickOption[]
     onSelect: (id: string) => void
   } | null>(null)
 
+  const applySiteToForm = (s: Site | undefined, keepTime = true) => {
+    if (!keepTime) setTime(stop.time || '09:00')
+    setTitle(s?.name || '')
+    setKind(siteKind(s))
+    setDuration(s?.duration || '')
+    setHours(s?.hours || '')
+    setCost(s?.cost || '')
+    setBooking(s?.bookingRef || '')
+    setBags(asStringList(s?.bags))
+    setTransit(s?.transit || '')
+    setSummary(s?.summary || '')
+    setVibe(asStringList(s?.vibe))
+    setMustTry(asStringList(s?.mustTry))
+    setSectionsDraft({
+      notes: s?.notes ?? [],
+      logistics: s?.logistics ?? [],
+      proTips: s?.proTips ?? [],
+      history: s?.history ?? [],
+      route: s?.route ?? [],
+    })
+    setAttachDraft(attachmentDraftFromSite(s))
+  }
+
+  const resetFromSite = (s: Site | undefined) => {
+    setTime(stop.time || '09:00')
+    setTimedEntry(Boolean(stop.timedEntry))
+    applySiteToForm(s)
+    if (!s && !isCreate) setTitle(stopTitle(stop))
+  }
+
+  useEffect(() => {
+    if (editing || isCreate) return
+    setOverrideSiteId(undefined)
+    resetFromSite(getSiteForStop(stop))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stop, editing, stop.siteId, baselineAttach, isCreate])
+
+  const buildSitePayload = (): CreateEventPayload => ({
+    time: time.trim(),
+    siteId: effectiveSiteId,
+    name: title.trim() || displayName,
+    kind,
+    duration: showDuration(kind) ? duration.trim() : '',
+    hours: showHours(kind) ? hours.trim() || null : null,
+    cost: showCost(kind) ? cost.trim() || null : null,
+    summary: normalizeRichText(summary) || null,
+    bookingRef: showTransitExtras(kind) ? booking.trim() || null : null,
+    bags: showTransitExtras(kind) ? bags : [],
+    transit: showTransitExtras(kind)
+      ? normalizeRichText(transit) || null
+      : null,
+    vibe: showMealExtras(kind) ? vibe : [],
+    mustTry: showMealExtras(kind) ? mustTry : [],
+    timedEntry,
+    notes: sectionsDraft.notes,
+    logistics: sectionsDraft.logistics,
+    proTips: sectionsDraft.proTips,
+    history: sectionsDraft.history,
+    route: sectionsDraft.route,
+    mapsUrl: attachDraft.mapsUrl,
+    tickets: attachDraft.tickets,
+    mapPages: attachDraft.mapPages,
+  })
+
+  const removeSite = async () => {
+    const ok = await dialog.confirm({
+      title: 'Remove site',
+      message:
+        'Unlink this site from the event? You can fill in a new site or pick an existing one. Other events that use this site are unchanged.',
+      confirmLabel: 'Remove',
+      destructive: true,
+    })
+    if (!ok) return
+    const prevId = effectiveSiteId
+    if (prevId && onUnlinkGuide) {
+      await run(() => onUnlinkGuide(prevId))
+    }
+    setOverrideSiteId(null)
+    applySiteToForm(undefined)
+    setEditing(true)
+  }
+
+  const pickExistingSite = (picked: Site) => {
+    setOverrideSiteId(picked.id)
+    applySiteToForm(picked)
+  }
+
   const openTickets = () => {
-    if (!onOpenTicket || !ticketSets.length) return
-    if (ticketSets.length === 1) {
-      const t = ticketSets[0]
-      onOpenTicket(t.id, `${stop.title} · ${t.label}`)
+    if (!onOpenTicket || !viewTickets.length) return
+    if (viewTickets.length === 1) {
+      const t = viewTickets[0]
+      onOpenTicket(t.id, `${displayName} · ${t.label}`)
       return
     }
     setPicker({
       title: 'Which ticket?',
-      options: ticketSets.map((t) => ({ id: t.id, label: t.label })),
+      options: viewTickets.map((t) => ({ id: t.id, label: t.label })),
       onSelect: (id) => {
-        const t = ticketSets.find((x) => x.id === id)
+        const t = viewTickets.find((x) => x.id === id)
         if (!t) return
-        onOpenTicket(t.id, `${stop.title} · ${t.label}`)
+        onOpenTicket(t.id, `${displayName} · ${t.label}`)
       },
     })
   }
 
   const openMap = () => {
     if (!onOpenMap) return
-    if (maps.length <= 1) {
-      onOpenMap(stop.title)
+    if (viewMaps.length <= 1) {
+      onOpenMap(displayName)
       return
     }
     setPicker({
       title: 'Which map page?',
       options: [
-        ...maps.map((_, i) => ({ id: String(i), label: `Page ${i + 1}` })),
+        ...viewMaps.map((_, i) => ({ id: String(i), label: `Page ${i + 1}` })),
         { id: 'all', label: 'All pages' },
       ],
       onSelect: (id) => {
         if (id === 'all') {
-          onOpenMap(stop.title)
+          onOpenMap(displayName)
           return
         }
         const pageIndex = Number(id)
-        onOpenMap(`${stop.title} · page ${pageIndex + 1}`, pageIndex)
+        onOpenMap(`${displayName} · page ${pageIndex + 1}`, pageIndex)
       },
     })
   }
 
-  // Sync form from stop when not editing — never wipe in-progress edits
-  // (e.g. clearing a duration override) on sync / parent re-renders.
-  useEffect(() => {
-    if (editing) return
-    setTime(stop.time)
-    setTitle(stop.title)
-    setKind(stop.kind || 'attraction')
-    setDuration(stop.duration || '')
-    setHours(stop.hours || '')
-    setCost(stop.cost || '')
-    setBooking(stop.bookingRef || '')
-    setBags(stop.bags || '')
-    setTransit(stop.transit || '')
-    setNotes(stop.notes || '')
-    setVibe(asStringList(stop.vibe))
-    setMustTry(asStringList(stop.mustTry))
-    setOptionLabel(stop.optionLabel || '')
-    setTimedEntry(Boolean(stop.timedEntry))
-  }, [stop, editing])
-
-  const guideIdsKey = (
-    stop.guideIds?.length
-      ? stop.guideIds
-      : stop.siteId
-        ? [stop.siteId]
-        : []
-  ).join('|')
-
-  useEffect(() => {
-    if (!guides.some((g) => g.id === activeId)) {
-      setActiveId(guides[0]?.id ?? '')
-    }
-  }, [guideIdsKey, activeId, guides])
-
-  // Sync draft when switching guides / leaving edit — never wipe in-progress edits
-  // (dialog re-renders used to reset draft because `guides` is a new array each render).
-  useEffect(() => {
-    if (editing && pendingUnlinkIds.length) return
-    const next = guides.find((g) => g.id === activeId) ?? guides[0] ?? null
-    if (next) {
-      setGuideEditorOpen(true)
-      setGuideDraft((d) => {
-        if (editing && d && d.id === next.id) return d
-        return { ...next, attachments: next.attachments ?? [] }
-      })
-      return
-    }
-    if (!editing) {
-      setGuideEditorOpen(false)
-      setGuideDraft(null)
-      setPendingUnlinkIds([])
-    }
-  }, [activeId, guideIdsKey, editing, pendingUnlinkIds.length, guides])
-
-  const photo = guideDraft?.id ? getSitePhoto(guideDraft.id) : undefined
-  const hasGuideBody = guideDraft
-    ? guideHasVisibleContent(guideDraft, kind)
-    : false
-
-  const startNewGuide = () => {
-    setPendingUnlinkIds([])
-    setGuideEditorOpen(true)
-    setGuideDraft(emptyGuideDraft(title.trim() || stop.title))
-    setActiveId('')
-  }
-
-  const queueRemoveGuide = async (guideId: string) => {
-    const name =
-      guides.find((g) => g.id === guideId)?.name ||
-      guideDraft?.name ||
-      'this guide'
-    const ok = await dialog.confirm({
-      title: 'Remove guide',
-      message: `Remove “${name}” from this event? The guide itself is kept in the trip library.`,
-      confirmLabel: 'Remove',
-      destructive: true,
-    })
-    if (!ok) return
-    const nextPending = pendingUnlinkIds.includes(guideId)
-      ? pendingUnlinkIds
-      : [...pendingUnlinkIds, guideId]
-    setPendingUnlinkIds(nextPending)
-    const remaining = guides.filter((g) => !nextPending.includes(g.id))
-    if (remaining.length) {
-      setActiveId(remaining[0].id)
-      setGuideDraft({
-        ...remaining[0],
-        attachments: remaining[0].attachments ?? [],
-      })
-      setGuideEditorOpen(true)
-    } else {
-      setActiveId('')
-      setGuideDraft(null)
-      setGuideEditorOpen(false)
-    }
-  }
-
-  const updateAllSections = (
-    next: Record<GuideSectionKey, string[]>,
-  ) => {
-    setGuideEditorOpen(true)
-    setGuideDraft((d) => {
-      const base = d ?? emptyGuideDraft(title.trim() || stop.title)
-      return {
-        ...base,
-        logistics: next.logistics ?? base.logistics,
-        proTips: next.proTips ?? base.proTips,
-        history: next.history ?? base.history,
-        route: next.route ?? base.route,
-      }
+  const updateAllSections = (next: Record<GuideSectionKey, string[]>) => {
+    setSectionsDraft({
+      notes: next.notes ?? [],
+      logistics: next.logistics ?? [],
+      proTips: next.proTips ?? [],
+      history: next.history ?? [],
+      route: next.route ?? [],
     })
   }
 
   const editItem = async (key: GuideSectionKey, index: number) => {
-    const current = guideDraft?.[key][index] ?? ''
+    const current = sectionsDraft[key][index] ?? ''
     const next = await dialog.promptRichText({
       title: 'Edit item',
       label: SECTION_LABELS[key],
@@ -366,8 +466,7 @@ export function EventExpand({
       confirmLabel: 'Save',
     })
     if (next === null) return
-    setGuideDraft((d) => {
-      if (!d) return d
+    setSectionsDraft((d) => {
       const list = d[key] ?? []
       if (!next) {
         return { ...d, [key]: list.filter((_, i) => i !== index) }
@@ -380,10 +479,10 @@ export function EventExpand({
   }
 
   const removeItem = (key: GuideSectionKey, index: number) => {
-    setGuideDraft((d) => {
-      if (!d) return d
-      return { ...d, [key]: (d[key] ?? []).filter((_, i) => i !== index) }
-    })
+    setSectionsDraft((d) => ({
+      ...d,
+      [key]: (d[key] ?? []).filter((_, i) => i !== index),
+    }))
   }
 
   const addItem = async (key: GuideSectionKey) => {
@@ -394,11 +493,10 @@ export function EventExpand({
       confirmLabel: 'Add',
     })
     if (!next) return
-    setGuideEditorOpen(true)
-    setGuideDraft((d) => {
-      const base = d ?? emptyGuideDraft(title.trim() || stop.title)
-      return { ...base, [key]: [...(base[key] ?? []), next] }
-    })
+    setSectionsDraft((d) => ({
+      ...d,
+      [key]: [...(d[key] ?? []), next],
+    }))
   }
 
   const editStringList = async (
@@ -439,48 +537,52 @@ export function EventExpand({
     setList([...list, next.trim()])
   }
 
+  const siteAttrsDirty =
+    title !== (site?.name || '') ||
+    kind !== siteKind(site) ||
+    duration !== (site?.duration || '') ||
+    hours !== (site?.hours || '') ||
+    cost !== (site?.cost || '') ||
+    booking !== (site?.bookingRef || '') ||
+    JSON.stringify(bags) !== JSON.stringify(asStringList(site?.bags)) ||
+    normalizeRichText(transit) !== normalizeRichText(site?.transit || '') ||
+    normalizeRichText(summary) !== normalizeRichText(site?.summary || '') ||
+    JSON.stringify(vibe) !== JSON.stringify(asStringList(site?.vibe)) ||
+    JSON.stringify(mustTry) !== JSON.stringify(asStringList(site?.mustTry))
+
+  const sectionsDirty =
+    JSON.stringify(sectionsDraft.notes) !==
+      JSON.stringify(site?.notes ?? []) ||
+    JSON.stringify(sectionsDraft.logistics) !==
+      JSON.stringify(site?.logistics ?? []) ||
+    JSON.stringify(sectionsDraft.proTips) !==
+      JSON.stringify(site?.proTips ?? []) ||
+    JSON.stringify(sectionsDraft.history) !==
+      JSON.stringify(site?.history ?? []) ||
+    JSON.stringify(sectionsDraft.route) !== JSON.stringify(site?.route ?? [])
+
+  const attachDirty = !attachmentDraftEqual(attachDraft, baselineAttach)
   const stopDirty =
-    time !== stop.time ||
-    title !== stop.title ||
-    kind !== (stop.kind || 'attraction') ||
-    duration !== (stop.duration || '') ||
-    hours !== (stop.hours || '') ||
-    cost !== (stop.cost || '') ||
-    booking !== (stop.bookingRef || '') ||
-    bags !== (stop.bags || '') ||
-    normalizeRichText(transit) !== normalizeRichText(stop.transit || '') ||
-    normalizeRichText(notes) !== normalizeRichText(stop.notes || '') ||
-    timedEntry !== Boolean(stop.timedEntry) ||
-    JSON.stringify(vibe) !== JSON.stringify(asStringList(stop.vibe)) ||
-    JSON.stringify(mustTry) !== JSON.stringify(asStringList(stop.mustTry))
-
-  const linkedGuides = guides.filter((g) => !pendingUnlinkIds.includes(g.id))
-  const linkedActive =
-    linkedGuides.find((g) => g.id === activeId) ?? linkedGuides[0]
-
-  const guideDirty =
-    pendingUnlinkIds.length > 0 ||
-    (Boolean(guideDraft) &&
-      guideEditorOpen &&
-      (linkedGuides.length === 0
-        ? // New guide draft — only dirty if the user added real content
-          sections.some((key) => (guideDraft?.[key]?.length ?? 0) > 0)
-        : Boolean(linkedActive) &&
-          Boolean(guideDraft) &&
-          (guideDraft!.name !== linkedActive!.name ||
-            sections.some(
-              (key) =>
-                JSON.stringify(guideDraft![key]) !==
-                JSON.stringify(linkedActive![key] ?? []),
-            ))))
-
-  const dirty = stopDirty || Boolean(guideDirty)
+    !isCreate &&
+    (time !== stop.time || timedEntry !== Boolean(stop.timedEntry))
+  const siteLinkDirty =
+    !isCreate &&
+    overrideSiteId !== undefined &&
+    overrideSiteId !== stop.siteId
+  const dirty =
+    isCreate ||
+    stopDirty ||
+    siteAttrsDirty ||
+    sectionsDirty ||
+    attachDirty ||
+    siteLinkDirty
 
   const nextStop = nextStopInSequence(dayStops, stop.id)
-  const durationLabel = displayDuration(
-    { ...stop, time, kind, duration },
-    nextStop,
-  )
+  const durationLabel = displayDuration(stop, nextStop, {
+    ...(site ?? emptySiteDraft(title || displayName, kind)),
+    kind,
+    duration,
+  })
   const computedSpanMins = nextStop
     ? spanMinutes(time.trim() || stop.time, nextStop.time)
     : null
@@ -488,74 +590,86 @@ export function EventExpand({
     computedSpanMins != null ? formatDurationMinutes(computedSpanMins) : ''
 
   const saveAll = async () => {
-    if (!onSaveStop && !onSaveGuide && !onUnlinkGuide) return
+    if (isCreate) {
+      if (!onCreate) return
+      if (!title.trim() && !effectiveSiteId) {
+        await dialog.alert('Enter a site name or choose an existing site')
+        return
+      }
+      setBusy(true)
+      try {
+        await onCreate(buildSitePayload())
+        onClose()
+      } catch (e) {
+        await dialog.alert(e instanceof Error ? e.message : 'Save failed')
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
+
+    if (!onSaveStop && !onSaveGuide) return
     setBusy(true)
     try {
-      // Detach first so a later upsert cannot re-link a removed guide.
-      if (onUnlinkGuide && pendingUnlinkIds.length) {
-        for (const id of pendingUnlinkIds) {
-          await onUnlinkGuide(id)
-        }
-        setPendingUnlinkIds([])
-      }
-
-      if (onSaveStop && stopDirty) {
+      if (onSaveStop && (stopDirty || siteLinkDirty)) {
         await onSaveStop({
           time: time.trim(),
-          title: title.trim(),
+          timedEntry,
+          ...(siteLinkDirty ? { siteId: effectiveSiteId } : {}),
+        })
+      }
+
+      if (
+        onSaveGuide &&
+        (siteAttrsDirty || sectionsDirty || attachDirty || !site || siteLinkDirty)
+      ) {
+        const baselineTickets = baselineAttach.tickets
+        const removedTicketIds = baselineTickets
+          .filter((t) => !attachDraft.tickets.some((x) => x.id === t.id))
+          .map((t) => t.id)
+        const mapCleared =
+          baselineAttach.mapPages.length > 0 && attachDraft.mapPages.length === 0
+
+        for (const id of removedTicketIds) {
+          await onRemoveTicket?.(id)
+        }
+        if (mapCleared) {
+          await onRemoveMap?.()
+        }
+
+        const draftBase = site
+          ? { ...site, attachments: site.attachments ?? [] }
+          : emptySiteDraft(title.trim() || displayName, kind)
+
+        await onSaveGuide({
+          ...draftBase,
+          id: site?.id || '',
+          name: title.trim() || displayName,
           kind,
-          // Empty string clears the transit override; non-transit always clears.
           duration: showDuration(kind) ? duration.trim() : '',
           hours: showHours(kind) ? hours.trim() || null : null,
-          notes: normalizeRichText(notes) || null,
+          summary: normalizeRichText(summary) || null,
           cost: showCost(kind) ? cost.trim() || null : null,
           bookingRef: showTransitExtras(kind) ? booking.trim() || null : null,
-          bags: showTransitExtras(kind) ? bags.trim() || null : null,
+          bags: showTransitExtras(kind) ? bags : [],
           transit: showTransitExtras(kind)
             ? normalizeRichText(transit) || null
             : null,
           vibe: showMealExtras(kind) ? vibe : [],
           mustTry: showMealExtras(kind) ? mustTry : [],
-          timedEntry,
+          notes: sectionsDraft.notes,
+          logistics: sectionsDraft.logistics,
+          proTips: sectionsDraft.proTips,
+          history: sectionsDraft.history,
+          route: sectionsDraft.route,
+          mapsUrl: attachDraft.mapsUrl,
+          tickets: attachDraft.tickets,
+          mapPages: attachDraft.mapPages,
         })
       }
 
-      if (onSaveGuide && guideDraft && guideEditorOpen) {
-        const hasContent = sections.some(
-          (key) => (guideDraft[key]?.length ?? 0) > 0,
-        )
-        const stillLinked =
-          Boolean(guideDraft.id) &&
-          linkedGuides.some((g) => g.id === guideDraft.id)
-
-        if (stillLinked && !hasContent) {
-          // Emptied a linked guide → detach instead of saving blank content
-          // (which would wipe a shared library guide).
-          if (onUnlinkGuide) {
-            await onUnlinkGuide(guideDraft.id)
-          }
-          setGuideDraft(null)
-          setGuideEditorOpen(false)
-        } else if (
-          hasContent &&
-          (stillLinked
-            ? guideDraft.name !== linkedActive?.name ||
-              sections.some(
-                (key) =>
-                  JSON.stringify(guideDraft[key]) !==
-                  JSON.stringify(linkedActive?.[key] ?? []),
-              )
-            : true)
-        ) {
-          await onSaveGuide({
-            ...guideDraft,
-            name: guideDraft.name.trim() || title.trim() || stop.title,
-          })
-        }
-      }
-
+      setOverrideSiteId(undefined)
       setEditing(false)
-      setGuideEditorOpen(linkedGuides.length > 0)
     } catch (e) {
       await dialog.alert(e instanceof Error ? e.message : 'Save failed')
     } finally {
@@ -568,65 +682,60 @@ export function EventExpand({
     nextType: AttachmentType,
   ) => {
     if (row.type === nextType) return
-    setBusy(true)
-    try {
-      if (row.type === 'ticket' && nextType === 'map') {
-        if (!onConvertTicketToMap) {
-          await dialog.alert('Cannot convert ticket to map')
-          return
-        }
-        const ok = await dialog.confirm({
-          title: 'Convert to map',
-          message: 'Convert this ticket into the venue map?',
-          confirmLabel: 'Convert',
-        })
-        if (!ok) return
-        await onConvertTicketToMap(row.id)
-        return
-      }
-      if (row.type === 'map' && nextType === 'ticket') {
-        if (!onConvertMapToTicket) {
-          await dialog.alert('Cannot convert map to ticket')
-          return
-        }
-        const label = await dialog.promptText({
-          title: 'Ticket label',
-          label: 'Label',
-          defaultValue: 'Ticket',
-          confirmLabel: 'Convert',
-        })
-        if (!label?.trim()) return
-        await onConvertMapToTicket(label.trim())
-        return
-      }
-      if (row.type === 'mapsUrl' && nextType !== 'mapsUrl') {
-        await dialog.alert(
-          'Clear the Map URL and add a Ticket or Map instead.',
-        )
-        return
-      }
-      if (nextType === 'mapsUrl') {
-        await dialog.alert(
-          'Use “Map URL” to set a link. Remove this attachment first if needed.',
-        )
-      }
-    } finally {
-      setBusy(false)
+    if (row.type === 'ticket' && nextType === 'map') {
+      const ok = await dialog.confirm({
+        title: 'Convert to map',
+        message: 'Convert this ticket into the venue map?',
+        confirmLabel: 'Convert',
+      })
+      if (!ok) return
+      setAttachDraft((d) => ({
+        tickets: d.tickets.filter((t) => t.id !== row.id),
+        mapPages: row.pages,
+        mapsUrl: d.mapsUrl,
+      }))
+      return
+    }
+    if (row.type === 'map' && nextType === 'ticket') {
+      const label = await dialog.promptText({
+        title: 'Ticket label',
+        label: 'Label',
+        defaultValue: 'Ticket',
+        confirmLabel: 'Convert',
+      })
+      if (!label?.trim()) return
+      const ticketId = `ticket-${Date.now().toString(36)}`
+      setAttachDraft((d) => ({
+        tickets: [
+          ...d.tickets,
+          { id: ticketId, label: label.trim(), pages: [row.page] },
+        ],
+        mapPages: d.mapPages.filter((_, i) => i !== row.pageIndex),
+        mapsUrl: d.mapsUrl,
+      }))
+      return
+    }
+    if (row.type === 'mapsUrl' && nextType !== 'mapsUrl') {
+      await dialog.alert('Clear the Map URL and add a Ticket or Map instead.')
+      return
+    }
+    if (nextType === 'mapsUrl') {
+      await dialog.alert(
+        'Use “Map URL” to set a link. Remove this attachment first if needed.',
+      )
     }
   }
 
-  const existingOptions = useMemo(() => {
-    const map = new Map<string, { group: string; label: string }>()
-    for (const s of dayStops) {
-      if (s.optionGroup && s.optionLabel) {
-        map.set(`${s.optionGroup}|${s.optionLabel}`, {
-          group: s.optionGroup,
-          label: s.optionLabel,
-        })
-      }
-    }
-    return [...map.values()]
-  }, [dayStops])
+  const existingOptions = useMemo(
+    () => flatOptionChoices(dayStops),
+    [dayStops],
+  )
+  const showBranch = useMemo(
+    () =>
+      !isCreate &&
+      shouldShowBranchPicker({ ...stop, time }, dayStops),
+    [isCreate, stop, time, dayStops],
+  )
 
   const kindLabel = kind
     ? kind.charAt(0).toUpperCase() + kind.slice(1)
@@ -643,6 +752,14 @@ export function EventExpand({
     }
   }
 
+  const syncAttachAfterUpload = () => {
+    const s = effectiveSiteId ? getSite(effectiveSiteId) : undefined
+    setAttachDraft(attachmentDraftFromSite(s))
+  }
+
+  const fieldLabelClass =
+    'text-xs font-semibold uppercase tracking-wide text-ink-soft'
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/45 p-12">
       <div className="flex h-full max-h-full w-full flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-xl animate-in fade-in zoom-in-95 duration-200">
@@ -656,7 +773,7 @@ export function EventExpand({
                       value={time}
                       onChange={(e) => setTime(e.target.value)}
                       placeholder="20:40"
-                      className={cn(inputClass, 'w-24 font-mono font-bold')}
+                      className={cn(inputClass, 'w-24 font-semibold')}
                     />
                     {showDuration(kind) ? (
                       <input
@@ -669,6 +786,16 @@ export function EventExpand({
                     ) : durationLabel ? (
                       <span className="text-xs text-ink-soft">{durationLabel}</span>
                     ) : null}
+                    <label className="flex items-center gap-1.5 text-sm text-ink">
+                      <input
+                        type="checkbox"
+                        checked={timedEntry}
+                        onChange={(e) => setTimedEntry(e.target.checked)}
+                        className="h-4 w-4 rounded border-line"
+                      />
+                      <AlarmClock className="h-3.5 w-3.5 text-accent" />
+                      Timed
+                    </label>
                   </div>
                   {showDuration(kind) ? (
                     <p className="text-[11px] text-ink-soft">
@@ -676,63 +803,22 @@ export function EventExpand({
                       {computedSpan ? ` (${computedSpan})` : ''}.
                     </p>
                   ) : null}
-                  <input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Event title"
-                    className={cn(inputClass, 'font-display text-lg font-bold')}
-                  />
-                  <select
-                    value={kind}
-                    onChange={(e) => setKind(e.target.value as StopKind)}
-                    className={inputClass}
-                  >
-                    {STOP_KINDS.map((k) => (
-                      <option key={k} value={k}>
-                        {k.charAt(0).toUpperCase() + k.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                  <label className="flex items-center gap-2 text-sm text-ink">
-                    <input
-                      type="checkbox"
-                      checked={timedEntry}
-                      onChange={(e) => setTimedEntry(e.target.checked)}
-                      className="h-4 w-4 rounded border-line"
-                    />
-                    <AlarmClock className="h-3.5 w-3.5 text-accent" />
-                    Timed entry / reservation
-                  </label>
                 </div>
               ) : (
-                <>
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-mono text-sm font-bold text-accent">
-                      {stop.time}
-                    </span>
-                    {durationLabel ? (
-                      <span className="text-xs text-ink-soft">
-                        {durationLabel}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-2">
-                    <h2 className="font-display text-xl font-bold text-ink">
-                      {stop.title}
-                    </h2>
-                    {stop.timedEntry ? (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent">
-                        <AlarmClock className="h-3.5 w-3.5" />
-                        Timed
-                      </span>
-                    ) : null}
-                  </div>
-                  {kindLabel ? (
-                    <p className="mt-0.5 text-xs tracking-wide text-ink-soft">
-                      {stop.kind.charAt(0).toUpperCase() + stop.kind.slice(1)}
-                    </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold text-accent">
+                    {stop.time}
+                  </span>
+                  {durationLabel ? (
+                    <span className="text-xs text-ink-soft">{durationLabel}</span>
                   ) : null}
-                </>
+                  {stop.timedEntry ? (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent">
+                      <AlarmClock className="h-3.5 w-3.5" />
+                      Timed
+                    </span>
+                  ) : null}
+                </div>
               )}
             </div>
             <div className="flex shrink-0 items-center gap-1">
@@ -741,8 +827,7 @@ export function EventExpand({
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setPendingUnlinkIds([])
-                    setGuideEditorOpen(guides.length > 0)
+                    resetFromSite(site)
                     setEditing(true)
                   }}
                 >
@@ -757,15 +842,50 @@ export function EventExpand({
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {/* Event fields */}
           <div className="space-y-4 border-b border-line/70 p-4">
             {editing ? (
               <div className="space-y-3">
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Site name"
+                  className={cn(inputClass, 'text-lg font-bold')}
+                />
+                <div className="space-y-1.5">
+                  <select
+                    value={kind}
+                    onChange={(e) => setKind(e.target.value as StopKind)}
+                    className={inputClass}
+                  >
+                    {STOP_KINDS.map((k) => (
+                      <option key={k} value={k}>
+                        {k.charAt(0).toUpperCase() + k.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      className="text-[11px] font-medium text-sea underline-offset-2 hover:underline"
+                      onClick={() => setPickerOpen(true)}
+                    >
+                      Use existing site…
+                    </button>
+                    {effectiveSiteId ? (
+                      <button
+                        type="button"
+                        className="text-[11px] font-medium text-ink-soft underline-offset-2 hover:underline"
+                        onClick={() => void removeSite()}
+                      >
+                        Remove site
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+
                 {showHours(kind) ? (
                   <label className="block space-y-1">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                      Hours
-                    </span>
+                    <span className={fieldLabelClass}>Hours</span>
                     <input
                       value={hours}
                       onChange={(e) => setHours(e.target.value)}
@@ -800,17 +920,37 @@ export function EventExpand({
                         placeholder="Confirmation / PNR"
                       />
                     </label>
-                    <label className="block space-y-1">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                        Bags
-                      </span>
-                      <input
-                        value={bags}
-                        onChange={(e) => setBags(e.target.value)}
-                        className={inputClass}
-                        placeholder="Carry-on / checked limits"
-                      />
-                    </label>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                          Bags
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            void addStringListItem(bags, setBags, 'Bags')
+                          }
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Add
+                        </Button>
+                      </div>
+                      {bags.length ? (
+                        <SortableStringList
+                          items={bags}
+                          editing
+                          onReorder={setBags}
+                          onEdit={(i) =>
+                            void editStringList(bags, setBags, i, 'Bags')
+                          }
+                          onRemove={(i) =>
+                            setBags(bags.filter((_, j) => j !== i))
+                          }
+                        />
+                      ) : (
+                        <p className="text-sm text-ink-soft">No bag rules yet.</p>
+                      )}
+                    </div>
                     <div className="block space-y-1">
                       <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
                         Transit
@@ -900,62 +1040,112 @@ export function EventExpand({
                 ) : null}
                 <div className="block space-y-1">
                   <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                    Notes
+                    Summary
                   </span>
                   <RichTextEditor
-                    value={notes}
-                    onChange={setNotes}
-                    placeholder="Notes…"
+                    value={summary}
+                    onChange={setSummary}
+                    placeholder="Short description…"
                   />
                 </div>
               </div>
             ) : (
-              <dl className="space-y-2">
-                {details.hours ? (
-                  <DetailRow label="Hours" value={details.hours} />
+              <>
+                <h2 className="text-xl font-bold text-ink">{displayName}</h2>
+                {kindLabel ? (
+                  <p className="text-xs tracking-wide text-ink-soft">
+                    {kindLabel}
+                  </p>
                 ) : null}
-                {details.cost ? (
-                  <DetailRow label="Cost" value={details.cost} />
-                ) : null}
-                {details.bookingRef ? (
-                  <DetailRow label="Booking" value={details.bookingRef} />
-                ) : null}
-                {details.bags ? (
-                  <DetailRow label="Bags" value={details.bags} />
-                ) : null}
-                {details.transit && !isEmptyRichText(details.transit) ? (
-                  <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
-                    <dt className="font-semibold text-ink">Transit</dt>
-                    <dd className="text-ink-soft">
-                      <RichText value={details.transit} />
-                    </dd>
-                  </div>
-                ) : null}
-                {details.vibe ? (
-                  <DetailRow label="Vibe" value={details.vibe} />
-                ) : null}
-                {details.mustTry ? (
-                  <DetailRow label="Must try" value={details.mustTry} />
-                ) : null}
-                {details.notes && !isEmptyRichText(details.notes) ? (
-                  <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
-                    <dt className="font-semibold text-ink">Notes</dt>
-                    <dd className="text-ink-soft">
-                      <RichText value={details.notes} />
-                    </dd>
-                  </div>
-                ) : null}
-              </dl>
+                <dl className="mt-3 space-y-2">
+                  {details.hours ? (
+                    <DetailRow label="Hours" value={details.hours} />
+                  ) : null}
+                  {details.cost ? (
+                    <DetailRow label="Cost" value={details.cost} />
+                  ) : null}
+                  {details.bookingRef ? (
+                    <DetailRow label="Booking" value={details.bookingRef} />
+                  ) : null}
+                  {details.bags ? (
+                    <DetailRow label="Bags" value={details.bags} />
+                  ) : null}
+                  {details.transit && !isEmptyRichText(details.transit) ? (
+                    <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
+                      <dt className="font-semibold text-ink">Transit</dt>
+                      <dd className="text-ink-soft">
+                        <RichText value={details.transit} />
+                      </dd>
+                    </div>
+                  ) : null}
+                  {details.vibe ? (
+                    <DetailRow label="Vibe" value={details.vibe} />
+                  ) : null}
+                  {details.mustTry ? (
+                    <DetailRow label="Must try" value={details.mustTry} />
+                  ) : null}
+                  {details.summary && !isEmptyRichText(details.summary) ? (
+                    <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
+                      <dt className="font-semibold text-ink">Summary</dt>
+                      <dd className="text-ink-soft">
+                        <RichText value={details.summary} />
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+              </>
             )}
 
-            {/* View: icon buttons only. Edit: manage list + add. */}
+          </div>
+
+          {/* Site sections */}
+          {(editing || hasSectionBody || photo) && (
+            <div className="space-y-5 border-b border-line/70 p-4">
+              {photo && !editing ? (
+                <div className="relative -mx-4 -mt-4 h-36 overflow-hidden">
+                  <img
+                    src={photo}
+                    alt={displayName}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/50 to-transparent" />
+                </div>
+              ) : null}
+
+              <GuideSectionsEditor
+                sections={sections
+                  .filter((key) => showGuideSection(kind, key))
+                  .filter(
+                    (key) =>
+                      editing || (sectionsDraft[key]?.length ?? 0) > 0,
+                  )
+                  .map((key) => ({
+                    key,
+                    label: SECTION_LABELS[key],
+                  }))}
+                values={sectionsDraft}
+                editing={editing}
+                onChange={updateAllSections}
+                onEdit={(key, i) => void editItem(key, i)}
+                onRemove={removeItem}
+                onAdd={(key) => void addItem(key)}
+              />
+            </div>
+          )}
+
+          {/* Attachments at bottom of site body */}
+          <div className="space-y-4 border-b border-line/70 p-4">
             {editing ? (
               <section className="space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wide text-ink-soft">
-                  Attachments
-                </h3>
+                <h3 className={fieldLabelClass}>Attachments</h3>
+                {!canUploadAttachments ? (
+                  <p className="text-xs text-ink-soft">
+                    Map URL can be set now. Tickets and venue maps upload after
+                    the event is saved with a linked site.
+                  </p>
+                ) : null}
                 <div className="space-y-2">
-                  {attachments.map((row) => (
+                  {attachmentRows.map((row) => (
                     <div
                       key={`${row.type}-${row.id}`}
                       className="flex flex-wrap items-center gap-2 rounded-lg bg-paper-deep/50 px-2 py-1.5 text-sm"
@@ -982,10 +1172,9 @@ export function EventExpand({
                       ) : null}
                       {row.type === 'map' ? (
                         <span className="min-w-0 flex-1 font-medium text-ink">
-                          Venue map
-                          {row.pages.length > 1
-                            ? ` · ${row.pages.length} pages`
-                            : ''}
+                          {attachDraft.mapPages.length > 1
+                            ? `Venue map · ${row.pageIndex + 1}`
+                            : 'Venue map'}
                         </span>
                       ) : null}
                       {row.type === 'mapsUrl' ? (
@@ -1007,16 +1196,29 @@ export function EventExpand({
                                 destructive: true,
                               })
                               if (!ok) return
-                              await run(() => onRemoveTicket?.(row.id))
+                              setAttachDraft((d) => ({
+                                ...d,
+                                tickets: d.tickets.filter(
+                                  (t) => t.id !== row.id,
+                                ),
+                              }))
                             } else if (row.type === 'map') {
                               const ok = await dialog.confirm({
                                 title: 'Remove map',
-                                message: 'Remove venue map?',
+                                message:
+                                  attachDraft.mapPages.length > 1
+                                    ? `Remove map page ${row.pageIndex + 1}?`
+                                    : 'Remove venue map?',
                                 confirmLabel: 'Remove',
                                 destructive: true,
                               })
                               if (!ok) return
-                              await run(() => onRemoveMap?.())
+                              setAttachDraft((d) => ({
+                                ...d,
+                                mapPages: d.mapPages.filter(
+                                  (_, i) => i !== row.pageIndex,
+                                ),
+                              }))
                             } else {
                               const ok = await dialog.confirm({
                                 title: 'Clear Map URL',
@@ -1025,7 +1227,7 @@ export function EventExpand({
                                 destructive: true,
                               })
                               if (!ok) return
-                              await run(() => onSetMapsUrl?.(null))
+                              setAttachDraft((d) => ({ ...d, mapsUrl: null }))
                             }
                           })()
                         }}
@@ -1039,7 +1241,7 @@ export function EventExpand({
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={busy}
+                    disabled={busy || !canUploadAttachments}
                     onClick={() => {
                       void (async () => {
                         const label = await dialog.promptText({
@@ -1049,7 +1251,10 @@ export function EventExpand({
                           confirmLabel: 'Add',
                         })
                         if (!label?.trim()) return
-                        await run(() => onAddTicket?.(label.trim()))
+                        await run(async () => {
+                          await onAddTicket?.(label.trim())
+                          syncAttachAfterUpload()
+                        })
                       })()
                     }}
                   >
@@ -1058,11 +1263,16 @@ export function EventExpand({
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={busy}
-                    onClick={() => void run(() => onAddMap?.())}
+                    disabled={busy || !canUploadAttachments}
+                    onClick={() =>
+                      void run(async () => {
+                        await onAddMap?.()
+                        syncAttachAfterUpload()
+                      })
+                    }
                   >
                     <Plus className="h-3.5 w-3.5" />{' '}
-                    {hasMap ? 'Replace map' : 'Map'}
+                    {attachDraft.mapPages.length ? 'Replace map' : 'Map'}
                   </Button>
                   <Button
                     variant="outline"
@@ -1073,13 +1283,16 @@ export function EventExpand({
                         const url = await dialog.promptText({
                           title: 'Map URL',
                           label: 'Google Maps URL',
-                          defaultValue: stop.mapsUrl ?? '',
+                          defaultValue: attachDraft.mapsUrl ?? '',
                           placeholder: 'https://maps.app.goo.gl/...',
                           required: false,
                           confirmLabel: 'Save',
                         })
                         if (url === null) return
-                        await run(() => onSetMapsUrl?.(url.trim() || null))
+                        setAttachDraft((d) => ({
+                          ...d,
+                          mapsUrl: url.trim() || null,
+                        }))
                       })()
                     }}
                   >
@@ -1087,24 +1300,24 @@ export function EventExpand({
                   </Button>
                 </div>
               </section>
-            ) : stop.mapsUrl || hasTickets || hasMap ? (
+            ) : viewMapsUrl || viewTickets.length || viewMaps.length ? (
               <div className="flex flex-wrap gap-2">
-                {stop.mapsUrl ? (
+                {viewMapsUrl ? (
                   <Button variant="outline" size="sm" asChild>
-                    <a href={stop.mapsUrl} target="_blank" rel="noreferrer">
+                    <a href={viewMapsUrl} target="_blank" rel="noreferrer">
                       <MapPinned className="h-3.5 w-3.5" /> Maps
                     </a>
                   </Button>
                 ) : null}
-                {ticketSets.length === 1 ? (
+                {viewTickets.length === 1 ? (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => openTickets()}
                   >
-                    <Ticket className="h-3.5 w-3.5" /> {ticketSets[0].label}
+                    <Ticket className="h-3.5 w-3.5" /> {viewTickets[0].label}
                   </Button>
-                ) : ticketSets.length > 1 ? (
+                ) : viewTickets.length > 1 ? (
                   <Button
                     variant="outline"
                     size="sm"
@@ -1112,20 +1325,20 @@ export function EventExpand({
                   >
                     <Ticket className="h-3.5 w-3.5" /> Ticket
                     <span className="text-[10px] opacity-70">
-                      · {ticketSets.length}
+                      · {viewTickets.length}
                     </span>
                   </Button>
                 ) : null}
-                {hasMap && onOpenMap ? (
+                {viewMaps.length && onOpenMap ? (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => openMap()}
                   >
                     <MapIcon className="h-3.5 w-3.5" /> Map
-                    {maps.length > 1 ? (
+                    {viewMaps.length > 1 ? (
                       <span className="text-[10px] opacity-70">
-                        · {maps.length}
+                        · {viewMaps.length}
                       </span>
                     ) : null}
                   </Button>
@@ -1134,257 +1347,90 @@ export function EventExpand({
             ) : null}
           </div>
 
-          {/* Guide sections */}
-          {(editing && guideEditorOpen) ||
-          (!editing && (hasGuideBody || linkedGuides.length > 0)) ? (
-            <>
-              <div className="border-b border-line px-4 py-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sea">
-                      Guide
-                    </p>
-                    {editing && guideDraft ? (
-                      <input
-                        value={guideDraft.name}
-                        onChange={(e) =>
-                          setGuideDraft({
-                            ...guideDraft,
-                            name: e.target.value,
-                          })
-                        }
-                        className="mt-0.5 w-full truncate border-0 bg-transparent font-display text-lg font-bold text-ink outline-none ring-0"
-                        placeholder="Guide name"
-                      />
-                    ) : guideDraft?.name ? (
-                      <h3 className="truncate font-display text-lg font-bold text-ink">
-                        {guideDraft.name}
-                      </h3>
-                    ) : null}
-                  </div>
-                  {editing &&
-                  ((guideDraft?.id &&
-                    linkedGuides.some((g) => g.id === guideDraft.id)) ||
-                    (!guideDraft?.id && guideEditorOpen)) ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={busy}
-                      title="Detach this guide from the event"
-                      onClick={() => {
-                        if (guideDraft?.id) {
-                          void queueRemoveGuide(guideDraft.id)
-                          return
-                        }
-                        // Discard unsaved new draft
-                        setGuideDraft(null)
-                        setGuideEditorOpen(false)
-                      }}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" /> Remove
-                    </Button>
-                  ) : null}
-                </div>
-                {linkedGuides.length > 1 ? (
-                  <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                    {linkedGuides.map((g) => (
-                      <button
-                        key={g.id}
-                        type="button"
-                        onClick={() => setActiveId(g.id)}
-                        className={cn(
-                          'shrink-0 rounded-full px-3 py-1 text-xs font-semibold',
-                          g.id === guideDraft?.id
-                            ? 'bg-sea text-white'
-                            : 'bg-paper-deep text-ink-soft ring-1 ring-line',
-                        )}
-                      >
-                        {g.name}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-
-              {photo && !editing ? (
-                <div className="relative h-36 w-full overflow-hidden">
-                  <img
-                    src={photo}
-                    alt={guideDraft?.name ?? ''}
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/50 to-transparent" />
-                </div>
-              ) : null}
-
-              <div className="space-y-5 p-4 pb-6">
-                {!hasGuideBody && !editing ? (
-                  linkedGuides.length > 0 ? (
-                    <EmptyState
-                      title="Guide coming"
-                      detail="No logistics, tips, history, or route yet."
-                    />
-                  ) : null
-                ) : (
-                  <>
-                    {editing ? (
-                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-paper-deep/50 px-3 py-2">
-                        <p className="text-xs text-ink-soft">
-                          Drag notes between Logistics, Pro-Tips, History, and
-                          Route.
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => void addItem('logistics')}
-                        >
-                          <Plus className="h-3.5 w-3.5" /> Note
-                        </Button>
-                      </div>
-                    ) : null}
-                    <GuideSectionsEditor
-                      sections={sections
-                        .filter((key) => showGuideSection(kind, key))
-                        .filter(
-                          (key) =>
-                            editing || (guideDraft?.[key]?.length ?? 0) > 0,
-                        )
-                        .map((key) => ({
-                          key,
-                          label: SECTION_LABELS[key],
-                        }))}
-                      values={{
-                        logistics: guideDraft?.logistics ?? [],
-                        proTips: guideDraft?.proTips ?? [],
-                        history: guideDraft?.history ?? [],
-                        route: guideDraft?.route ?? [],
-                      }}
-                      editing={editing}
-                      onChange={updateAllSections}
-                      onEdit={(key, i) => void editItem(key, i)}
-                      onRemove={removeItem}
-                      onAdd={(key) => void addItem(key)}
-                    />
-                  </>
-                )}
-              </div>
-            </>
-          ) : null}
-
-          {editing && !guideEditorOpen ? (
-            <div className="border-t border-line px-4 py-3">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={busy}
-                onClick={startNewGuide}
+          {editing && showBranch ? (
+            <section className="border-t border-line p-4">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between gap-2 text-left"
+                onClick={() => setBranchOpen((o) => !o)}
+                aria-expanded={branchOpen}
               >
-                <Plus className="h-3.5 w-3.5" /> Add guide
-              </Button>
-            </div>
-          ) : null}
-
-          {/* Branch (edit only) */}
-          {editing ? (
-            <section className="space-y-2 border-t border-line p-4">
-              <h3 className="text-xs font-bold uppercase tracking-wide text-ink-soft">
-                Branch
-              </h3>
-              {existingOptions.length ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {existingOptions.map((o) => (
+                <span className={fieldLabelClass}>
+                  Branch
+                  {stop.optionLabel ? (
+                    <span className="ml-2 font-medium normal-case tracking-normal text-ink">
+                      · {stop.optionLabel}
+                    </span>
+                  ) : null}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    'h-4 w-4 shrink-0 text-ink-soft transition-transform',
+                    branchOpen && 'rotate-180',
+                  )}
+                />
+              </button>
+              {branchOpen ? (
+                <div className="mt-2 space-y-2">
+                  <div className="flex flex-wrap gap-1.5">
                     <button
-                      key={`${o.group}-${o.label}`}
                       type="button"
                       className={cn(
                         'rounded-lg px-2 py-1.5 text-xs font-medium ring-1',
-                        stop.optionLabel === o.label &&
-                          stop.optionGroup === o.group
-                          ? 'bg-accent text-white ring-accent'
+                        !stop.optionLabel
+                          ? 'bg-ink text-paper ring-ink'
                           : 'bg-paper-deep text-ink ring-line',
                       )}
-                      onClick={() =>
-                        void run(() => onAssignOption?.(o.label, o.group))
-                      }
+                      disabled={busy}
+                      onClick={() => void run(() => onClearOption?.())}
                     >
-                      {o.label}
+                      Shared
                     </button>
-                  ))}
+                    {existingOptions.map((o) => (
+                      <button
+                        key={`${o.group}-${o.label}`}
+                        type="button"
+                        className={cn(
+                          'rounded-lg px-2 py-1.5 text-xs font-medium ring-1',
+                          stop.optionLabel === o.label &&
+                            stop.optionGroup === o.group
+                            ? 'bg-accent text-white ring-accent'
+                            : 'bg-paper-deep text-ink ring-line',
+                        )}
+                        disabled={busy}
+                        onClick={() =>
+                          void run(() => onAssignOption?.(o.label, o.group))
+                        }
+                      >
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-ink-soft">
+                    {stop.optionLabel
+                      ? `Current: ${stop.optionLabel}`
+                      : 'Shared path (no option).'}
+                  </p>
                 </div>
               ) : null}
-              <div className="flex flex-wrap gap-2">
-                <div className="flex min-w-0 flex-1 gap-2">
-                  <input
-                    value={optionLabel}
-                    onChange={(e) => setOptionLabel(e.target.value)}
-                    placeholder="Option name"
-                    className={inputClass}
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={busy || !optionLabel.trim()}
-                    onClick={() =>
-                      void run(() => onAssignOption?.(optionLabel.trim()))
-                    }
-                  >
-                    Assign
-                  </Button>
-                </div>
-                {stop.optionGroup ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={busy}
-                    onClick={() => void run(() => onClearOption?.())}
-                  >
-                    Mark converge
-                  </Button>
-                ) : null}
-              </div>
-              <p className="text-xs text-ink-soft">
-                {stop.optionLabel
-                  ? `Current: ${stop.optionLabel}`
-                  : 'Shared path (no option).'}
-              </p>
             </section>
           ) : null}
         </div>
 
-        {editing ? (
+        {editing || isCreate ? (
           <div className="flex shrink-0 gap-2 border-t border-line p-3">
             <Button
               variant="outline"
               className="flex-1"
               disabled={busy}
               onClick={() => {
-                setEditing(false)
-                setPendingUnlinkIds([])
-                setGuideEditorOpen(guides.length > 0)
-                // reset drafts from stop
-                setTime(stop.time)
-                setTitle(stop.title)
-                setKind(stop.kind || 'attraction')
-                setDuration(stop.duration || '')
-                setHours(stop.hours || '')
-                setCost(stop.cost || '')
-                setBooking(stop.bookingRef || '')
-                setBags(stop.bags || '')
-                setTransit(stop.transit || '')
-                setNotes(stop.notes || '')
-                setVibe(asStringList(stop.vibe))
-                setMustTry(asStringList(stop.mustTry))
-                setTimedEntry(Boolean(stop.timedEntry))
-                if (guides[0]) {
-                  setActiveId(guides[0].id)
-                  setGuideDraft({
-                    ...guides[0],
-                    attachments: guides[0].attachments ?? [],
-                  })
-                } else {
-                  setActiveId('')
-                  setGuideDraft(null)
+                if (isCreate) {
+                  onClose()
+                  return
                 }
+                setOverrideSiteId(undefined)
+                resetFromSite(getSiteForStop(stop))
+                setEditing(false)
               }}
             >
               Cancel
@@ -1406,6 +1452,12 @@ export function EventExpand({
         title={picker?.title ?? ''}
         options={picker?.options ?? []}
         onSelect={(id) => picker?.onSelect(id)}
+      />
+      <SitePickerDialog
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        defaultKind={kind}
+        onSelect={pickExistingSite}
       />
     </div>
   )

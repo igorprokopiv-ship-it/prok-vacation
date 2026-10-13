@@ -31,7 +31,13 @@ CONTENT_INBOX = ROOT / "content" / "inbox"
 
 load_dotenv(ROOT / ".env", override=True)
 
-from admin_cms import require_admin, router as admin_router, set_refresh_hook  # noqa: E402
+from admin_cms import (  # noqa: E402
+    require_admin,
+    router as admin_router,
+    save_pack,
+    set_refresh_hook,
+    write_json,
+)
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 APP_VERSION = os.environ.get("APP_VERSION", "0.0.0")
@@ -733,21 +739,58 @@ async def import_trip_pack(
     file: UploadFile = File(...),
     _: None = Depends(require_admin),
 ) -> dict[str, Any]:
-    """Phase 4: upload a zip or accept a slug folder already on disk via form field name."""
+    """Import a JSON vacation backup or a historical .zip content pack."""
     if not DATABASE_URL:
         raise HTTPException(503, "DATABASE_URL not configured")
-    name = file.filename or "pack.zip"
+    name = (file.filename or "pack.zip").lower()
+    raw = await file.read()
+
+    if name.endswith(".json"):
+        try:
+            data = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as e:
+            raise HTTPException(400, f"Invalid JSON: {e}") from e
+        if not isinstance(data, dict) or data.get("format") != "prok-vacation-backup":
+            raise HTTPException(400, "Not a prok-vacation-backup JSON file")
+        meta = data.get("trip")
+        itinerary = data.get("itinerary")
+        sites = data.get("sites")
+        assets = data.get("assets")
+        if not isinstance(meta, dict):
+            raise HTTPException(400, "Backup missing trip metadata")
+        if not isinstance(itinerary, dict):
+            raise HTTPException(400, "Backup missing itinerary")
+        if not isinstance(sites, list):
+            sites = []
+        if not isinstance(assets, dict):
+            assets = {"sites": {}, "tickets": {}, "maps": {}}
+        slug = str(meta.get("slug") or "").strip()
+        if not slug:
+            raise HTTPException(400, "Backup trip missing slug")
+        dest = CONTENT_TRIPS / slug
+        dest.mkdir(parents=True, exist_ok=True)
+        # Overwrite JSON only — keep existing images/ when restoring onto the same pack
+        write_json(dest / "trip.json", meta)
+        save_pack(slug, itinerary, sites, assets)
+        with db() as conn:
+            if slug == "eu2026":
+                seed_eu2026(conn)
+            else:
+                _seed_pack(conn, slug)
+        return {"ok": True, "slug": slug, "kind": "json"}
+
     if not name.endswith(".zip"):
-        raise HTTPException(400, "Upload a .zip content pack")
+        raise HTTPException(400, "Upload a .json backup or .zip content pack")
+
+    import subprocess
     import tempfile
     import zipfile
 
     with tempfile.TemporaryDirectory() as tmp:
-        zpath = Path(tmp) / name
-        zpath.write_bytes(await file.read())
+        zpath = Path(tmp) / (file.filename or "pack.zip")
+        zpath.write_bytes(raw)
         with zipfile.ZipFile(zpath, "r") as zf:
             zf.extractall(tmp)
-        # Find trip.json
         trip_json = None
         root = Path(tmp)
         for p in root.rglob("trip.json"):
@@ -762,8 +805,6 @@ async def import_trip_pack(
         if dest.exists():
             shutil.rmtree(dest)
         shutil.copytree(pack_dir, dest)
-        import subprocess
-
         subprocess.run(
             ["node", str(ROOT / "content" / "scripts" / "build-pack.mjs"), slug],
             check=False,
@@ -774,7 +815,7 @@ async def import_trip_pack(
                 seed_eu2026(conn)
             else:
                 _seed_pack(conn, slug)
-        return {"ok": True, "slug": slug}
+        return {"ok": True, "slug": slug, "kind": "zip"}
 
 
 def _seed_pack(conn: psycopg.Connection, slug: str) -> None:

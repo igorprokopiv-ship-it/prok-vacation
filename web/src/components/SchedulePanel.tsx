@@ -21,42 +21,50 @@ import { Button } from '@/components/ui/button'
 import { RichText } from '@/components/RichText'
 import {
   showGuideSection,
-  stopDetailFields,
-  stopHasVisibleDetails,
+  siteDetailFields,
+  siteHasVisibleDetails,
+  siteKind,
   type GuideSectionKey,
   visibleGuideSections,
 } from '@/data/stopFields'
 import type { DayMapLink, ItineraryDay, ItineraryStop } from '@/data/types'
 import {
-  getGuidesForStop,
   getMapPages,
+  getSiteForStop,
   getTicketSets,
   stopCanExpand,
   stopHasMap,
   stopHasTickets,
   stopHasVisibleGuideContent,
+  stopTitle,
 } from '@/lib/data'
 import { displayDuration } from '@/lib/duration'
+import {
+  collectOptionChoices,
+  defaultLabelForGroup,
+  type OptionChoice,
+} from '@/lib/options'
 import { cn } from '@/lib/utils'
 
-const GUIDE_SECTION_LABELS: Record<GuideSectionKey, string> = {
+const SITE_SECTION_LABELS: Record<GuideSectionKey, string> = {
+  notes: 'Notes',
   logistics: 'Logistics',
   proTips: 'Pro-Tips',
   history: 'History',
   route: 'The Route',
 }
 
-/** Prefer full Expand when guide text is long enough to benefit from a wider panel. */
-function guideNeedsFullExpand(stop: ItineraryStop): boolean {
-  const sections = visibleGuideSections(stop.kind)
+/** Prefer full Expand when site section text is long enough to benefit from a wider panel. */
+function siteNeedsFullExpand(stop: ItineraryStop): boolean {
+  const site = getSiteForStop(stop)
+  if (!site) return false
+  const sections = visibleGuideSections(siteKind(site))
   let chars = 0
   let items = 0
-  for (const g of getGuidesForStop(stop)) {
-    for (const key of sections) {
-      for (const line of g[key] ?? []) {
-        items += 1
-        chars += line.length
-      }
+  for (const key of sections) {
+    for (const line of site[key] ?? []) {
+      items += 1
+      chars += line.length
     }
   }
   return items >= 8 || chars >= 600
@@ -78,7 +86,11 @@ export type ViewerTarget =
       edit?: boolean
     }
 
-export type AdminAction = 'toggle-highlight' | 'toggle-timed' | 'delete-event'
+export type AdminAction =
+  | 'toggle-highlight'
+  | 'toggle-timed'
+  | 'delete-event'
+  | 'mark-converge'
 
 function DayMapsBar({
   maps,
@@ -267,32 +279,6 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-type OptionChoice = { group: string; label: string; primary: boolean }
-
-function collectOptionChoices(stops: ItineraryStop[]): Map<string, OptionChoice[]> {
-  const byGroup = new Map<string, OptionChoice[]>()
-  for (const stop of stops) {
-    if (!stop.optionGroup || !stop.optionLabel) continue
-    const list = byGroup.get(stop.optionGroup) ?? []
-    if (!list.some((c) => c.label === stop.optionLabel)) {
-      list.push({
-        group: stop.optionGroup,
-        label: stop.optionLabel,
-        primary: Boolean(stop.primary),
-      })
-    } else if (stop.primary) {
-      const existing = list.find((c) => c.label === stop.optionLabel)
-      if (existing) existing.primary = true
-    }
-    byGroup.set(stop.optionGroup, list)
-  }
-  return byGroup
-}
-
-function defaultLabelForGroup(choices: OptionChoice[]): string {
-  return choices.find((c) => c.primary)?.label ?? choices[0]?.label ?? ''
-}
-
 type TimelineItem =
   | { type: 'option-toggle'; group: string; choices: OptionChoice[] }
   | { type: 'option-banner'; key: string; label: string }
@@ -329,7 +315,7 @@ function buildTimeline(
     const selected = selectedByGroup[group] ?? defaultLabelForGroup(choices)
     if (label !== selected) {
       // Skip non-selected branch; still track that we entered a fork
-      if (!shownToggleFor.has(group) && choices.length > 1) {
+      if (!shownToggleFor.has(group) && choices.length >= 1) {
         items.push({ type: 'option-toggle', group, choices })
         shownToggleFor.add(group)
         items.push({
@@ -340,22 +326,12 @@ function buildTimeline(
         inOptionBlock = true
         lastGroup = group
         lastLabel = selected
-      } else if (!shownToggleFor.has(group) && choices.length === 1) {
-        items.push({
-          type: 'option-banner',
-          key: `${group}-${label}`,
-          label,
-        })
-        shownToggleFor.add(group)
-        inOptionBlock = true
-        lastGroup = group
-        lastLabel = label
       }
       continue
     }
 
     if (!shownToggleFor.has(group)) {
-      if (choices.length > 1) {
+      if (choices.length >= 1) {
         items.push({ type: 'option-toggle', group, choices })
       }
       items.push({
@@ -405,19 +381,20 @@ function StopCard({
   isHighlight: boolean
   hideOptionPill?: boolean
 }) {
-  const ticketSets = getTicketSets(stop).filter((t) => t.pages.length)
-  const maps = getMapPages(stop)
+  const site = getSiteForStop(stop)
+  const title = stopTitle(stop)
+  const kind = siteKind(site)
+  const ticketSets = getTicketSets(site).filter((t) => t.pages.length)
+  const maps = getMapPages(site)
   const hasTickets = stopHasTickets(stop)
   const hasMap = stopHasMap(stop)
-  const guides = getGuidesForStop(stop)
-  const guide = guides[0]
   const hasGuideContent = stopHasVisibleGuideContent(stop)
-  const guideSections = visibleGuideSections(stop.kind)
-  const showFullExpand = stopCanExpand(stop) && guideNeedsFullExpand(stop)
+  const siteSections = visibleGuideSections(kind)
+  const showFullExpand = stopCanExpand(stop) && siteNeedsFullExpand(stop)
   const hasViewer =
-    Boolean(stop.mapsUrl) || hasTickets || hasMap || showFullExpand
-  const details = stopDetailFields(stop)
-  const hasDetailFields = stopHasVisibleDetails(stop)
+    Boolean(site?.mapsUrl) || hasTickets || hasMap || showFullExpand
+  const details = siteDetailFields(site)
+  const hasDetailFields = siteHasVisibleDetails(site)
   const expandable =
     hasDetailFields || hasViewer || hasGuideContent || adminMode
 
@@ -434,7 +411,7 @@ function StopCard({
         kind: 'ticket',
         stop,
         ticketId: t.id,
-        title: `${stop.title} · ${t.label}`,
+        title: `${title} · ${t.label}`,
       })
       return
     }
@@ -448,7 +425,7 @@ function StopCard({
           kind: 'ticket',
           stop,
           ticketId: t.id,
-          title: `${stop.title} · ${t.label}`,
+          title: `${title} · ${t.label}`,
         })
       },
     })
@@ -456,7 +433,7 @@ function StopCard({
 
   const openMap = () => {
     if (maps.length <= 1) {
-      onOpen({ kind: 'map', stop, title: stop.title })
+      onOpen({ kind: 'map', stop, title })
       return
     }
     setPicker({
@@ -470,14 +447,14 @@ function StopCard({
       ],
       onSelect: (id) => {
         if (id === 'all') {
-          onOpen({ kind: 'map', stop, title: stop.title })
+          onOpen({ kind: 'map', stop, title })
           return
         }
         const pageIndex = Number(id)
         onOpen({
           kind: 'map',
           stop,
-          title: `${stop.title} · page ${pageIndex + 1}`,
+          title: `${title} · page ${pageIndex + 1}`,
           pageIndex,
         })
       },
@@ -489,7 +466,7 @@ function StopCard({
   const header = (
     <>
       <div className="w-14 shrink-0 pt-0.5">
-        <div className="font-mono text-sm font-bold text-accent">{stop.time}</div>
+        <div className="text-sm font-semibold text-accent">{stop.time}</div>
         {durationLabel ? (
           <div className="text-[11px] text-ink-soft">{durationLabel}</div>
         ) : null}
@@ -504,7 +481,7 @@ function StopCard({
           {isHighlight ? (
             <Star className="h-3.5 w-3.5 shrink-0 fill-accent text-accent" />
           ) : null}
-          <div className="font-semibold leading-snug text-ink">{stop.title}</div>
+          <div className="font-semibold leading-snug text-ink">{title}</div>
           {stop.timedEntry ? (
             <span className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent">
               <AlarmClock className="h-3 w-3" />
@@ -512,9 +489,9 @@ function StopCard({
             </span>
           ) : null}
         </div>
-        {stop.kind && stop.kind !== 'attraction' ? (
+        {kind && kind !== 'attraction' ? (
           <div className="mt-0.5 text-[11px] tracking-wide text-ink-soft">
-            {stop.kind.charAt(0).toUpperCase() + stop.kind.slice(1)}
+            {kind.charAt(0).toUpperCase() + kind.slice(1)}
           </div>
         ) : null}
       </div>
@@ -578,33 +555,33 @@ function StopCard({
                   {details.mustTry ? (
                     <DetailRow label="Must try" value={details.mustTry} />
                   ) : null}
-                  {details.notes ? (
+                  {details.summary ? (
                     <div className="grid grid-cols-[88px_1fr] gap-2 text-sm">
-                      <dt className="font-semibold text-ink">Notes</dt>
+                      <dt className="font-semibold text-ink">Summary</dt>
                       <dd className="text-ink-soft">
-                        <RichText value={details.notes} />
+                        <RichText value={details.summary} />
                       </dd>
                     </div>
                   ) : null}
                 </dl>
               ) : null}
 
-              {hasGuideContent && guide ? (
+              {hasGuideContent && site ? (
                 <div className="space-y-4">
-                  {guideSections.map((key) => {
-                    if (!showGuideSection(stop.kind, key)) return null
-                    const items = guide[key] ?? []
+                  {siteSections.map((key) => {
+                    if (!showGuideSection(kind, key)) return null
+                    const items = site[key] ?? []
                     if (!items.length) return null
                     return (
                       <section key={key}>
-                        <h4 className="mb-1.5 font-display text-base font-bold text-ink">
-                          {GUIDE_SECTION_LABELS[key]}
+                        <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                          {SITE_SECTION_LABELS[key]}
                         </h4>
                         <ul className="space-y-1.5">
                           {items.map((item, i) => (
                             <li
                               key={`${key}-${i}`}
-                              className="relative rounded-lg bg-paper-deep/70 px-3 py-2 pl-4 text-sm leading-relaxed text-ink-soft before:absolute before:left-1.5 before:top-3 before:h-1.5 before:w-1.5 before:rounded-full before:bg-accent"
+                              className="rounded-lg bg-paper-deep/70 px-3 py-2 text-sm leading-relaxed text-ink-soft"
                             >
                               <RichText value={item} />
                             </li>
@@ -617,15 +594,15 @@ function StopCard({
               ) : null}
 
               {hasViewer ||
-              stop.mapsUrl ||
+              site?.mapsUrl ||
               hasTickets ||
               hasMap ||
               showFullExpand ||
               adminMode ? (
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {stop.mapsUrl ? (
+                  {site?.mapsUrl ? (
                     <Button variant="outline" size="sm" asChild>
-                      <a href={stop.mapsUrl} target="_blank" rel="noreferrer">
+                      <a href={site?.mapsUrl} target="_blank" rel="noreferrer">
                         <MapPinned className="h-3.5 w-3.5" /> Maps
                       </a>
                     </Button>
@@ -665,7 +642,7 @@ function StopCard({
                       variant="sea"
                       size="sm"
                       onClick={() =>
-                        onOpen({ kind: 'expand', stop, title: stop.title })
+                        onOpen({ kind: 'expand', stop, title })
                       }
                     >
                       <Maximize2 className="h-3.5 w-3.5" /> Expand
@@ -707,6 +684,13 @@ function StopCard({
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => onAdminAction('mark-converge', stop)}
+                      >
+                        Mark converge
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => onAdminAction('delete-event', stop)}
                       >
                         <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -738,6 +722,9 @@ export function SchedulePanel({
   onAdminAction,
   onAddEvent,
   onSetDayMaps,
+  onAddOption,
+  onRenameOption,
+  onDeleteOption,
 }: {
   day: ItineraryDay
   adminMode?: boolean
@@ -745,12 +732,25 @@ export function SchedulePanel({
   onAdminAction?: (action: AdminAction, stop: ItineraryStop, extra?: string) => void
   onAddEvent?: () => void
   onSetDayMaps?: (maps: DayMapLink[]) => void | Promise<void>
+  onAddOption?: (label: string, seedStopId: string) => void | Promise<void>
+  onRenameOption?: (
+    group: string,
+    fromLabel: string,
+    toLabel: string,
+  ) => void | Promise<void>
+  onDeleteOption?: (group: string, label: string) => void | Promise<void>
 }) {
+  const dialog = useAppDialog()
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [optionBusy, setOptionBusy] = useState(false)
+  const [seedPicker, setSeedPicker] = useState<{
+    label: string
+  } | null>(null)
   const choicesByGroup = useMemo(
     () => collectOptionChoices(day.stops),
     [day.stops],
   )
+  const hasOptions = choicesByGroup.size > 0
   const [selectedByGroup, setSelectedByGroup] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -789,6 +789,151 @@ export function SchedulePanel({
 
   const dayMaps = day.mapsUrls ?? []
 
+  const runOption = async (fn: () => void | Promise<void>) => {
+    setOptionBusy(true)
+    try {
+      await fn()
+    } catch (e) {
+      await dialog.alert(e instanceof Error ? e.message : 'Failed')
+    } finally {
+      setOptionBusy(false)
+    }
+  }
+
+  const startAddOption = () => {
+    if (!onAddOption || !day.stops.length) return
+    void (async () => {
+      const name = await dialog.promptText({
+        title: 'Add option',
+        label: 'Option name',
+        placeholder: 'Option 1 · British Museum',
+        required: true,
+        confirmLabel: 'Next',
+      })
+      if (!name?.trim()) return
+      setSeedPicker({ label: name.trim() })
+    })()
+  }
+
+  const renderOptionToggle = (
+    group: string,
+    choices: OptionChoice[],
+  ) => {
+    const selected =
+      selectedByGroup[group] ?? defaultLabelForGroup(choices)
+    return (
+      <div
+        key={`toggle-${group}`}
+        className="space-y-2 rounded-xl bg-paper-deep/50 p-2"
+      >
+        <div className="flex flex-wrap gap-2">
+          {choices.map((c) => (
+            <div
+              key={c.label}
+              className={cn(
+                'flex min-h-10 min-w-0 flex-1 items-stretch overflow-hidden rounded-lg ring-1',
+                selected === c.label
+                  ? 'bg-accent text-white ring-accent shadow-sm'
+                  : 'bg-paper text-ink ring-line',
+              )}
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  setSelectedByGroup((s) => ({ ...s, [group]: c.label }))
+                }
+                className="min-w-0 flex-1 px-3 py-2 text-left text-sm font-semibold transition hover:opacity-90"
+              >
+                {c.label}
+              </button>
+              {adminMode && (onRenameOption || onDeleteOption) ? (
+                <span
+                  className={cn(
+                    'flex shrink-0 items-center border-l',
+                    selected === c.label
+                      ? 'border-white/25'
+                      : 'border-line',
+                  )}
+                >
+                  {onRenameOption ? (
+                    <button
+                      type="button"
+                      className={cn(
+                        'p-2 transition hover:opacity-80',
+                        selected === c.label
+                          ? 'text-white/90'
+                          : 'text-ink-soft hover:text-ink',
+                      )}
+                      aria-label={`Rename ${c.label}`}
+                      disabled={optionBusy}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        void (async () => {
+                          const next = await dialog.promptText({
+                            title: 'Rename option',
+                            label: 'Option name',
+                            defaultValue: c.label,
+                            required: true,
+                            confirmLabel: 'Save',
+                          })
+                          if (!next?.trim() || next.trim() === c.label) return
+                          await runOption(() =>
+                            onRenameOption(group, c.label, next.trim()),
+                          )
+                        })()
+                      }}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  ) : null}
+                  {onDeleteOption ? (
+                    <button
+                      type="button"
+                      className={cn(
+                        'p-2 transition hover:opacity-80',
+                        selected === c.label
+                          ? 'text-white/90'
+                          : 'text-ink-soft hover:text-accent',
+                      )}
+                      aria-label={`Delete ${c.label}`}
+                      disabled={optionBusy}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        void (async () => {
+                          const ok = await dialog.confirm({
+                            title: 'Delete option',
+                            message: `Remove “${c.label}” from all events on this day?`,
+                            confirmLabel: 'Delete',
+                            destructive: true,
+                          })
+                          if (!ok) return
+                          await runOption(() => onDeleteOption(group, c.label))
+                        })()
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  ) : null}
+                </span>
+              ) : null}
+            </div>
+          ))}
+        </div>
+        {adminMode && onAddOption ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            disabled={optionBusy || !day.stops.length}
+            onClick={startAddOption}
+          >
+            <Plus className="h-3.5 w-3.5" /> Option
+          </Button>
+        ) : null}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-2">
       <DayMapsBar
@@ -796,45 +941,26 @@ export function SchedulePanel({
         adminMode={adminMode}
         onChange={onSetDayMaps}
       />
-      <div className="flex items-start justify-between gap-2 px-1">
-        <p className="text-sm text-ink-soft">
-          Full timeline — tap a row for details
-          {adminMode ? ' (admin: edit, options, attachments)' : ''}.
-        </p>
-        {adminMode && onAddEvent ? (
-          <Button variant="outline" size="sm" onClick={onAddEvent}>
-            <Plus className="h-3.5 w-3.5" /> Event
+      <p className="px-1 text-sm text-ink-soft">
+        Full timeline — tap a row for details
+        {adminMode ? ' (admin: edit, options, attachments)' : ''}.
+      </p>
+      {adminMode && onAddOption && !hasOptions ? (
+        <div className="rounded-xl bg-paper-deep/50 p-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            disabled={optionBusy || !day.stops.length}
+            onClick={startAddOption}
+          >
+            <Plus className="h-3.5 w-3.5" /> Option
           </Button>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
       {timeline.map((item) => {
         if (item.type === 'option-toggle') {
-          const selected =
-            selectedByGroup[item.group] ?? defaultLabelForGroup(item.choices)
-          return (
-            <div
-              key={`toggle-${item.group}`}
-              className="flex flex-wrap gap-2 rounded-xl bg-paper-deep/50 p-2"
-            >
-              {item.choices.map((c) => (
-                <button
-                  key={c.label}
-                  type="button"
-                  onClick={() =>
-                    setSelectedByGroup((s) => ({ ...s, [item.group]: c.label }))
-                  }
-                  className={cn(
-                    'min-h-10 flex-1 rounded-lg px-3 py-2 text-left text-sm font-semibold transition',
-                    selected === c.label
-                      ? 'bg-accent text-white shadow-sm'
-                      : 'bg-paper text-ink ring-1 ring-line hover:bg-paper-deep',
-                  )}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-          )
+          return renderOptionToggle(item.group, item.choices)
         }
         if (item.type === 'option-banner') {
           return (
@@ -879,7 +1005,7 @@ export function SchedulePanel({
                     onOpen({
                       kind: 'expand',
                       stop: item.stop,
-                      title: item.stop.title,
+                      title: stopTitle(item.stop),
                       edit: true,
                     })
                 : undefined
@@ -887,6 +1013,30 @@ export function SchedulePanel({
           />
         )
       })}
+      {adminMode && onAddEvent ? (
+        <Button
+          variant="outline"
+          className="mt-2 w-full"
+          onClick={onAddEvent}
+        >
+          <Plus className="h-3.5 w-3.5" /> Add event
+        </Button>
+      ) : null}
+      <AttachmentPicker
+        open={Boolean(seedPicker)}
+        onOpenChange={(o) => !o && setSeedPicker(null)}
+        title="Which event starts this option?"
+        options={day.stops.map((s) => ({
+          id: s.id,
+          label: `${s.time} · ${stopTitle(s)}`,
+        }))}
+        onSelect={(id) => {
+          const label = seedPicker?.label
+          setSeedPicker(null)
+          if (!label || !onAddOption) return
+          void runOption(() => onAddOption(label, id))
+        }}
+      />
     </div>
   )
 }

@@ -40,40 +40,18 @@ export interface GuideAttachment {
   pages: string[];
 }
 
-/** Event / schedule stop. Only time + title are required for admin creates. */
+/**
+ * Event / schedule stop — time + linked site (+ option branching).
+ * All place/visit attributes live on Site.
+ */
 export interface ItineraryStop {
   id: string;
   time: string;
-  title: string;
-  /**
-   * Optional duration override — editable only for transit (flights, long rail).
-   * Timeline always shows override if set, else the span to the next event.
-   */
-  duration: string;
-  /** Opening hours; UI for meal + attraction. */
-  hours: string | null;
-  cost: string | null;
-  notes: string | null;
-  mapsUrl: string | null;
-  bookingRef: string | null;
-  bags: string | null;
-  transit: string | null;
-  /** Meal-only: atmosphere / vibe lines. */
-  vibe?: string[];
-  /** Meal-only: dishes / must-try lines. */
-  mustTry?: string[];
-  /** Primary guide id (legacy); prefer guideIds when present. */
+  /** Linked guide / site (required after migration). */
   siteId: string | null;
-  /** One or more guides linked to this stop. */
-  guideIds?: string[];
-  /** Labeled ticket sets (PDF pages converted to JPEG). */
-  tickets?: TicketSet[];
-  /** Venue map image pages. */
-  mapPages?: string[];
   optionGroup: string | null;
   optionLabel: string | null;
   primary: boolean;
-  kind: StopKind;
   /** Timed entry ticket / dinner reservation — call out in the timeline. */
   timedEntry?: boolean;
 }
@@ -111,11 +89,35 @@ export interface Itinerary {
   days: ItineraryDay[];
 }
 
-/** Guide (formerly "site") — multi-guide per stop supported via guideIds. */
+/** Guide (formerly "site") — owns all visit attributes; events only schedule them. */
 export interface Site {
   id: string;
   name: string;
-  aliases: string[];
+  kind: StopKind;
+  /**
+   * Optional duration override — editable only for transit (flights, long rail).
+   * Timeline always shows override if set, else the span to the next event.
+   */
+  duration: string;
+  /** Opening hours; UI for meal + attraction. */
+  hours: string | null;
+  cost: string | null;
+  /** Short description / blurb (rich text). */
+  summary: string | null;
+  mapsUrl: string | null;
+  bookingRef: string | null;
+  bags: string[];
+  transit: string | null;
+  /** Meal-only: atmosphere / vibe lines. */
+  vibe?: string[];
+  /** Meal-only: dishes / must-try lines. */
+  mustTry?: string[];
+  /** Labeled ticket sets (PDF pages converted to JPEG). */
+  tickets?: TicketSet[];
+  /** Venue map image pages. */
+  mapPages?: string[];
+  /** Freeform note bullets; drag into logistics / proTips / etc. */
+  notes: string[];
   logistics: string[];
   proTips: string[];
   history: string[];
@@ -127,14 +129,14 @@ export type Sites = Site[];
 
 export interface SiteAssets {
   photo?: string;
-  /** @deprecated prefer stop.mapPages */
+  /** @deprecated prefer site.mapPages */
   map?: string[];
 }
 
 export interface Assets {
   sites: Record<string, SiteAssets>;
-  /** @deprecated prefer stop.tickets — kept for pack migration fallback */
+  /** @deprecated prefer site.tickets — kept for pack migration fallback */
   tickets?: Record<string, string[]>;
-  /** @deprecated prefer stop.mapPages — kept for pack migration fallback */
+  /** @deprecated prefer site.mapPages — kept for pack migration fallback */
   maps?: Record<string, string[]>;
 }

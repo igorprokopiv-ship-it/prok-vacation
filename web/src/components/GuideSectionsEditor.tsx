@@ -111,7 +111,7 @@ export function GuideSectionsEditor({
               setOver(null)
             }}
           >
-            <h3 className="mb-2 font-display text-lg font-bold text-ink">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-soft">
               {label}
             </h3>
 
@@ -164,9 +164,7 @@ export function GuideSectionsEditor({
                       }}
                       className={cn(
                         'relative rounded-lg bg-paper-deep/70 px-3 py-2 text-sm leading-relaxed text-ink-soft',
-                        editing ? 'pl-9' : 'pl-4',
-                        !editing &&
-                          'before:absolute before:left-1.5 before:top-3 before:h-1.5 before:w-1.5 before:rounded-full before:bg-accent',
+                        editing && 'pl-9',
                         drag?.fromKey === key &&
                           drag.fromIndex === i &&
                           'opacity-40',

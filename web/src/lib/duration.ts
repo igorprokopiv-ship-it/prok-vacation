@@ -1,5 +1,6 @@
-import type { ItineraryStop } from '@/data/types'
-import { showDuration } from '@/data/stopFields'
+import { showDuration, siteKind } from '@/data/stopFields'
+import type { ItineraryStop, Site } from '@/data/types'
+import { getSiteForStop } from '@/lib/data'
 
 /** Parse "HH:MM" / "H:MM" to minutes from midnight. */
 export function parseTimeMinutes(time: string): number | null {
@@ -46,15 +47,17 @@ export function nextStopInSequence(
 
 /**
  * Duration shown in the timeline:
- * - transit with a stored override → use override
+ * - transit with a stored override on the site → use override
  * - otherwise → span from this start to the next sequential start
  */
 export function displayDuration(
   stop: ItineraryStop,
   next: ItineraryStop | null | undefined,
+  site?: Site | null,
 ): string {
-  if (showDuration(stop.kind) && stop.duration?.trim()) {
-    return stop.duration.trim()
+  const resolved = site ?? getSiteForStop(stop)
+  if (resolved && showDuration(siteKind(resolved)) && resolved.duration?.trim()) {
+    return resolved.duration.trim()
   }
   if (!next) return ''
   const mins = spanMinutes(stop.time, next.time)

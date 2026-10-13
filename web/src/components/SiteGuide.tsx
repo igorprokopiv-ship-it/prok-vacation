@@ -14,6 +14,7 @@ import { getSitePhoto } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
 const SECTION_LABELS: Record<GuideSectionKey, string> = {
+  notes: 'Notes',
   logistics: 'Logistics',
   proTips: 'Pro-Tips',
   history: 'History',
@@ -221,7 +222,7 @@ export function SiteGuide({
             {!hasContent && !adminMode ? (
               <EmptyState
                 title="Guide coming"
-                detail="No logistics, tips, history, or route yet."
+                detail="No notes, logistics, tips, history, or route yet."
               />
             ) : (
               <>
@@ -233,7 +234,7 @@ export function SiteGuide({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => void addItem('logistics')}
+                      onClick={() => void addItem('notes')}
                     >
                       <Plus className="h-3.5 w-3.5" /> Note
                     </Button>
@@ -245,6 +246,7 @@ export function SiteGuide({
                       adminMode || (draft[key]?.length ?? 0) > 0,
                   )}
                   values={{
+                    notes: draft.notes ?? [],
                     logistics: draft.logistics,
                     proTips: draft.proTips,
                     history: draft.history,
@@ -256,6 +258,7 @@ export function SiteGuide({
                       d
                         ? {
                             ...d,
+                            notes: next.notes,
                             logistics: next.logistics,
                             proTips: next.proTips,
                             history: next.history,

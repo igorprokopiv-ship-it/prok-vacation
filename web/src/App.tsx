@@ -19,7 +19,7 @@ import {
   type AdminAction,
   type ViewerTarget,
 } from '@/components/SchedulePanel'
-import { EventExpand } from '@/components/EventExpand'
+import { EventExpand, type CreateEventPayload } from '@/components/EventExpand'
 import { SyncChip } from '@/components/SyncChip'
 import { TripPicker } from '@/components/TripPicker'
 import { Button } from '@/components/ui/button'
@@ -30,8 +30,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { showDuration } from '@/data/stopFields'
-import type { ItineraryStop, Site, StopKind } from '@/data/types'
+import type { ItineraryStop, Site } from '@/data/types'
+import {
+  dayOptionGroupId,
+  isPrimaryLabelForGroup,
+  stopsToClearForConverge,
+  stopsWithOptionLabel,
+} from '@/lib/options'
 import {
   adminClearHero,
   adminClearMap,
@@ -45,7 +50,6 @@ import {
   adminMe,
   adminPatchDay,
   adminSetDayHighlights,
-  adminSetMapsUrl,
   adminUnlinkGuide,
   adminUpdateStop,
   adminUploadHero,
@@ -58,7 +62,9 @@ import {
   getItinerary,
   getMapPages,
   getSites,
+  getSiteForStop,
   getTicketSets,
+  stopTitle,
   resetToBundled,
 } from '@/lib/data'
 import {
@@ -76,24 +82,12 @@ import { getDeviceUser } from '@/lib/deviceIdentity'
 
 const EU2026_ID = 'a1111111-1111-4111-8111-111111111111'
 
-const STOP_KINDS: StopKind[] = [
-  'attraction',
-  'transit',
-  'meal',
-  'hotel',
-  'show',
-  'photo',
-  'shopping',
-  'rest',
-]
-
-type Overlay = { type: 'expand'; stop: ItineraryStop; edit?: boolean } | null
-
-type PromptState =
-  | { kind: 'add-event' }
-  | { kind: 'briefing' }
-  | { kind: 'day-meta' }
+type Overlay =
+  | { type: 'expand'; stop: ItineraryStop; edit?: boolean }
+  | { type: 'create' }
   | null
+
+type PromptState = { kind: 'briefing' } | { kind: 'day-meta' } | null
 
 const inputClass =
   'w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-sea'
@@ -120,8 +114,6 @@ export default function App() {
   const [prompt, setPrompt] = useState<PromptState>(null)
   const [promptValue, setPromptValue] = useState('')
   const [promptExtra, setPromptExtra] = useState('')
-  const [promptKind, setPromptKind] = useState<StopKind>('attraction')
-  const [promptDuration, setPromptDuration] = useState('')
   const [promptBusy, setPromptBusy] = useState(false)
 
   const tripSlug = tripMeta?.slug ?? 'eu2026'
@@ -353,7 +345,7 @@ export default function App() {
     if (action === 'delete-event') {
       const ok = await dialog.confirm({
         title: 'Delete event',
-        message: `Delete “${stop.title}”?`,
+        message: `Delete “${stopTitle(stop)}”?`,
         confirmLabel: 'Delete',
         destructive: true,
       })
@@ -389,6 +381,39 @@ export default function App() {
       } catch (e) {
         await dialog.alert(e instanceof Error ? e.message : 'Failed')
       }
+      return
+    }
+    if (action === 'mark-converge') {
+      const targets = stopsToClearForConverge(day.stops, stop)
+      if (!targets.length) {
+        await dialog.alert(
+          'No option branch to converge. Assign events to options first, then mark converge on the first shared event.',
+        )
+        return
+      }
+      const ok = await dialog.confirm({
+        title: 'Mark converge',
+        message: `Clear branch assignment from “${stopTitle(stop)}”${
+          targets.length > 1
+            ? ` and ${targets.length - 1} later event(s) in this option group`
+            : ''
+        }? Everyone reunites here.`,
+        confirmLabel: 'Mark converge',
+      })
+      if (!ok) return
+      try {
+        let doc = null as Awaited<ReturnType<typeof adminUpdateStop>> | null
+        for (const s of targets) {
+          doc = await adminUpdateStop(tripSlug, day.id, s.id, {
+            optionGroup: null,
+            optionLabel: null,
+            primary: true,
+          })
+        }
+        if (doc) applyAdminDoc(doc)
+      } catch (e) {
+        await dialog.alert(e instanceof Error ? e.message : 'Failed')
+      }
     }
   }
 
@@ -396,21 +421,7 @@ export default function App() {
     if (!day || !prompt) return
     setPromptBusy(true)
     try {
-      if (prompt.kind === 'add-event') {
-        const time = promptValue.trim()
-        const title = promptExtra.trim()
-        if (!time || !title) {
-          await dialog.alert('Enter time and title')
-          return
-        }
-        const doc = await adminCreateStop(tripSlug, day.id, {
-          time,
-          title,
-          kind: promptKind,
-          duration: showDuration(promptKind) ? promptDuration.trim() : '',
-        })
-        applyAdminDoc(doc)
-      } else if (prompt.kind === 'briefing') {
+      if (prompt.kind === 'briefing') {
         const doc = await adminPatchDay(tripSlug, day.id, {
           briefing: promptValue,
         })
@@ -425,8 +436,6 @@ export default function App() {
       setPrompt(null)
       setPromptValue('')
       setPromptExtra('')
-      setPromptDuration('')
-      setPromptKind('attraction')
     } catch (e) {
       await dialog.alert(e instanceof Error ? e.message : 'Failed')
     } finally {
@@ -439,30 +448,44 @@ export default function App() {
       setAdminLoginOpen(true)
       return
     }
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.zip'
-    input.onchange = async () => {
-      const file = input.files?.[0]
-      if (!file) return
-      const fd = new FormData()
-      fd.append('file', file)
-      setSyncStatus('downloading')
-      try {
-        const res = await fetch('/api/trips/import', {
-          method: 'POST',
-          body: fd,
-          credentials: 'include',
-        })
-        if (!res.ok) throw new Error('import failed')
-        const tripsNow = await listTrips()
-        setTrips(tripsNow)
-        setSyncStatus('synced')
-      } catch {
-        setSyncStatus('error')
+    void (async () => {
+      const ok = await dialog.confirm({
+        title: 'Import vacation',
+        message:
+          'Import a vacation backup (.json) or historical pack (.zip). JSON restores schedule and guides only — image files are not included.',
+        confirmLabel: 'Choose file',
+      })
+      if (!ok) return
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = '.json,.zip,application/json,application/zip'
+      input.onchange = async () => {
+        const file = input.files?.[0]
+        if (!file) return
+        const fd = new FormData()
+        fd.append('file', file)
+        setSyncStatus('downloading')
+        try {
+          const res = await fetch('/api/trips/import', {
+            method: 'POST',
+            body: fd,
+            credentials: 'include',
+          })
+          if (!res.ok) {
+            const text = await res.text().catch(() => '')
+            throw new Error(text || 'Import failed')
+          }
+          const tripsNow = await listTrips()
+          setTrips(tripsNow)
+          setSyncStatus('synced')
+          await dialog.alert('Vacation imported.')
+        } catch (e) {
+          setSyncStatus('error')
+          await dialog.alert(e instanceof Error ? e.message : 'Import failed')
+        }
       }
-    }
-    input.click()
+      input.click()
+    })()
   }
 
   if (!deviceUser) {
@@ -764,12 +787,48 @@ export default function App() {
                 })
                 applyAdminDoc(doc)
               }}
-              onAddEvent={() => {
-                setPromptValue('')
-                setPromptExtra('')
-                setPromptDuration('')
-                setPromptKind('attraction')
-                setPrompt({ kind: 'add-event' })
+              onAddEvent={() => setOverlay({ type: 'create' })}
+              onAddOption={async (label, seedStopId) => {
+                const g = dayOptionGroupId(day.stops, day.id)
+                const primary = isPrimaryLabelForGroup(day.stops, g, label)
+                const doc = await adminUpdateStop(tripSlug, day.id, seedStopId, {
+                  optionGroup: g,
+                  optionLabel: label,
+                  primary,
+                })
+                applyAdminDoc(doc)
+              }}
+              onRenameOption={async (group, fromLabel, toLabel) => {
+                const targets = stopsWithOptionLabel(
+                  day.stops,
+                  group,
+                  fromLabel,
+                )
+                let doc = null as Awaited<
+                  ReturnType<typeof adminUpdateStop>
+                > | null
+                for (const s of targets) {
+                  doc = await adminUpdateStop(tripSlug, day.id, s.id, {
+                    optionGroup: group,
+                    optionLabel: toLabel,
+                    primary: s.primary,
+                  })
+                }
+                if (doc) applyAdminDoc(doc)
+              }}
+              onDeleteOption={async (group, label) => {
+                const targets = stopsWithOptionLabel(day.stops, group, label)
+                let doc = null as Awaited<
+                  ReturnType<typeof adminUpdateStop>
+                > | null
+                for (const s of targets) {
+                  doc = await adminUpdateStop(tripSlug, day.id, s.id, {
+                    optionGroup: null,
+                    optionLabel: null,
+                    primary: true,
+                  })
+                }
+                if (doc) applyAdminDoc(doc)
               }}
             />
           </TabsContent>
@@ -833,73 +892,13 @@ export default function App() {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {prompt?.kind === 'add-event'
-                ? 'Add event'
-                : prompt?.kind === 'briefing'
-                  ? 'Edit briefing'
-                  : prompt?.kind === 'day-meta'
-                    ? 'Day location & subject'
-                    : 'Edit'}
+              {prompt?.kind === 'briefing'
+                ? 'Edit briefing'
+                : prompt?.kind === 'day-meta'
+                  ? 'Day location & subject'
+                  : 'Edit'}
             </DialogTitle>
           </DialogHeader>
-          {prompt?.kind === 'add-event' ? (
-            <div className="space-y-3">
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                  Time
-                </span>
-                <input
-                  value={promptValue}
-                  onChange={(e) => setPromptValue(e.target.value)}
-                  placeholder="09:00"
-                  className={inputClass}
-                />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                  Title
-                </span>
-                <input
-                  value={promptExtra}
-                  onChange={(e) => setPromptExtra(e.target.value)}
-                  placeholder="Event title"
-                  className={inputClass}
-                />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                  Type
-                </span>
-                <select
-                  value={promptKind}
-                  onChange={(e) => setPromptKind(e.target.value as StopKind)}
-                  className={inputClass}
-                >
-                  {STOP_KINDS.map((k) => (
-                    <option key={k} value={k}>
-                      {k.charAt(0).toUpperCase() + k.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {showDuration(promptKind) ? (
-                <label className="block space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                    Duration override
-                  </span>
-                  <input
-                    value={promptDuration}
-                    onChange={(e) => setPromptDuration(e.target.value)}
-                    placeholder="Optional — e.g. 5h 55m for flights"
-                    className={inputClass}
-                  />
-                  <span className="text-[11px] text-ink-soft">
-                    Leave blank to use the span until the next event.
-                  </span>
-                </label>
-              ) : null}
-            </div>
-          ) : null}
           {prompt?.kind === 'briefing' ? (
             <textarea
               value={promptValue}
@@ -930,6 +929,61 @@ export default function App() {
           </Button>
         </DialogContent>
       </Dialog>
+
+      {overlay?.type === 'create' ? (
+        <EventExpand
+          mode="create"
+          dayStops={day.stops}
+          adminMode={adminMode}
+          initialEditMode
+          onClose={() => setOverlay(null)}
+          onCreate={async (payload: CreateEventPayload) => {
+            let doc
+            if (payload.siteId) {
+              doc = await adminCreateStop(tripSlug, day.id, {
+                time: payload.time,
+                siteId: payload.siteId,
+                timedEntry: payload.timedEntry,
+              })
+            } else {
+              doc = await adminCreateStop(tripSlug, day.id, {
+                time: payload.time,
+                name: payload.name,
+                kind: payload.kind,
+                duration: payload.duration,
+                timedEntry: payload.timedEntry,
+              })
+              const siteId = (doc.stop?.siteId as string) || ''
+              if (siteId) {
+                doc = await adminUpsertGuide(tripSlug, {
+                  id: siteId,
+                  name: payload.name,
+                  kind: payload.kind,
+                  duration: payload.duration,
+                  hours: payload.hours,
+                  cost: payload.cost,
+                  summary: payload.summary,
+                  bookingRef: payload.bookingRef,
+                  bags: payload.bags,
+                  transit: payload.transit,
+                  vibe: payload.vibe,
+                  mustTry: payload.mustTry,
+                  notes: payload.notes,
+                  logistics: payload.logistics,
+                  proTips: payload.proTips,
+                  history: payload.history,
+                  route: payload.route,
+                  mapsUrl: payload.mapsUrl,
+                  tickets: payload.tickets,
+                  mapPages: payload.mapPages,
+                })
+              }
+            }
+            applyAdminDoc(doc)
+            setOverlay(null)
+          }}
+        />
+      ) : null}
 
       {overlay?.type === 'expand' ? (
         <EventExpand
@@ -970,43 +1024,19 @@ export default function App() {
           }}
           onSaveGuide={async (guide: Site) => {
             const stopId = overlay.stop.id
-            const payload: {
-              id?: string
-              name: string
-              logistics: string[]
-              proTips: string[]
-              history: string[]
-              route: string[]
-            } = {
+            const payload = {
+              ...guide,
+              id: guide.id || undefined,
               name: guide.name,
-              logistics: guide.logistics,
-              proTips: guide.proTips,
-              history: guide.history,
-              route: guide.route,
             }
-            // Only send id when updating an existing linked guide — empty string
-            // must not create a slug collision or accidental re-link.
-            if (guide.id) payload.id = guide.id
-            const hasContent = Boolean(
-              payload.logistics.length ||
-                payload.proTips.length ||
-                payload.history.length ||
-                payload.route.length,
-            )
-            if (!hasContent && !guide.id) return
+            if (!payload.name?.trim() && !guide.id) return
             const guideDoc = await adminUpsertGuide(tripSlug, payload)
             const guideId = (guideDoc.guide?.id as string) || guide.id
             let doc = guideDoc
-            if (guideId && hasContent) {
+            if (guideId) {
               const current =
                 day.stops.find((s) => s.id === stopId) ?? overlay.stop
-              const ids =
-                current.guideIds?.length
-                  ? current.guideIds
-                  : current.siteId
-                    ? [current.siteId]
-                    : []
-              if (!ids.includes(guideId)) {
+              if (current.siteId !== guideId) {
                 doc = await adminLinkGuide(tripSlug, day.id, stopId, guideId)
               }
             }
@@ -1071,12 +1101,17 @@ export default function App() {
             )
           }}
           onSetMapsUrl={async (url) => {
-            const doc = await adminSetMapsUrl(
-              tripSlug,
-              day.id,
-              overlay.stop.id,
-              url,
-            )
+            const stop =
+              day.stops.find((s) => s.id === overlay.stop.id) ?? overlay.stop
+            const site = getSiteForStop(stop)
+            if (!site) {
+              await dialog.alert('Event has no linked site')
+              return
+            }
+            const doc = await adminUpsertGuide(tripSlug, {
+              ...site,
+              mapsUrl: url,
+            })
             applyAdminDoc(doc)
             setOverlay((o) =>
               o?.type === 'expand' ? { ...o, edit: true } : o,
@@ -1085,10 +1120,14 @@ export default function App() {
           onConvertTicketToMap={async (ticketId) => {
             const stop =
               day.stops.find((s) => s.id === overlay.stop.id) ?? overlay.stop
-            const ticket = getTicketSets(stop).find((t) => t.id === ticketId)
+            const site = getSiteForStop(stop)
+            if (!site) return
+            const ticket = getTicketSets(site).find((t) => t.id === ticketId)
             if (!ticket?.pages.length) return
-            await adminUpdateStop(tripSlug, day.id, stop.id, {
+            await adminUpsertGuide(tripSlug, {
+              ...site,
               mapPages: ticket.pages,
+              tickets: (site.tickets ?? []).filter((t) => t.id !== ticketId),
             })
             const doc = await adminDeleteTicket(
               tripSlug,
@@ -1104,14 +1143,17 @@ export default function App() {
           onConvertMapToTicket={async (label) => {
             const stop =
               day.stops.find((s) => s.id === overlay.stop.id) ?? overlay.stop
-            const pages = getMapPages(stop)
+            const site = getSiteForStop(stop)
+            if (!site) return
+            const pages = getMapPages(site)
             if (!pages.length) return
             const ticketId = `ticket-${Date.now().toString(36)}`
             const tickets = [
-              ...getTicketSets(stop).filter((t) => t.id !== ticketId),
+              ...getTicketSets(site).filter((t) => t.id !== ticketId),
               { id: ticketId, label, pages },
             ]
-            const doc = await adminUpdateStop(tripSlug, day.id, stop.id, {
+            const doc = await adminUpsertGuide(tripSlug, {
+              ...site,
               tickets,
               mapPages: [],
             })

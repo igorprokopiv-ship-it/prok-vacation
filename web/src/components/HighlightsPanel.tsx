@@ -2,7 +2,9 @@ import { AlarmClock, ChevronDown, ExternalLink, MapPinned, Pencil } from 'lucide
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { RichText } from '@/components/RichText'
+import { siteKind } from '@/data/stopFields'
 import type { ItineraryDay, ItineraryStop } from '@/data/types'
+import { getSiteForStop, stopTitle } from '@/lib/data'
 import { displayDuration, nextStopInSequence } from '@/lib/duration'
 import { isEmptyRichText } from '@/lib/richText'
 import { cn } from '@/lib/utils'
@@ -29,14 +31,17 @@ export function HighlightsPanel({
   const sortedHighlights = useMemo(() => {
     return [...day.highlights].sort(byTime).filter((h) => {
       const stop = stopsById.get(h.stopId)
-      return !stop || stop.kind !== 'meal'
+      if (!stop) return true
+      return siteKind(getSiteForStop(stop)) !== 'meal'
     })
   }, [day.highlights, stopsById])
 
   const foodMeals = useMemo(() => {
     return day.highlights
       .map((h) => stopsById.get(h.stopId))
-      .filter((s): s is ItineraryStop => Boolean(s && s.kind === 'meal'))
+      .filter((s): s is ItineraryStop =>
+        Boolean(s && siteKind(getSiteForStop(s)) === 'meal'),
+      )
       .sort(byTime)
   }, [day.highlights, stopsById])
 
@@ -121,9 +126,9 @@ export function HighlightsPanel({
                     )}
                   >
                     <div className="overflow-hidden">
-                      <p className="px-3 pb-3 text-sm leading-relaxed text-ink-soft">
-                        {h.summary}
-                      </p>
+                      <div className="px-3 pb-3 text-sm leading-relaxed text-ink-soft">
+                        {h.summary ? <RichText value={h.summary} /> : null}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -139,13 +144,15 @@ export function HighlightsPanel({
             Food focus
           </p>
           <ul className="mt-3 space-y-3">
-            {foodMeals.map((meal) => (
+            {foodMeals.map((meal) => {
+              const mealSite = getSiteForStop(meal)
+              return (
               <li key={meal.id} className="rounded-xl bg-white/10 px-3 py-2.5">
                 <div className="text-xs font-semibold uppercase tracking-wide text-white/70">
                   {meal.time}
                 </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                  <h3 className="font-display text-lg font-bold">{meal.title}</h3>
+                  <h3 className="font-display text-lg font-bold">{stopTitle(meal)}</h3>
                   {meal.timedEntry ? (
                     <span className="inline-flex items-center gap-1 rounded-md bg-white/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                       <AlarmClock className="h-3 w-3" />
@@ -153,26 +160,27 @@ export function HighlightsPanel({
                     </span>
                   ) : null}
                 </div>
-                {meal.vibe?.length ? (
+                {mealSite?.vibe?.length ? (
                   <p className="mt-1.5 text-sm text-white/90">
-                    {meal.vibe.join(' · ')}
+                    {mealSite.vibe.join(' · ')}
                   </p>
                 ) : null}
-                {meal.mustTry?.length ? (
+                {mealSite?.mustTry?.length ? (
                   <p className="mt-1.5 text-xs text-white/75">
-                    Must try: {meal.mustTry.join(' · ')}
+                    Must try: {mealSite.mustTry.join(' · ')}
                   </p>
                 ) : null}
-                {meal.notes && !isEmptyRichText(meal.notes) ? (
+                {mealSite?.summary && !isEmptyRichText(mealSite.summary) ? (
                   <div className="mt-1.5 text-sm text-white/90">
-                    <RichText value={meal.notes} />
+                    <RichText value={mealSite.summary} />
                   </div>
                 ) : null}
-                {meal.cost ? (
-                  <p className="mt-1.5 text-xs text-white/75">{meal.cost}</p>
+                {mealSite?.cost ? (
+                  <p className="mt-1.5 text-xs text-white/75">{mealSite.cost}</p>
                 ) : null}
               </li>
-            ))}
+              )
+            })}
           </ul>
           {adminMode ? (
             <p className="mt-3 text-xs text-white/65">

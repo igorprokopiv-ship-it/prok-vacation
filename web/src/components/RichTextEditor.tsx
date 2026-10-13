@@ -117,7 +117,7 @@ export function RichTextEditor({
           aria-multiline
           contentEditable
           suppressContentEditableWarning
-          className="rich-text min-h-[7rem] max-h-[40vh] overflow-y-auto px-3 py-2 text-sm leading-relaxed text-ink outline-none focus:bg-paper"
+          className="rich-text min-h-[7rem] max-h-[40vh] overflow-y-auto px-3 py-2 font-sans text-sm leading-relaxed text-ink outline-none focus:bg-paper"
           onInput={emit}
           onBlur={emit}
           onPaste={(e) => {

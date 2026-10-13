@@ -2,7 +2,8 @@ import bundledAssets from '@/data/assets.json'
 import bundledItinerary from '@/data/itinerary.json'
 import bundledSites from '@/data/sites.json'
 import {
-  stopHasVisibleDetails,
+  siteHasVisibleDetails,
+  siteKind,
   visibleGuideSections,
 } from '@/data/stopFields'
 import type {
@@ -52,51 +53,70 @@ export function getSite(siteId: string | null | undefined): Site | undefined {
   return siteById.get(siteId)
 }
 
-export function getGuidesForStop(stop: ItineraryStop): Site[] {
-  const ids =
-    stop.guideIds?.length
-      ? stop.guideIds
-      : stop.siteId
-        ? [stop.siteId]
-        : []
-  return ids.map((id) => siteById.get(id)).filter((s): s is Site => Boolean(s))
+export function getSiteForStop(stop: ItineraryStop): Site | undefined {
+  return getSite(stop.siteId)
 }
 
-export function getTicketSets(stop: ItineraryStop): TicketSet[] {
-  if (stop.tickets?.length) return stop.tickets
-  // Legacy fallback: siteId-keyed assets
-  if (stop.siteId && assets.tickets?.[stop.siteId]?.length) {
+/** @deprecated prefer getSiteForStop — single site per event */
+export function getGuidesForStop(stop: ItineraryStop): Site[] {
+  const site = getSiteForStop(stop)
+  return site ? [site] : []
+}
+
+export function getTicketSets(siteOrStop: Site | ItineraryStop | null | undefined): TicketSet[] {
+  if (!siteOrStop) return []
+  const site =
+    'name' in siteOrStop && 'kind' in siteOrStop
+      ? (siteOrStop as Site)
+      : getSiteForStop(siteOrStop as ItineraryStop)
+  if (site?.tickets?.length) return site.tickets
+  const siteId = site?.id ?? (siteOrStop as ItineraryStop).siteId
+  if (siteId && assets.tickets?.[siteId]?.length) {
     return [
       {
-        id: stop.siteId,
+        id: siteId,
         label: 'Ticket',
-        pages: assets.tickets[stop.siteId],
+        pages: assets.tickets[siteId],
       },
     ]
   }
   return []
 }
 
-export function getTicketPages(stopOrSiteId: ItineraryStop | string | null | undefined): string[] {
-  if (!stopOrSiteId) return []
-  if (typeof stopOrSiteId === 'string') {
-    return assets.tickets?.[stopOrSiteId] ?? []
+export function getTicketPages(
+  siteOrStopOrId: Site | ItineraryStop | string | null | undefined,
+): string[] {
+  if (!siteOrStopOrId) return []
+  if (typeof siteOrStopOrId === 'string') {
+    const site = getSite(siteOrStopOrId)
+    if (site?.tickets?.length) {
+      return site.tickets.flatMap((t) => t.pages)
+    }
+    return assets.tickets?.[siteOrStopOrId] ?? []
   }
-  return getTicketSets(stopOrSiteId).flatMap((t) => t.pages)
+  return getTicketSets(siteOrStopOrId).flatMap((t) => t.pages)
 }
 
-export function getMapPages(stopOrSiteId: ItineraryStop | string | null | undefined): string[] {
-  if (!stopOrSiteId) return []
-  if (typeof stopOrSiteId === 'string') {
-    const fromMaps = assets.maps?.[stopOrSiteId]
+export function getMapPages(
+  siteOrStopOrId: Site | ItineraryStop | string | null | undefined,
+): string[] {
+  if (!siteOrStopOrId) return []
+  if (typeof siteOrStopOrId === 'string') {
+    const site = getSite(siteOrStopOrId)
+    if (site?.mapPages?.length) return site.mapPages
+    const fromMaps = assets.maps?.[siteOrStopOrId]
     if (fromMaps?.length) return fromMaps
-    return assets.sites[stopOrSiteId]?.map ?? []
+    return assets.sites[siteOrStopOrId]?.map ?? []
   }
-  if (stopOrSiteId.mapPages?.length) return stopOrSiteId.mapPages
-  if (stopOrSiteId.siteId) {
-    const fromMaps = assets.maps?.[stopOrSiteId.siteId]
+  const site =
+    'name' in siteOrStopOrId && 'kind' in siteOrStopOrId
+      ? (siteOrStopOrId as Site)
+      : getSiteForStop(siteOrStopOrId as ItineraryStop)
+  if (site?.mapPages?.length) return site.mapPages
+  if (site?.id) {
+    const fromMaps = assets.maps?.[site.id]
     if (fromMaps?.length) return fromMaps
-    return assets.sites[stopOrSiteId.siteId]?.map ?? []
+    return assets.sites[site.id]?.map ?? []
   }
   return []
 }
@@ -112,27 +132,33 @@ export function guideHasContent(site: Site | undefined): boolean {
     site.logistics.length ||
       site.proTips.length ||
       site.history.length ||
-      site.route.length,
+      site.route.length ||
+      (site.notes?.length ?? 0) > 0 ||
+      (site.summary && site.summary.trim()) ||
+      (site.tickets?.length ?? 0) > 0 ||
+      (site.mapPages?.length ?? 0) > 0 ||
+      (site.attachments?.length ?? 0) > 0,
   )
 }
 
 export function stopHasGuide(stop: ItineraryStop): boolean {
-  return getGuidesForStop(stop).length > 0
+  return Boolean(getSiteForStop(stop))
 }
 
 /** Expand opens when there is anything worth a full-event read view. */
 export function stopCanExpand(stop: ItineraryStop): boolean {
-  if (stopHasVisibleDetails(stop)) return true
-  if (stop.mapsUrl || stopHasTickets(stop) || stopHasMap(stop)) return true
-  if (getGuidesForStop(stop).length > 0) return true
+  const site = getSiteForStop(stop)
+  if (siteHasVisibleDetails(site)) return true
+  if (site?.mapsUrl || stopHasTickets(stop) || stopHasMap(stop)) return true
+  if (site && guideHasContent(site)) return true
   return false
 }
 
 export function stopHasVisibleGuideContent(stop: ItineraryStop): boolean {
-  const sections = visibleGuideSections(stop.kind)
-  return getGuidesForStop(stop).some((g) =>
-    sections.some((key) => (g[key]?.length ?? 0) > 0),
-  )
+  const site = getSiteForStop(stop)
+  if (!site) return false
+  const sections = visibleGuideSections(siteKind(site))
+  return sections.some((key) => (site[key]?.length ?? 0) > 0)
 }
 
 export function stopHasTickets(stop: ItineraryStop): boolean {
@@ -145,4 +171,8 @@ export function stopHasMap(stop: ItineraryStop): boolean {
 
 export function foodHasContent(food: FoodFocus | null | undefined): boolean {
   return Boolean(food?.name?.trim())
+}
+
+export function stopTitle(stop: ItineraryStop): string {
+  return getSiteForStop(stop)?.name || stop.siteId || stop.id
 }

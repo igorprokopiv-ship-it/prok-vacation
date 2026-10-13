@@ -1,3 +1,5 @@
+import type { Assets, Itinerary, Site } from '@/data/types'
+
 export type AdminMe = { admin: boolean }
 
 export async function adminMe(): Promise<AdminMe> {
@@ -41,12 +43,14 @@ export async function adminCreateStop(
   dayId: string,
   body: {
     time: string
-    title: string
+    siteId?: string | null
+    name?: string
     kind?: string
     duration?: string
     optionGroup?: string | null
     optionLabel?: string | null
     primary?: boolean
+    timedEntry?: boolean
   },
 ) {
   const res = await adminFetch(`/api/admin/trips/${tripSlug}/days/${dayId}/stops`, {
@@ -137,11 +141,13 @@ export async function adminClearMap(tripSlug: string, dayId: string, stopId: str
 
 export async function adminSetMapsUrl(
   tripSlug: string,
-  dayId: string,
-  stopId: string,
-  mapsUrl: string | null,
+  guide: {
+    id: string
+    name: string
+    mapsUrl: string | null
+  } & Record<string, unknown>,
 ) {
-  return adminUpdateStop(tripSlug, dayId, stopId, { mapsUrl })
+  return adminUpsertGuide(tripSlug, { ...guide, mapsUrl: guide.mapsUrl })
 }
 
 export async function adminUpsertGuide(
@@ -149,6 +155,20 @@ export async function adminUpsertGuide(
   guide: {
     id?: string
     name: string
+    kind?: string
+    duration?: string
+    hours?: string | null
+    cost?: string | null
+    summary?: string | null
+    mapsUrl?: string | null
+    bookingRef?: string | null
+    bags?: string[]
+    transit?: string | null
+    vibe?: string[]
+    mustTry?: string[]
+    tickets?: unknown[]
+    mapPages?: string[]
+    notes?: string[]
     logistics?: string[]
     proTips?: string[]
     history?: string[]
@@ -281,6 +301,45 @@ export async function adminPatchTrip(
 export async function adminSoftDeleteTrip(tripSlug: string) {
   const res = await adminFetch(`/api/admin/trips/${tripSlug}`, { method: 'DELETE' })
   return res.json()
+}
+
+export type VacationBackup = {
+  format: 'prok-vacation-backup'
+  formatVersion: number
+  exportedAt: string
+  trip: {
+    id?: string
+    slug: string
+    title?: string
+    start_date?: string | null
+    end_date?: string | null
+    status?: string
+    record_status?: string
+  }
+  itinerary: Itinerary
+  sites: Site[]
+  assets: Assets
+}
+
+export async function adminFetchTripBackup(
+  tripSlug: string,
+): Promise<VacationBackup> {
+  const res = await adminFetch(`/api/admin/trips/${tripSlug}/export`)
+  return (await res.json()) as VacationBackup
+}
+
+/** Download JSON-only vacation backup as `{slug}-backup.json`. */
+export async function adminDownloadTripBackup(tripSlug: string): Promise<void> {
+  const res = await adminFetch(`/api/admin/trips/${tripSlug}/export`)
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${tripSlug}-backup.json`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
 }
 
 export async function adminCreateDay(

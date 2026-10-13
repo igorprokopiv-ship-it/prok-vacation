@@ -1,9 +1,9 @@
-import type { ItineraryStop, Site, StopKind } from '@/data/types'
+import type { Site, StopKind } from '@/data/types'
 import { isEmptyRichText } from '@/lib/richText'
 
 export type GuideSectionKey = keyof Pick<
   Site,
-  'logistics' | 'proTips' | 'history' | 'route'
+  'notes' | 'logistics' | 'proTips' | 'history' | 'route'
 >
 
 /** Transit-only editable override field (flights, Eurostar, etc.). */
@@ -15,7 +15,7 @@ export function showCost(kind: StopKind): boolean {
   return kind !== 'photo' && kind !== 'rest'
 }
 
-/** bookingRef, bags, transit free-text */
+/** bookingRef, bags[], transit free-text */
 export function showTransitExtras(kind: StopKind): boolean {
   return kind === 'transit'
 }
@@ -53,7 +53,7 @@ export function showGuideSection(
   kind: StopKind,
   key: GuideSectionKey,
 ): boolean {
-  if (key === 'logistics' || key === 'proTips') return true
+  if (key === 'notes' || key === 'logistics' || key === 'proTips') return true
   if (key === 'history') return showHistoryGuide(kind)
   if (key === 'route') return showRouteGuide(kind)
   return false
@@ -61,55 +61,69 @@ export function showGuideSection(
 
 export function visibleGuideSections(kind: StopKind): GuideSectionKey[] {
   return (
-    ['logistics', 'proTips', 'history', 'route'] as GuideSectionKey[]
+    ['notes', 'logistics', 'proTips', 'history', 'route'] as GuideSectionKey[]
   ).filter((key) => showGuideSection(kind, key))
 }
 
-export function stopDetailFields(stop: ItineraryStop): {
+export function siteKind(site: Site | null | undefined): StopKind {
+  return site?.kind || 'attraction'
+}
+
+export function siteDetailFields(site: Site | null | undefined): {
   hours?: string
   cost?: string
   bookingRef?: string
   bags?: string
   transit?: string
-  notes?: string
+  summary?: string
   vibe?: string
   mustTry?: string
 } {
-  const kind = stop.kind
-  const vibe = showMealExtras(kind) ? asStringList(stop.vibe) : []
-  const mustTry = showMealExtras(kind) ? asStringList(stop.mustTry) : []
+  if (!site) return {}
+  const kind = siteKind(site)
+  const vibe = showMealExtras(kind) ? asStringList(site.vibe) : []
+  const mustTry = showMealExtras(kind) ? asStringList(site.mustTry) : []
+  const bags = showTransitExtras(kind) ? asStringList(site.bags) : []
   return {
-    hours: showHours(kind) && stop.hours ? stop.hours : undefined,
-    cost: showCost(kind) && stop.cost ? stop.cost : undefined,
+    hours: showHours(kind) && site.hours ? site.hours : undefined,
+    cost: showCost(kind) && site.cost ? site.cost : undefined,
     bookingRef:
-      showTransitExtras(kind) && stop.bookingRef ? stop.bookingRef : undefined,
-    bags: showTransitExtras(kind) && stop.bags ? stop.bags : undefined,
+      showTransitExtras(kind) && site.bookingRef ? site.bookingRef : undefined,
+    bags: bags.length ? bags.join(' · ') : undefined,
     transit:
       showTransitExtras(kind) &&
-      stop.transit &&
-      !isEmptyRichText(stop.transit)
-        ? stop.transit
+      site.transit &&
+      !isEmptyRichText(site.transit)
+        ? site.transit
         : undefined,
-    notes:
-      stop.notes && !isEmptyRichText(stop.notes) ? stop.notes : undefined,
+    summary:
+      site.summary && !isEmptyRichText(site.summary)
+        ? site.summary
+        : undefined,
     vibe: vibe.length ? vibe.join(' · ') : undefined,
     mustTry: mustTry.length ? mustTry.join(' · ') : undefined,
   }
 }
 
-export function stopHasVisibleDetails(stop: ItineraryStop): boolean {
-  const d = stopDetailFields(stop)
+/** @deprecated prefer siteDetailFields */
+export const stopDetailFields = siteDetailFields
+
+export function siteHasVisibleDetails(site: Site | null | undefined): boolean {
+  const d = siteDetailFields(site)
   return Boolean(
     d.hours ||
       d.cost ||
       d.bookingRef ||
       d.bags ||
       d.transit ||
-      d.notes ||
+      d.summary ||
       d.vibe ||
       d.mustTry,
   )
 }
+
+/** @deprecated prefer siteHasVisibleDetails */
+export const stopHasVisibleDetails = siteHasVisibleDetails
 
 export function guideHasVisibleContent(site: Site, kind: StopKind): boolean {
   return visibleGuideSections(kind).some((key) => (site[key]?.length ?? 0) > 0)

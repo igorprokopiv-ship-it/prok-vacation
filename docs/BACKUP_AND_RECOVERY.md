@@ -54,6 +54,16 @@ Then restart the server (or hit admin refresh) so `seed_eu2026` / pack sync matc
 3. Restore `pg_dump` if you need notes/plan_items/trip_links — or apply `db/dml/*_text_snapshot.sql` for text-only recovery.
 4. Phones: open app online → Sync chip → content + notes pull.
 
-## Historical trip import
+## UI JSON backup / restore (admin)
 
-`POST /api/trips/import` with a `.zip` containing `trip.json`, `itinerary.json`, optional `sites.json` / `assets.json` / `images/`. See Phase 4 UI button **Import historical trip pack**.
+From the trip picker (admin unlocked):
+
+- **Export → Backup JSON** downloads `{slug}-backup.json` via `GET /api/admin/trips/{slug}/export`. Contains `trip`, `itinerary`, `sites`, and `assets` (path strings only — no image binaries).
+- **Export → Printable PDF** opens a print-styled itinerary; use the browser print dialog and Save as PDF.
+- **Import vacation** uploads `.json` (same format) or a historical `.zip` pack via `POST /api/trips/import`.
+
+JSON restore overwrites pack JSON on disk and refreshes the DB document; existing `images/` under that slug are left in place. Ticket/map/photo files are not inside the JSON backup — restore them separately (zip pack, re-upload, or keep the local `images/` tree).
+
+## Historical trip import (zip)
+
+`POST /api/trips/import` with a `.zip` containing `trip.json`, `itinerary.json`, optional `sites.json` / `assets.json` / `images/`. The trip picker **Import vacation** button accepts both `.json` backups and `.zip` packs.

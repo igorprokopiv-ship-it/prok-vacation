@@ -43,11 +43,17 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Keep guide notes on the app typeface — ignore pasted font faces/sizes. */
+  /* Keep guide notes on the body typeface — ignore pasted font faces/sizes. */
   .rich-text,
   .rich-text * {
-    font-family: inherit !important;
+    font-family: var(--font-sans) !important;
     font-size: inherit !important;
+    font-weight: inherit;
+  }
+
+  .rich-text strong,
+  .rich-text b {
+    font-weight: 700 !important;
   }
 
   .rich-text p {
@@ -80,13 +86,41 @@
     margin: 0;
   }
 
-  .rich-text strong,
-  .rich-text b {
-    font-weight: 700;
-  }
-
   .rich-text em,
   .rich-text i {
     font-style: italic;
+  }
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  .print-toolbar {
+    display: none !important;
+  }
+
+  .print-root {
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .print-document {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .print-day {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-day + .print-day {
+    break-before: page;
+    page-break-before: always;
   }
 }

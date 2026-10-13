@@ -13,12 +13,13 @@ import subprocess
 import sys
 import tempfile
 import time
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
+from fastapi.responses import Response as FileDownloadResponse
 from pydantic import BaseModel, Field
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -210,14 +211,74 @@ def _as_string_list(value: Any) -> list[str]:
     return []
 
 
-def ensure_stop_arrays(stop: dict) -> None:
-    stop.setdefault("tickets", [])
-    stop.setdefault("mapPages", [])
-    stop.setdefault("guideIds", [])
-    stop["vibe"] = _as_string_list(stop.get("vibe"))
-    stop["mustTry"] = _as_string_list(stop.get("mustTry"))
-    if stop.get("siteId") and stop["siteId"] not in stop["guideIds"]:
-        stop["guideIds"].insert(0, stop["siteId"])
+def ensure_site_defaults(site: dict) -> None:
+    # Legacy field cleanup
+    site.pop("aliases", None)
+    site.pop("timedEntry", None)
+    # Old packs stored rich-text under notes
+    if "summary" not in site and isinstance(site.get("notes"), str):
+        site["summary"] = site.get("notes")
+    if isinstance(site.get("notes"), str) or site.get("notes") is None:
+        if "summary" not in site:
+            site["summary"] = site.get("notes")
+        site["notes"] = []
+
+    site.setdefault("kind", "attraction")
+    site.setdefault("duration", "")
+    site.setdefault("hours", None)
+    site.setdefault("cost", None)
+    site.setdefault("summary", None)
+    site.setdefault("mapsUrl", None)
+    site.setdefault("bookingRef", None)
+    site.setdefault("transit", None)
+    site["bags"] = _as_string_list(site.get("bags"))
+    site["vibe"] = _as_string_list(site.get("vibe"))
+    site["mustTry"] = _as_string_list(site.get("mustTry"))
+    site["notes"] = _as_string_list(site.get("notes"))
+    site.setdefault("tickets", [])
+    site.setdefault("mapPages", [])
+    site.setdefault("logistics", [])
+    site.setdefault("proTips", [])
+    site.setdefault("history", [])
+    site.setdefault("route", [])
+    site.setdefault("attachments", [])
+
+
+def apply_kind_gates(site: dict) -> None:
+    kind = site.get("kind") or "attraction"
+    if kind != "transit":
+        site["duration"] = ""
+        site["bookingRef"] = None
+        site["bags"] = []
+        site["transit"] = None
+    if kind not in ("meal", "attraction"):
+        site["hours"] = None
+    if kind != "meal":
+        site["vibe"] = []
+        site["mustTry"] = []
+    if kind in ("photo", "rest"):
+        site["cost"] = None
+
+
+def find_site(sites: list, site_id: str | None) -> dict | None:
+    if not site_id:
+        return None
+    return next((s for s in sites if s.get("id") == site_id), None)
+
+
+def require_site(sites: list, site_id: str) -> dict:
+    site = find_site(sites, site_id)
+    if not site:
+        raise HTTPException(404, f"Guide '{site_id}' not found")
+    ensure_site_defaults(site)
+    return site
+
+
+def site_for_stop(sites: list, stop: dict) -> dict:
+    site_id = stop.get("siteId")
+    if not site_id:
+        raise HTTPException(400, "Event has no linked site")
+    return require_site(sites, site_id)
 
 
 def slugify(text: str) -> str:
@@ -300,42 +361,43 @@ print(n)
 
 class CreateStopBody(BaseModel):
     time: str
-    title: str
+    siteId: Optional[str] = None
+    # Inline site create when siteId omitted.
+    name: Optional[str] = None
     kind: str = "attraction"
     duration: str = ""
     optionGroup: Optional[str] = None
     optionLabel: Optional[str] = None
     primary: bool = True
+    timedEntry: bool = False
 
 
 class PatchStopBody(BaseModel):
     time: Optional[str] = None
-    title: Optional[str] = None
-    duration: Optional[str] = None
-    hours: Optional[str] = None
-    cost: Optional[str] = None
-    notes: Optional[str] = None
-    mapsUrl: Optional[str] = None
-    bookingRef: Optional[str] = None
-    bags: Optional[str] = None
-    transit: Optional[str] = None
-    vibe: Optional[list[str]] = None
-    mustTry: Optional[list[str]] = None
-    kind: Optional[str] = None
     siteId: Optional[str] = None
-    guideIds: Optional[list[str]] = None
     optionGroup: Optional[str] = None
     optionLabel: Optional[str] = None
     primary: Optional[bool] = None
     timedEntry: Optional[bool] = None
-    mapPages: Optional[list[str]] = None
-    tickets: Optional[list[dict[str, Any]]] = None
 
 
 class GuideBody(BaseModel):
     id: Optional[str] = None
     name: str
-    aliases: list[str] = Field(default_factory=list)
+    kind: str = "attraction"
+    duration: str = ""
+    hours: Optional[str] = None
+    cost: Optional[str] = None
+    summary: Optional[str] = None
+    mapsUrl: Optional[str] = None
+    bookingRef: Optional[str] = None
+    bags: list[str] = Field(default_factory=list)
+    transit: Optional[str] = None
+    vibe: list[str] = Field(default_factory=list)
+    mustTry: list[str] = Field(default_factory=list)
+    tickets: Optional[list[dict[str, Any]]] = None
+    mapPages: Optional[list[str]] = None
+    notes: list[str] = Field(default_factory=list)
     logistics: list[str] = Field(default_factory=list)
     proTips: list[str] = Field(default_factory=list)
     history: list[str] = Field(default_factory=list)
@@ -354,18 +416,22 @@ class FoodBody(BaseModel):
     food: Optional[dict[str, Any]] = None
 
 
-def highlight_entry(stop: dict) -> dict[str, str]:
-    kind = stop.get("kind") or "attraction"
+def highlight_entry(stop: dict, sites: list) -> dict[str, str]:
+    site = find_site(sites, stop.get("siteId"))
+    kind = (site or {}).get("kind") or "attraction"
+    name = (site or {}).get("name") or stop.get("siteId") or stop.get("id") or ""
+    summary = (site or {}).get("summary") or ""
+    duration = ((site or {}).get("duration") or "") if kind == "transit" else ""
     return {
         "stopId": stop.get("id") or "",
-        "title": stop.get("title") or stop.get("id") or "",
+        "title": name,
         "time": stop.get("time") or "",
-        "duration": (stop.get("duration") or "") if kind == "transit" else "",
-        "summary": stop.get("notes") or stop.get("title") or "",
+        "duration": duration,
+        "summary": summary or name,
     }
 
 
-def sync_highlight_snapshots(day: dict) -> None:
+def sync_highlight_snapshots(day: dict, sites: list) -> None:
     stops_by_id = {s["id"]: s for s in day.get("stops") or []}
     refreshed = []
     for h in day.get("highlights") or []:
@@ -373,23 +439,21 @@ def sync_highlight_snapshots(day: dict) -> None:
         stop = stops_by_id.get(sid) if sid else None
         if not stop:
             continue
-        refreshed.append(highlight_entry(stop))
+        refreshed.append(highlight_entry(stop, sites))
     refreshed.sort(key=lambda h: h.get("time") or "99:99")
     day["highlights"] = refreshed
 
 
-def day_has_option_stops(day: dict) -> bool:
-    return any(s.get("optionGroup") for s in day.get("stops") or [])
+def sort_day_stops(day: dict) -> None:
+    """Keep schedule chronological by start time (option metadata preserved)."""
+    stops = day.setdefault("stops", [])
+    stops.sort(key=lambda s: s.get("time") or "99:99")
 
 
 def insert_stop_sorted(day: dict, stop: dict) -> None:
-    """Insert stop without scrambling Option1-then-Option2 authoring order."""
     stops = day.setdefault("stops", [])
-    if day_has_option_stops(day) or stop.get("optionGroup"):
-        stops.append(stop)
-        return
     stops.append(stop)
-    stops.sort(key=lambda s: s.get("time") or "99:99")
+    sort_day_stops(day)
 
 
 @router.post("/trips/{slug}/days/{day_id}/stops")
@@ -402,29 +466,50 @@ def create_stop(
     itinerary, sites, assets = load_pack(slug)
     day = find_day(itinerary, day_id)
     kind = body.kind or "attraction"
+    site_id = body.siteId
+    if site_id:
+        require_site(sites, site_id)
+    else:
+        name = (body.name or "").strip()
+        if not name:
+            raise HTTPException(400, "Provide siteId or name to create a site")
+        site_id = slugify(name)
+        existing = find_site(sites, site_id)
+        if existing:
+            site_id = f"{site_id}-{uuid4().hex[:4]}"
+        guide = {
+            "id": site_id,
+            "name": name,
+            "kind": kind,
+            "duration": (body.duration or "") if kind == "transit" else "",
+            "hours": None,
+            "cost": None,
+            "summary": None,
+            "mapsUrl": None,
+            "bookingRef": None,
+            "bags": [],
+            "transit": None,
+            "vibe": [],
+            "mustTry": [],
+            "tickets": [],
+            "mapPages": [],
+            "notes": [],
+            "logistics": [],
+            "proTips": [],
+            "history": [],
+            "route": [],
+            "attachments": [],
+        }
+        apply_kind_gates(guide)
+        sites.append(guide)
     stop = {
-        "id": f"stop-{slugify(body.title)}-{uuid4().hex[:6]}",
+        "id": f"stop-{slugify(site_id)}-{uuid4().hex[:6]}",
         "time": body.time,
-        "title": body.title,
-        "duration": (body.duration or "") if kind == "transit" else "",
-        "hours": None,
-        "cost": None,
-        "notes": None,
-        "mapsUrl": None,
-        "bookingRef": None,
-        "bags": None,
-        "transit": None,
-        "vibe": [],
-        "mustTry": [],
-        "siteId": None,
-        "guideIds": [],
-        "tickets": [],
-        "mapPages": [],
+        "siteId": site_id,
         "optionGroup": body.optionGroup,
         "optionLabel": body.optionLabel,
         "primary": body.primary,
-        "timedEntry": False,
-        "kind": kind,
+        "timedEntry": bool(body.timedEntry),
     }
     insert_stop_sorted(day, stop)
     save_pack(slug, itinerary, sites, assets)
@@ -443,23 +528,34 @@ def patch_stop(
     day = find_day(itinerary, day_id)
     stop = find_stop(day, stop_id)
     data = body.model_dump(exclude_unset=True)
+    if "siteId" in data and data["siteId"]:
+        require_site(sites, data["siteId"])
     for k, v in data.items():
         stop[k] = v
-    kind = stop.get("kind") or "attraction"
-    if kind != "transit":
-        stop["duration"] = ""
-        stop["bookingRef"] = None
-        stop["bags"] = None
-        stop["transit"] = None
-    if kind not in ("meal", "attraction"):
-        stop["hours"] = None
-    if kind != "meal":
-        stop["vibe"] = []
-        stop["mustTry"] = []
-    if kind in ("photo", "rest"):
-        stop["cost"] = None
-    ensure_stop_arrays(stop)
-    sync_highlight_snapshots(day)
+    stop.setdefault("timedEntry", False)
+    # Drop legacy fields if present on older packs
+    for legacy in (
+        "title",
+        "duration",
+        "hours",
+        "cost",
+        "notes",
+        "summary",
+        "mapsUrl",
+        "bookingRef",
+        "bags",
+        "transit",
+        "vibe",
+        "mustTry",
+        "guideIds",
+        "tickets",
+        "mapPages",
+        "kind",
+    ):
+        stop.pop(legacy, None)
+    if "time" in data:
+        sort_day_stops(day)
+    sync_highlight_snapshots(day, sites)
     save_pack(slug, itinerary, sites, assets)
     return {"stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
 
@@ -479,6 +575,75 @@ def delete_stop(
     return {"ok": True, "itinerary": itinerary, "sites": sites, "assets": assets}
 
 
+@router.post("/trips/{slug}/guides/{guide_id}/tickets")
+async def upload_guide_ticket(
+    slug: str,
+    guide_id: str,
+    label: str = Form("Ticket"),
+    file: UploadFile = File(...),
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    itinerary, sites, assets = load_pack(slug)
+    guide = require_site(sites, guide_id)
+    ticket_id = slugify(label) or uuid4().hex[:8]
+    out_dir = WEB_PUBLIC / "images" / "tickets" / guide_id / ticket_id
+    pages = convert_upload_to_jpegs(file, out_dir, "ticket-page")
+    guide["tickets"] = [t for t in guide["tickets"] if t.get("id") != ticket_id]
+    guide["tickets"].append({"id": ticket_id, "label": label.strip() or "Ticket", "pages": pages})
+    save_pack(slug, itinerary, sites, assets)
+    return {"guide": guide, "itinerary": itinerary, "sites": sites, "assets": assets}
+
+
+@router.delete("/trips/{slug}/guides/{guide_id}/tickets/{ticket_id}")
+def delete_guide_ticket(
+    slug: str,
+    guide_id: str,
+    ticket_id: str,
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    itinerary, sites, assets = load_pack(slug)
+    guide = require_site(sites, guide_id)
+    guide["tickets"] = [t for t in guide["tickets"] if t.get("id") != ticket_id]
+    ticket_dir = WEB_PUBLIC / "images" / "tickets" / guide_id / ticket_id
+    if ticket_dir.is_dir():
+        shutil.rmtree(ticket_dir, ignore_errors=True)
+    save_pack(slug, itinerary, sites, assets)
+    return {"guide": guide, "itinerary": itinerary, "sites": sites, "assets": assets}
+
+
+@router.post("/trips/{slug}/guides/{guide_id}/map")
+async def upload_guide_map(
+    slug: str,
+    guide_id: str,
+    file: UploadFile = File(...),
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    itinerary, sites, assets = load_pack(slug)
+    guide = require_site(sites, guide_id)
+    out_dir = WEB_PUBLIC / "images" / "maps" / guide_id
+    pages = convert_upload_to_jpegs(file, out_dir, "map-page")
+    guide["mapPages"] = pages
+    save_pack(slug, itinerary, sites, assets)
+    return {"guide": guide, "itinerary": itinerary, "sites": sites, "assets": assets}
+
+
+@router.delete("/trips/{slug}/guides/{guide_id}/map")
+def clear_guide_map(
+    slug: str,
+    guide_id: str,
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    itinerary, sites, assets = load_pack(slug)
+    guide = require_site(sites, guide_id)
+    guide["mapPages"] = []
+    map_dir = WEB_PUBLIC / "images" / "maps" / guide_id
+    if map_dir.is_dir():
+        shutil.rmtree(map_dir, ignore_errors=True)
+    save_pack(slug, itinerary, sites, assets)
+    return {"guide": guide, "itinerary": itinerary, "sites": sites, "assets": assets}
+
+
+# Stop-scoped ticket/map aliases → operate on the linked site
 @router.post("/trips/{slug}/days/{day_id}/stops/{stop_id}/tickets")
 async def upload_ticket(
     slug: str,
@@ -491,14 +656,14 @@ async def upload_ticket(
     itinerary, sites, assets = load_pack(slug)
     day = find_day(itinerary, day_id)
     stop = find_stop(day, stop_id)
-    ensure_stop_arrays(stop)
+    guide = site_for_stop(sites, stop)
     ticket_id = slugify(label) or uuid4().hex[:8]
-    out_dir = WEB_PUBLIC / "images" / "tickets" / stop_id / ticket_id
+    out_dir = WEB_PUBLIC / "images" / "tickets" / guide["id"] / ticket_id
     pages = convert_upload_to_jpegs(file, out_dir, "ticket-page")
-    stop["tickets"] = [t for t in stop["tickets"] if t.get("id") != ticket_id]
-    stop["tickets"].append({"id": ticket_id, "label": label.strip() or "Ticket", "pages": pages})
+    guide["tickets"] = [t for t in guide["tickets"] if t.get("id") != ticket_id]
+    guide["tickets"].append({"id": ticket_id, "label": label.strip() or "Ticket", "pages": pages})
     save_pack(slug, itinerary, sites, assets)
-    return {"stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
+    return {"guide": guide, "stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
 
 
 @router.delete("/trips/{slug}/days/{day_id}/stops/{stop_id}/tickets/{ticket_id}")
@@ -512,13 +677,13 @@ def delete_ticket(
     itinerary, sites, assets = load_pack(slug)
     day = find_day(itinerary, day_id)
     stop = find_stop(day, stop_id)
-    ensure_stop_arrays(stop)
-    stop["tickets"] = [t for t in stop["tickets"] if t.get("id") != ticket_id]
-    ticket_dir = WEB_PUBLIC / "images" / "tickets" / stop_id / ticket_id
+    guide = site_for_stop(sites, stop)
+    guide["tickets"] = [t for t in guide["tickets"] if t.get("id") != ticket_id]
+    ticket_dir = WEB_PUBLIC / "images" / "tickets" / guide["id"] / ticket_id
     if ticket_dir.is_dir():
         shutil.rmtree(ticket_dir, ignore_errors=True)
     save_pack(slug, itinerary, sites, assets)
-    return {"stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
+    return {"guide": guide, "stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
 
 
 @router.post("/trips/{slug}/days/{day_id}/stops/{stop_id}/map")
@@ -532,12 +697,12 @@ async def upload_map(
     itinerary, sites, assets = load_pack(slug)
     day = find_day(itinerary, day_id)
     stop = find_stop(day, stop_id)
-    ensure_stop_arrays(stop)
-    out_dir = WEB_PUBLIC / "images" / "maps" / stop_id
+    guide = site_for_stop(sites, stop)
+    out_dir = WEB_PUBLIC / "images" / "maps" / guide["id"]
     pages = convert_upload_to_jpegs(file, out_dir, "map-page")
-    stop["mapPages"] = pages
+    guide["mapPages"] = pages
     save_pack(slug, itinerary, sites, assets)
-    return {"stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
+    return {"guide": guide, "stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
 
 
 @router.delete("/trips/{slug}/days/{day_id}/stops/{stop_id}/map")
@@ -550,13 +715,13 @@ def clear_map(
     itinerary, sites, assets = load_pack(slug)
     day = find_day(itinerary, day_id)
     stop = find_stop(day, stop_id)
-    ensure_stop_arrays(stop)
-    stop["mapPages"] = []
-    map_dir = WEB_PUBLIC / "images" / "maps" / stop_id
+    guide = site_for_stop(sites, stop)
+    guide["mapPages"] = []
+    map_dir = WEB_PUBLIC / "images" / "maps" / guide["id"]
     if map_dir.is_dir():
         shutil.rmtree(map_dir, ignore_errors=True)
     save_pack(slug, itinerary, sites, assets)
-    return {"stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
+    return {"guide": guide, "stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
 
 
 @router.post("/trips/{slug}/guides")
@@ -567,28 +732,47 @@ def upsert_guide(
 ) -> dict[str, Any]:
     itinerary, sites, assets = load_pack(slug)
     gid = body.id or slugify(body.name)
-    existing = next((s for s in sites if s.get("id") == gid), None)
+    existing = find_site(sites, gid)
+    payload = body.model_dump()
     if existing:
-        existing["name"] = body.name
-        existing["aliases"] = body.aliases
-        existing["logistics"] = body.logistics
-        existing["proTips"] = body.proTips
-        existing["history"] = body.history
-        existing["route"] = body.route
-        existing.setdefault("attachments", [])
         guide = existing
+        for key, value in payload.items():
+            if key == "id":
+                continue
+            if key in ("tickets", "mapPages") and value is None:
+                continue
+            guide[key] = value
+        ensure_site_defaults(guide)
+        apply_kind_gates(guide)
     else:
         guide = {
             "id": gid,
             "name": body.name,
-            "aliases": body.aliases,
+            "kind": body.kind or "attraction",
+            "duration": body.duration or "",
+            "hours": body.hours,
+            "cost": body.cost,
+            "summary": body.summary,
+            "mapsUrl": body.mapsUrl,
+            "bookingRef": body.bookingRef,
+            "bags": body.bags,
+            "transit": body.transit,
+            "vibe": body.vibe,
+            "mustTry": body.mustTry,
+            "tickets": body.tickets or [],
+            "mapPages": body.mapPages or [],
+            "notes": body.notes,
             "logistics": body.logistics,
             "proTips": body.proTips,
             "history": body.history,
             "route": body.route,
             "attachments": [],
         }
+        ensure_site_defaults(guide)
+        apply_kind_gates(guide)
         sites.append(guide)
+    for day in itinerary.get("days") or []:
+        sync_highlight_snapshots(day, sites)
     save_pack(slug, itinerary, sites, assets)
     return {"guide": guide, "itinerary": itinerary, "sites": sites, "assets": assets}
 
@@ -604,13 +788,10 @@ def link_guide(
     itinerary, sites, assets = load_pack(slug)
     day = find_day(itinerary, day_id)
     stop = find_stop(day, stop_id)
-    ensure_stop_arrays(stop)
-    if not any(s.get("id") == body.guideId for s in sites):
-        raise HTTPException(404, f"Guide '{body.guideId}' not found")
-    if body.guideId not in stop["guideIds"]:
-        stop["guideIds"].append(body.guideId)
-    if not stop.get("siteId"):
-        stop["siteId"] = body.guideId
+    require_site(sites, body.guideId)
+    stop["siteId"] = body.guideId
+    stop.pop("guideIds", None)
+    sync_highlight_snapshots(day, sites)
     save_pack(slug, itinerary, sites, assets)
     return {"stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
 
@@ -626,10 +807,10 @@ def unlink_guide(
     itinerary, sites, assets = load_pack(slug)
     day = find_day(itinerary, day_id)
     stop = find_stop(day, stop_id)
-    ensure_stop_arrays(stop)
-    stop["guideIds"] = [g for g in stop["guideIds"] if g != guide_id]
     if stop.get("siteId") == guide_id:
-        stop["siteId"] = stop["guideIds"][0] if stop["guideIds"] else None
+        stop["siteId"] = None
+    stop.pop("guideIds", None)
+    sync_highlight_snapshots(day, sites)
     save_pack(slug, itinerary, sites, assets)
     return {"stop": stop, "itinerary": itinerary, "sites": sites, "assets": assets}
 
@@ -692,7 +873,7 @@ def set_highlights(
         stop = stops_by_id.get(sid)
         if not stop:
             continue
-        highlights.append(highlight_entry(stop))
+        highlights.append(highlight_entry(stop, sites))
     highlights.sort(key=lambda h: h.get("time") or "99:99")
     day["highlights"] = highlights
     save_pack(slug, itinerary, sites, assets)
@@ -898,6 +1079,35 @@ def soft_delete_trip(slug: str, _: None = Depends(require_admin)) -> dict[str, A
     meta["status"] = "archived"
     save_trip_meta(slug, meta)
     return {"ok": True, "trip": meta}
+
+
+@router.get("/trips/{slug}/export")
+def export_trip_backup(
+    slug: str,
+    _: None = Depends(require_admin),
+) -> FileDownloadResponse:
+    """Download a JSON-only vacation backup (no image binaries)."""
+    pack = pack_dir(slug)
+    if not pack.is_dir():
+        raise HTTPException(404, f"Trip '{slug}' not found")
+    meta = load_trip_meta(slug)
+    itinerary, sites, assets = load_pack(slug)
+    payload = {
+        "format": "prok-vacation-backup",
+        "formatVersion": 1,
+        "exportedAt": datetime.now(timezone.utc).isoformat(),
+        "trip": meta,
+        "itinerary": itinerary,
+        "sites": sites,
+        "assets": assets,
+    }
+    body = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
+    filename = f"{slug}-backup.json"
+    return FileDownloadResponse(
+        content=body.encode("utf-8"),
+        media_type="application/json; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.post("/trips/{slug}/days")

@@ -1,6 +1,7 @@
-import { MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import { Download, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useAppDialog } from '@/components/AppDialogs'
+import { PrintableItinerary } from '@/components/PrintableItinerary'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -11,8 +12,11 @@ import {
 import type { TripSummary } from '@/lib/contentSync'
 import {
   adminCreateTrip,
+  adminDownloadTripBackup,
+  adminFetchTripBackup,
   adminPatchTrip,
   adminSoftDeleteTrip,
+  type VacationBackup,
 } from '@/lib/adminApi'
 
 const inputClass =
@@ -36,12 +40,13 @@ export function TripPicker({
   const appDialog = useAppDialog()
   const [menuTrip, setMenuTrip] = useState<TripSummary | null>(null)
   const [dialog, setDialog] = useState<
-    null | 'create' | 'rename' | 'dates' | 'delete'
+    null | 'create' | 'rename' | 'dates' | 'delete' | 'export'
   >(null)
   const [title, setTitle] = useState('')
   const [startDate, setStartDate] = useState('')
   const [confirmTitle, setConfirmTitle] = useState('')
   const [busy, setBusy] = useState(false)
+  const [printBackup, setPrintBackup] = useState<VacationBackup | null>(null)
 
   const openCreate = () => {
     if (!adminMode) {
@@ -69,6 +74,40 @@ export function TripPicker({
     setMenuTrip(t)
     setConfirmTitle('')
     setDialog('delete')
+  }
+
+  const openExport = (t: TripSummary) => {
+    setMenuTrip(t)
+    setDialog('export')
+  }
+
+  const downloadBackup = async () => {
+    if (!menuTrip) return
+    setBusy(true)
+    try {
+      await adminDownloadTripBackup(menuTrip.slug)
+      setDialog(null)
+      setMenuTrip(null)
+    } catch (e) {
+      await appDialog.alert(e instanceof Error ? e.message : 'Export failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const openPrintable = async () => {
+    if (!menuTrip) return
+    setBusy(true)
+    try {
+      const backup = await adminFetchTripBackup(menuTrip.slug)
+      setPrintBackup(backup)
+      setDialog(null)
+      setMenuTrip(null)
+    } catch (e) {
+      await appDialog.alert(e instanceof Error ? e.message : 'Could not load trip')
+    } finally {
+      setBusy(false)
+    }
   }
 
   const submit = async () => {
@@ -112,6 +151,19 @@ export function TripPicker({
     } finally {
       setBusy(false)
     }
+  }
+
+  if (printBackup) {
+    return (
+      <PrintableItinerary
+        title={printBackup.trip.title || printBackup.itinerary.title}
+        startDate={printBackup.trip.start_date}
+        endDate={printBackup.trip.end_date}
+        itinerary={printBackup.itinerary}
+        sites={printBackup.sites}
+        onClose={() => setPrintBackup(null)}
+      />
+    )
   }
 
   return (
@@ -163,6 +215,9 @@ export function TripPicker({
             </div>
             {adminMode && menuTrip?.id === t.id && dialog === null ? (
               <div className="mt-1 flex flex-wrap gap-2 rounded-xl bg-paper-deep/50 p-2">
+                <Button variant="outline" size="sm" onClick={() => openExport(t)}>
+                  <Download className="h-3.5 w-3.5" /> Export
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => openRename(t)}>
                   Rename
                 </Button>
@@ -178,7 +233,7 @@ export function TripPicker({
         ))}
         {!trips.length ? (
           <li className="rounded-2xl border border-dashed border-line px-4 py-8 text-center text-sm text-ink-soft">
-            No trips yet. Sync online, create one (admin), or import a content pack.
+            No trips yet. Sync online, create one (admin), or import a vacation.
           </li>
         ) : null}
       </ul>
@@ -199,11 +254,45 @@ export function TripPicker({
           onClick={onImportClick}
           className="mt-6 w-full rounded-xl border border-line py-3 text-sm font-semibold text-sea"
         >
-          Import historical trip pack (.zip)
+          Import vacation
         </button>
       ) : null}
 
-      <Dialog open={Boolean(dialog)} onOpenChange={(o) => !o && setDialog(null)}>
+      <Dialog
+        open={dialog === 'export'}
+        onOpenChange={(o) => {
+          if (!o) {
+            setDialog(null)
+            setMenuTrip(null)
+          }
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Export {menuTrip?.title ?? 'vacation'}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-ink-soft">
+            Choose a printable itinerary or a JSON backup for restore.
+          </p>
+          <div className="flex flex-col gap-2">
+            <Button disabled={busy} onClick={() => void openPrintable()}>
+              Printable PDF
+            </Button>
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={() => void downloadBackup()}
+            >
+              Backup JSON
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(dialog) && dialog !== 'export'}
+        onOpenChange={(o) => !o && setDialog(null)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>

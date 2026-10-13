@@ -60,9 +60,7 @@ export function SortableStringList({
           }}
           className={cn(
             'relative rounded-lg bg-paper-deep/70 px-3 py-2 text-sm leading-relaxed text-ink-soft',
-            editing ? 'pl-9' : 'pl-4',
-            !editing &&
-              'before:absolute before:left-1.5 before:top-3 before:h-1.5 before:w-1.5 before:rounded-full before:bg-accent',
+            editing && 'pl-9',
             dragIndex === i && 'opacity-50',
             overIndex === i && dragIndex != null && dragIndex !== i
               ? 'ring-2 ring-sea/50'

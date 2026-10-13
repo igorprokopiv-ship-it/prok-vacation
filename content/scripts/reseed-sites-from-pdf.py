@@ -233,9 +233,6 @@ def build_heading_map(sites: list[dict]) -> list[tuple[str, str]]:
     keys: list[tuple[str, str]] = []
     for s in sites:
         keys.append((s["name"], s["id"]))
-        for a in s.get("aliases") or []:
-            if len(a) >= 5:
-                keys.append((a, s["id"]))
     keys.extend(EXTRA_HEADINGS)
     seen: set[str] = set()
     out: list[tuple[str, str]] = []
