@@ -195,7 +195,7 @@ export function stopsToClearForConverge(
   stops: ItineraryStop[],
   fromStop: ItineraryStop,
 ): ItineraryStop[] {
-  return planConvergeAt(stops, fromStop, () => '').clear
+  return planConvergeAt(stops, fromStop, () => '')?.clear ?? []
 }
 
 export type ConvergeRestore = {
