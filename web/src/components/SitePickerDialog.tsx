@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/dialog'
 import type { Site, StopKind } from '@/data/types'
 import { getItinerary, getSites } from '@/lib/data'
+import { dayLocationLabel } from '@/lib/dayLocations'
+import type { TripLocation } from '@/lib/tripMeta'
 import { cn } from '@/lib/utils'
 
 const ALL_KINDS: Array<StopKind | 'all'> = [
@@ -22,11 +24,15 @@ const ALL_KINDS: Array<StopKind | 'all'> = [
   'rest',
 ]
 
-function citiesForSite(siteId: string): string[] {
+function citiesForSite(siteId: string, locations: TripLocation[]): string[] {
   const cities = new Set<string>()
   for (const day of getItinerary().days) {
-    if (day.stops.some((s) => s.siteId === siteId) && day.city?.trim()) {
-      cities.add(day.city.trim())
+    if (!day.stops.some((s) => s.siteId === siteId)) continue
+    const label = dayLocationLabel(day, locations)
+    if (!label || label === 'Unassigned') continue
+    for (const part of label.split(' · ')) {
+      const name = part.trim()
+      if (name) cities.add(name)
     }
   }
   return [...cities].sort((a, b) => a.localeCompare(b))
@@ -36,11 +42,13 @@ export function SitePickerDialog({
   open,
   onOpenChange,
   defaultKind,
+  locations = [],
   onSelect,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   defaultKind?: StopKind
+  locations?: TripLocation[]
   onSelect: (site: Site) => void
 }) {
   const [query, setQuery] = useState('')
@@ -59,10 +67,10 @@ export function SitePickerDialog({
   const cityOptions = useMemo(() => {
     const set = new Set<string>()
     for (const s of sites) {
-      for (const c of citiesForSite(s.id)) set.add(c)
+      for (const c of citiesForSite(s.id, locations)) set.add(c)
     }
     return [...set].sort((a, b) => a.localeCompare(b))
-  }, [sites])
+  }, [sites, locations])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -70,15 +78,15 @@ export function SitePickerDialog({
       .filter((s) => (kind === 'all' ? true : s.kind === kind))
       .filter((s) => {
         if (city === 'all') return true
-        if (city === 'other') return citiesForSite(s.id).length === 0
-        return citiesForSite(s.id).includes(city)
+        if (city === 'other') return citiesForSite(s.id, locations).length === 0
+        return citiesForSite(s.id, locations).includes(city)
       })
       .filter((s) => {
         if (!q) return true
         return s.name.toLowerCase().includes(q)
       })
       .sort((a, b) => a.name.localeCompare(b.name))
-  }, [sites, kind, city, query])
+  }, [sites, kind, city, query, locations])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -161,7 +169,7 @@ export function SitePickerDialog({
           ) : (
             <ul className="space-y-1">
               {filtered.map((s) => {
-                const locs = citiesForSite(s.id)
+                const locs = citiesForSite(s.id, locations)
                 return (
                   <li key={s.id}>
                     <button

@@ -18,6 +18,7 @@ import { DayDrawer } from '@/components/DayDrawer'
 import { DeviceIdentityGate } from '@/components/DeviceIdentityGate'
 import { HighlightsPanel } from '@/components/HighlightsPanel'
 import { NotesPanel } from '@/components/NotesPanel'
+import { VideosPanel } from '@/components/VideosPanel'
 import {
   SchedulePanel,
   type AdminAction,
@@ -55,6 +56,7 @@ import {
   adminLogout,
   adminMe,
   adminPatchDay,
+  adminPatchTrip,
   adminSetDayHighlights,
   adminSetSitePhoto,
   adminUnlinkGuide,
@@ -65,6 +67,8 @@ import {
   adminUploadTicket,
   adminUpsertGuide,
 } from '@/lib/adminApi'
+import { dayLocationLabel } from '@/lib/dayLocations'
+import type { TripLocation } from '@/lib/tripMeta'
 import {
   applyTripDocument,
   getItinerary,
@@ -123,7 +127,9 @@ export default function App() {
   const [prompt, setPrompt] = useState<PromptState>(null)
   const [promptValue, setPromptValue] = useState('')
   const [promptExtra, setPromptExtra] = useState('')
+  const [promptLocationIds, setPromptLocationIds] = useState<string[]>([])
   const [promptBusy, setPromptBusy] = useState(false)
+  const [newLocationName, setNewLocationName] = useState('')
   const [heroPicker, setHeroPicker] = useState<{
     title: string
     options: AttachmentPickOption[]
@@ -146,11 +152,19 @@ export default function App() {
   const canPrev = dayIndex > 0
   const canNext = dayIndex >= 0 && dayIndex < days.length - 1
 
+  const tripLocations = tripMeta?.locations ?? []
+
   const applyAdminDoc = (doc: {
     itinerary: ReturnType<typeof getItinerary>
     sites: ReturnType<typeof getSites>
     assets: unknown
-    trip?: { title?: string; start_date?: string; end_date?: string; slug?: string }
+    trip?: {
+      title?: string
+      start_date?: string
+      end_date?: string
+      slug?: string
+      locations?: TripLocation[]
+    }
   }) => {
     applyTripDocument(doc as Parameters<typeof applyTripDocument>[0])
     if (doc.trip && tripMeta) {
@@ -159,6 +173,7 @@ export default function App() {
         title: doc.trip.title ?? tripMeta.title,
         start_date: doc.trip.start_date ?? tripMeta.start_date,
         end_date: doc.trip.end_date ?? tripMeta.end_date,
+        locations: doc.trip.locations ?? tripMeta.locations,
       })
     }
     setTick((n) => n + 1)
@@ -540,7 +555,7 @@ export default function App() {
         applyAdminDoc(doc)
       } else if (prompt.kind === 'day-meta') {
         const doc = await adminPatchDay(tripSlug, day.id, {
-          city: promptValue.trim() || day.city,
+          locationIds: promptLocationIds,
           headline: promptExtra.trim() || day.headline,
         })
         applyAdminDoc(doc)
@@ -548,6 +563,8 @@ export default function App() {
       setPrompt(null)
       setPromptValue('')
       setPromptExtra('')
+      setPromptLocationIds([])
+      setNewLocationName('')
     } catch (e) {
       await dialog.alert(e instanceof Error ? e.message : 'Failed')
     } finally {
@@ -664,7 +681,7 @@ export default function App() {
               </div>
               <div className="mt-1 flex items-center gap-2">
                 <h1 className="font-display text-[1.55rem] font-bold leading-tight text-ink">
-                  {day.city}
+                  {dayLocationLabel(day, tripLocations)}
                 </h1>
                 {adminMode ? (
                   <button
@@ -672,8 +689,9 @@ export default function App() {
                     className="rounded-full p-1 text-ink-soft hover:bg-ink/5"
                     aria-label="Edit day location and subject"
                     onClick={() => {
-                      setPromptValue(day.city)
+                      setPromptLocationIds([...(day.locationIds ?? [])])
                       setPromptExtra(day.headline)
+                      setNewLocationName('')
                       setPrompt({ kind: 'day-meta' })
                     }}
                   >
@@ -765,6 +783,9 @@ export default function App() {
               </TabsTrigger>
               <TabsTrigger value="notes" className="px-1.5 text-xs">
                 Notes
+              </TabsTrigger>
+              <TabsTrigger value="videos" className="px-1.5 text-xs">
+                Videos
               </TabsTrigger>
             </TabsList>
           </div>
@@ -973,7 +994,18 @@ export default function App() {
             <NotesPanel
               tripId={tripId}
               dayId={day.id}
-              dayStops={day.stops}
+              locations={tripLocations}
+              dayLocationIds={day.locationIds ?? []}
+              deviceUser={deviceUser}
+              adminMode={adminMode}
+            />
+          </TabsContent>
+          <TabsContent value="videos" className="mt-0">
+            <VideosPanel
+              tripId={tripId}
+              dayId={day.id}
+              locations={tripLocations}
+              dayLocationIds={day.locationIds ?? []}
               deviceUser={deviceUser}
               adminMode={adminMode}
             />
@@ -1052,13 +1084,113 @@ export default function App() {
             />
           ) : null}
           {prompt?.kind === 'day-meta' ? (
-            <div className="space-y-2">
-              <input
-                value={promptValue}
-                onChange={(e) => setPromptValue(e.target.value)}
-                placeholder="Location / city"
-                className={inputClass}
-              />
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <span className="text-xs font-medium text-ink-soft">
+                  Locations
+                </span>
+                {!tripLocations.length ? (
+                  <p className="text-sm text-ink-soft">
+                    No trip locations yet. Add one below.
+                  </p>
+                ) : (
+                  <ul className="max-h-40 space-y-1 overflow-y-auto">
+                    {tripLocations.map((loc) => {
+                      const checked = promptLocationIds.includes(loc.id)
+                      return (
+                        <li key={loc.id}>
+                          <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-paper-deep/50">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                setPromptLocationIds((prev) =>
+                                  checked
+                                    ? prev.filter((id) => id !== loc.id)
+                                    : [...prev, loc.id],
+                                )
+                              }}
+                              className="accent-sea"
+                            />
+                            <span className="text-sm text-ink">{loc.name}</span>
+                          </label>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+                <div className="flex gap-2">
+                  <input
+                    value={newLocationName}
+                    onChange={(e) => setNewLocationName(e.target.value)}
+                    placeholder="Add location…"
+                    className={inputClass}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        void (async () => {
+                          const name = newLocationName.trim()
+                          if (!name || promptBusy) return
+                          setPromptBusy(true)
+                          try {
+                            const id = `loc-${crypto.randomUUID().slice(0, 8)}`
+                            const next = [
+                              ...tripLocations,
+                              { id, name },
+                            ]
+                            const doc = await adminPatchTrip(tripSlug, {
+                              locations: next,
+                            })
+                            applyAdminDoc(doc)
+                            setPromptLocationIds((prev) =>
+                              prev.includes(id) ? prev : [...prev, id],
+                            )
+                            setNewLocationName('')
+                          } catch (err) {
+                            await dialog.alert(
+                              err instanceof Error ? err.message : 'Failed',
+                            )
+                          } finally {
+                            setPromptBusy(false)
+                          }
+                        })()
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={promptBusy || !newLocationName.trim()}
+                    onClick={() => {
+                      void (async () => {
+                        const name = newLocationName.trim()
+                        if (!name) return
+                        setPromptBusy(true)
+                        try {
+                          const id = `loc-${crypto.randomUUID().slice(0, 8)}`
+                          const next = [...tripLocations, { id, name }]
+                          const doc = await adminPatchTrip(tripSlug, {
+                            locations: next,
+                          })
+                          applyAdminDoc(doc)
+                          setPromptLocationIds((prev) =>
+                            prev.includes(id) ? prev : [...prev, id],
+                          )
+                          setNewLocationName('')
+                        } catch (err) {
+                          await dialog.alert(
+                            err instanceof Error ? err.message : 'Failed',
+                          )
+                        } finally {
+                          setPromptBusy(false)
+                        }
+                      })()
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+              </div>
               <input
                 value={promptExtra}
                 onChange={(e) => setPromptExtra(e.target.value)}
@@ -1078,6 +1210,7 @@ export default function App() {
           mode="create"
           dayStops={day.stops}
           optionOrder={day.optionOrder}
+          locations={tripLocations}
           adminMode={adminMode}
           initialEditMode
           onClose={() => setOverlay(null)}
@@ -1136,6 +1269,7 @@ export default function App() {
           }
           dayStops={day.stops}
           optionOrder={day.optionOrder}
+          locations={tripLocations}
           adminMode={adminMode}
           initialEditMode={Boolean(overlay.edit)}
           onClose={() => setOverlay(null)}

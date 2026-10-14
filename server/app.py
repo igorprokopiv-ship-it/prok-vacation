@@ -451,6 +451,7 @@ class NoteIn(BaseModel):
     trip_id: UUID
     day_id: Optional[str] = None
     stop_id: Optional[str] = None
+    location_id: Optional[str] = None
     body: str = ""
     record_status: str = "active"
     created_by: Optional[str] = None
@@ -496,10 +497,45 @@ class TripLinkIn(BaseModel):
     created_on_device: Optional[str] = None
 
 
+class VideoIn(BaseModel):
+    id: UUID
+    trip_id: UUID
+    location_id: Optional[str] = None
+    youtube_id: str
+    url: str = ""
+    title: str = ""
+    thumbnail_url: Optional[str] = None
+    body: str = ""
+    record_status: str = "active"
+    created_by: Optional[str] = None
+    created_on: Optional[datetime] = None
+    created_on_device: Optional[str] = None
+    last_modified_by: Optional[str] = None
+    last_modified_on: Optional[datetime] = None
+    last_modified_on_device: Optional[str] = None
+
+
+class VideoOfflineIn(BaseModel):
+    id: UUID
+    trip_id: UUID
+    video_id: UUID
+    user_name: str
+    downloaded_at: Optional[datetime] = None
+    record_status: str = "active"
+    created_by: Optional[str] = None
+    created_on: Optional[datetime] = None
+    created_on_device: Optional[str] = None
+    last_modified_by: Optional[str] = None
+    last_modified_on: Optional[datetime] = None
+    last_modified_on_device: Optional[str] = None
+
+
 class SyncPushIn(BaseModel):
     notes: list[NoteIn] = Field(default_factory=list)
     plan_items: list[PlanItemIn] = Field(default_factory=list)
     trip_links: list[TripLinkIn] = Field(default_factory=list)
+    videos: list[VideoIn] = Field(default_factory=list)
+    video_offline: list[VideoOfflineIn] = Field(default_factory=list)
 
 
 def _ts(v: Optional[datetime]) -> datetime:
@@ -514,7 +550,13 @@ def _ts(v: Optional[datetime]) -> datetime:
 def sync_push(body: SyncPushIn) -> dict[str, Any]:
     if not DATABASE_URL:
         raise HTTPException(503, "DATABASE_URL not configured")
-    accepted = {"notes": 0, "plan_items": 0, "trip_links": 0}
+    accepted = {
+        "notes": 0,
+        "plan_items": 0,
+        "trip_links": 0,
+        "videos": 0,
+        "video_offline": 0,
+    }
     with db() as conn:
         for n in body.notes:
             existing = conn.execute(
@@ -528,16 +570,17 @@ def sync_push(body: SyncPushIn) -> dict[str, Any]:
             conn.execute(
                 """
                 INSERT INTO note (
-                  id, trip_id, day_id, stop_id, body, record_status,
+                  id, trip_id, day_id, stop_id, location_id, body, record_status,
                   created_by, created_on, created_on_device,
                   last_modified_by, last_modified_on, last_modified_on_device
                 ) VALUES (
-                  %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                  %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
                 )
                 ON CONFLICT (id) DO UPDATE SET
                   trip_id = EXCLUDED.trip_id,
                   day_id = EXCLUDED.day_id,
                   stop_id = EXCLUDED.stop_id,
+                  location_id = EXCLUDED.location_id,
                   body = EXCLUDED.body,
                   record_status = EXCLUDED.record_status,
                   last_modified_by = EXCLUDED.last_modified_by,
@@ -549,6 +592,7 @@ def sync_push(body: SyncPushIn) -> dict[str, Any]:
                     n.trip_id,
                     n.day_id,
                     n.stop_id,
+                    n.location_id,
                     n.body,
                     n.record_status,
                     n.created_by,
@@ -660,6 +704,103 @@ def sync_push(body: SyncPushIn) -> dict[str, Any]:
                 ),
             )
             accepted["trip_links"] += 1
+
+        for v in body.videos:
+            existing = conn.execute(
+                "SELECT last_modified_on FROM video WHERE id = %s", (v.id,)
+            ).fetchone()
+            incoming = _ts(v.last_modified_on)
+            if existing and existing["last_modified_on"] and existing[
+                "last_modified_on"
+            ] > incoming:
+                continue
+            conn.execute(
+                """
+                INSERT INTO video (
+                  id, trip_id, location_id, youtube_id, url, title, thumbnail_url, body,
+                  record_status, created_by, created_on, created_on_device,
+                  last_modified_by, last_modified_on, last_modified_on_device
+                ) VALUES (
+                  %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                )
+                ON CONFLICT (id) DO UPDATE SET
+                  trip_id = EXCLUDED.trip_id,
+                  location_id = EXCLUDED.location_id,
+                  youtube_id = EXCLUDED.youtube_id,
+                  url = EXCLUDED.url,
+                  title = EXCLUDED.title,
+                  thumbnail_url = EXCLUDED.thumbnail_url,
+                  body = EXCLUDED.body,
+                  record_status = EXCLUDED.record_status,
+                  last_modified_by = EXCLUDED.last_modified_by,
+                  last_modified_on = EXCLUDED.last_modified_on,
+                  last_modified_on_device = EXCLUDED.last_modified_on_device
+                """,
+                (
+                    v.id,
+                    v.trip_id,
+                    v.location_id,
+                    v.youtube_id,
+                    v.url,
+                    v.title,
+                    v.thumbnail_url,
+                    v.body,
+                    v.record_status,
+                    v.created_by,
+                    _ts(v.created_on),
+                    v.created_on_device,
+                    v.last_modified_by,
+                    incoming,
+                    v.last_modified_on_device,
+                ),
+            )
+            accepted["videos"] += 1
+
+        for o in body.video_offline:
+            existing = conn.execute(
+                "SELECT last_modified_on FROM video_offline WHERE id = %s",
+                (o.id,),
+            ).fetchone()
+            incoming = _ts(o.last_modified_on)
+            if existing and existing["last_modified_on"] and existing[
+                "last_modified_on"
+            ] > incoming:
+                continue
+            conn.execute(
+                """
+                INSERT INTO video_offline (
+                  id, trip_id, video_id, user_name, downloaded_at,
+                  record_status, created_by, created_on, created_on_device,
+                  last_modified_by, last_modified_on, last_modified_on_device
+                ) VALUES (
+                  %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                )
+                ON CONFLICT (id) DO UPDATE SET
+                  trip_id = EXCLUDED.trip_id,
+                  video_id = EXCLUDED.video_id,
+                  user_name = EXCLUDED.user_name,
+                  downloaded_at = EXCLUDED.downloaded_at,
+                  record_status = EXCLUDED.record_status,
+                  last_modified_by = EXCLUDED.last_modified_by,
+                  last_modified_on = EXCLUDED.last_modified_on,
+                  last_modified_on_device = EXCLUDED.last_modified_on_device
+                """,
+                (
+                    o.id,
+                    o.trip_id,
+                    o.video_id,
+                    o.user_name,
+                    _ts(o.downloaded_at) if o.downloaded_at else None,
+                    o.record_status,
+                    o.created_by,
+                    _ts(o.created_on),
+                    o.created_on_device,
+                    o.last_modified_by,
+                    incoming,
+                    o.last_modified_on_device,
+                ),
+            )
+            accepted["video_offline"] += 1
     return {"accepted": accepted}
 
 
@@ -677,26 +818,44 @@ def sync_pull(
         note_q = "SELECT * FROM note WHERE TRUE"
         plan_q = "SELECT * FROM plan_item WHERE TRUE"
         link_q = "SELECT * FROM trip_link WHERE TRUE"
+        video_q = "SELECT * FROM video WHERE TRUE"
+        offline_q = "SELECT * FROM video_offline WHERE TRUE"
         params: list[Any] = []
         params2: list[Any] = []
         params3: list[Any] = []
+        params4: list[Any] = []
+        params5: list[Any] = []
         if since_dt:
             note_q += " AND last_modified_on > %s"
             plan_q += " AND last_modified_on > %s"
             link_q += " AND last_modified_on > %s"
+            video_q += " AND last_modified_on > %s"
+            offline_q += " AND last_modified_on > %s"
             params.append(since_dt)
             params2.append(since_dt)
             params3.append(since_dt)
+            params4.append(since_dt)
+            params5.append(since_dt)
         if trip_id:
             note_q += " AND trip_id::text = %s"
             plan_q += " AND trip_id::text = %s"
             link_q += " AND trip_id::text = %s"
+            video_q += " AND trip_id::text = %s"
+            offline_q += " AND trip_id::text = %s"
             params.append(trip_id)
             params2.append(trip_id)
             params3.append(trip_id)
+            params4.append(trip_id)
+            params5.append(trip_id)
         notes = conn.execute(note_q + " ORDER BY last_modified_on", params).fetchall()
         plans = conn.execute(plan_q + " ORDER BY last_modified_on", params2).fetchall()
         links = conn.execute(link_q + " ORDER BY last_modified_on", params3).fetchall()
+        videos = conn.execute(
+            video_q + " ORDER BY last_modified_on", params4
+        ).fetchall()
+        offline = conn.execute(
+            offline_q + " ORDER BY last_modified_on", params5
+        ).fetchall()
 
         def ser(rows: list[Any]) -> list[dict[str, Any]]:
             out = []
@@ -716,6 +875,8 @@ def sync_pull(
             "notes": ser(notes),
             "plan_items": ser(plans),
             "trip_links": ser(links),
+            "videos": ser(videos),
+            "video_offline": ser(offline),
             "server_time": datetime.now(timezone.utc).isoformat(),
         }
 

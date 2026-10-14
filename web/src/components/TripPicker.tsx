@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type { TripSummary } from '@/lib/contentSync'
+import { listNotes, listVideos, type TripSummary } from '@/lib/contentSync'
 import {
   adminCreateTrip,
   adminDownloadTripBackup,
@@ -19,6 +19,7 @@ import {
   adminSoftDeleteTrip,
   type VacationBackup,
 } from '@/lib/adminApi'
+import { cn } from '@/lib/utils'
 import { formatLocationLine, type TripLocation } from '@/lib/tripMeta'
 
 const inputClass =
@@ -54,8 +55,13 @@ export function TripPicker({
   const dialogActionRef = useRef<
     null | 'create' | 'rename' | 'dates' | 'details' | 'delete'
   >(null)
-  const [vacationNotes, setVacationNotes] = useState('')
   const [locations, setLocations] = useState<TripLocation[]>([])
+  const [usedLocationIds, setUsedLocationIds] = useState<Set<string>>(
+    () => new Set(),
+  )
+  const [contentLocationIds, setContentLocationIds] = useState<Set<string>>(
+    () => new Set(),
+  )
 
   const closeFormDialog = () => {
     dialogActionRef.current = null
@@ -98,8 +104,19 @@ export function TripPicker({
     setBusy(true)
     try {
       const meta = await adminGetTripMeta(t.slug)
-      setVacationNotes(meta.vacation_notes ?? '')
       setLocations(meta.locations?.length ? [...meta.locations] : [])
+      setUsedLocationIds(new Set(meta.used_location_ids ?? []))
+      const [notes, videos] = await Promise.all([
+        listNotes(t.id),
+        listVideos(t.id),
+      ])
+      setContentLocationIds(
+        new Set(
+          [...notes, ...videos]
+            .map((row) => row.location_id)
+            .filter((id): id is string => Boolean(id)),
+        ),
+      )
     } catch (e) {
       await appDialog.alert(e instanceof Error ? e.message : 'Could not load trip')
       closeFormDialog()
@@ -111,7 +128,7 @@ export function TripPicker({
   const addLocation = () => {
     setLocations((prev) => [
       ...prev,
-      { id: `loc-${crypto.randomUUID().slice(0, 8)}`, name: '', notes: '' },
+      { id: `loc-${crypto.randomUUID().slice(0, 8)}`, name: '' },
     ])
   }
 
@@ -121,7 +138,19 @@ export function TripPicker({
     )
   }
 
-  const removeLocation = (id: string) => {
+  const removeLocation = async (id: string) => {
+    if (usedLocationIds.has(id)) {
+      await appDialog.alert(
+        'This location is used by one or more days. Remove it from those days first.',
+      )
+      return
+    }
+    if (contentLocationIds.has(id)) {
+      await appDialog.alert(
+        'This location is referenced by notes or videos. Delete or re-scope them first.',
+      )
+      return
+    }
     setLocations((prev) => prev.filter((loc) => loc.id !== id))
   }
 
@@ -203,15 +232,13 @@ export function TripPicker({
       } else if (mode === 'details' && menuTrip) {
         const cleaned = locations
           .map((loc) => ({
-            ...loc,
+            id: loc.id,
             name: loc.name.trim(),
-            notes: loc.notes?.trim() || null,
             start_date: loc.start_date?.trim() || null,
             end_date: loc.end_date?.trim() || null,
           }))
           .filter((loc) => loc.name)
         await adminPatchTrip(menuTrip.slug, {
-          vacation_notes: vacationNotes.trim() || null,
           locations: cleaned,
         })
         await onTripsChanged?.()
@@ -241,6 +268,7 @@ export function TripPicker({
         endDate={printBackup.trip.end_date}
         itinerary={printBackup.itinerary}
         sites={printBackup.sites}
+        locations={printBackup.trip.locations}
         onClose={() => setPrintBackup(null)}
       />
     )
@@ -401,7 +429,7 @@ export function TripPicker({
                   : dialog === 'dates'
                     ? 'Vacation dates'
                     : dialog === 'details'
-                      ? 'Locations & notes'
+                      ? 'Locations'
                       : 'Delete vacation'}
             </DialogTitle>
           </DialogHeader>
@@ -439,18 +467,6 @@ export function TripPicker({
           ) : null}
           {dialog === 'details' ? (
             <div className="max-h-[55vh] space-y-4 overflow-y-auto pr-1">
-              <label className="block space-y-1">
-                <span className="text-xs font-medium text-ink-soft">
-                  Vacation notes
-                </span>
-                <textarea
-                  value={vacationNotes}
-                  onChange={(e) => setVacationNotes(e.target.value)}
-                  rows={3}
-                  placeholder="Packing ideas, reminders, links…"
-                  className={`${inputClass} resize-y`}
-                />
-              </label>
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-medium text-ink-soft">
@@ -465,77 +481,97 @@ export function TripPicker({
                     <Plus className="h-3.5 w-3.5" /> Add
                   </Button>
                 </div>
+                <p className="text-xs text-ink-soft">
+                  Use the Notes tab for vacation-wide or location-specific notes.
+                </p>
                 {!locations.length ? (
                   <p className="text-sm text-ink-soft">
                     Add cities or regions and optional date ranges.
                   </p>
                 ) : null}
-                {locations.map((loc) => (
-                  <div
-                    key={loc.id}
-                    className="space-y-2 rounded-xl border border-line/80 bg-paper-deep/30 p-3"
-                  >
-                    <div className="flex gap-2">
-                      <input
-                        value={loc.name}
-                        onChange={(e) =>
-                          updateLocation(loc.id, { name: e.target.value })
-                        }
-                        placeholder="Location name"
-                        className={inputClass}
-                      />
-                      <button
-                        type="button"
-                        className="shrink-0 rounded-lg p-2 text-ink-soft hover:bg-paper-deep"
-                        aria-label="Remove location"
-                        onClick={() => removeLocation(loc.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <label className="block space-y-1">
-                        <span className="text-[10px] font-medium uppercase tracking-wide text-ink-soft">
-                          From
-                        </span>
+                {locations.map((loc) => {
+                  const unused = !usedLocationIds.has(loc.id)
+                  const blocked =
+                    usedLocationIds.has(loc.id) ||
+                    contentLocationIds.has(loc.id)
+                  return (
+                    <div
+                      key={loc.id}
+                      className={cn(
+                        'space-y-2 rounded-xl border bg-paper-deep/30 p-3',
+                        unused
+                          ? 'border-amber-500/70 ring-1 ring-amber-400/40'
+                          : 'border-line/80',
+                      )}
+                    >
+                      <div className="flex gap-2">
                         <input
-                          type="date"
-                          value={loc.start_date?.slice(0, 10) ?? ''}
+                          value={loc.name}
                           onChange={(e) =>
-                            updateLocation(loc.id, {
-                              start_date: e.target.value || null,
-                            })
+                            updateLocation(loc.id, { name: e.target.value })
                           }
+                          placeholder="Location name"
                           className={inputClass}
                         />
-                      </label>
-                      <label className="block space-y-1">
-                        <span className="text-[10px] font-medium uppercase tracking-wide text-ink-soft">
-                          To
-                        </span>
-                        <input
-                          type="date"
-                          value={loc.end_date?.slice(0, 10) ?? ''}
-                          onChange={(e) =>
-                            updateLocation(loc.id, {
-                              end_date: e.target.value || null,
-                            })
+                        <button
+                          type="button"
+                          className={cn(
+                            'shrink-0 rounded-lg p-2 hover:bg-paper-deep',
+                            blocked
+                              ? 'text-ink-soft/40'
+                              : 'text-ink-soft',
+                          )}
+                          aria-label="Remove location"
+                          title={
+                            blocked
+                              ? 'Remove references from days/notes first'
+                              : 'Remove location'
                           }
-                          className={inputClass}
-                        />
-                      </label>
+                          onClick={() => void removeLocation(loc.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                      {unused ? (
+                        <p className="text-[11px] font-medium text-amber-800">
+                          Not used in days
+                        </p>
+                      ) : null}
+                      <div className="grid grid-cols-2 gap-2">
+                        <label className="block space-y-1">
+                          <span className="text-[10px] font-medium uppercase tracking-wide text-ink-soft">
+                            From
+                          </span>
+                          <input
+                            type="date"
+                            value={loc.start_date?.slice(0, 10) ?? ''}
+                            onChange={(e) =>
+                              updateLocation(loc.id, {
+                                start_date: e.target.value || null,
+                              })
+                            }
+                            className={inputClass}
+                          />
+                        </label>
+                        <label className="block space-y-1">
+                          <span className="text-[10px] font-medium uppercase tracking-wide text-ink-soft">
+                            To
+                          </span>
+                          <input
+                            type="date"
+                            value={loc.end_date?.slice(0, 10) ?? ''}
+                            onChange={(e) =>
+                              updateLocation(loc.id, {
+                                end_date: e.target.value || null,
+                              })
+                            }
+                            className={inputClass}
+                          />
+                        </label>
+                      </div>
                     </div>
-                    <textarea
-                      value={loc.notes ?? ''}
-                      onChange={(e) =>
-                        updateLocation(loc.id, { notes: e.target.value })
-                      }
-                      rows={2}
-                      placeholder="Notes for this location"
-                      className={`${inputClass} resize-y text-xs`}
-                    />
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           ) : null}

@@ -1043,14 +1043,121 @@ def format_date_label(d: date) -> str:
     return d.strftime("%A, %b %d").replace(" 0", " ")
 
 
-def format_nav_label(d: date, city: str, day_type: str) -> str:
+def day_location_label(day: dict[str, Any], meta: dict[str, Any]) -> str:
+    ids = [x for x in (day.get("locationIds") or []) if x]
+    if ids:
+        by_id = {
+            str(loc.get("id")): str(loc.get("name") or "").strip()
+            for loc in (meta.get("locations") or [])
+            if isinstance(loc, dict) and loc.get("id")
+        }
+        names = [by_id[i] for i in ids if by_id.get(i)]
+        if names:
+            return " · ".join(names)
+    legacy = (day.get("city") or "").strip()
+    return legacy or "Unassigned"
+
+
+def format_nav_label(d: date, place: str, day_type: str) -> str:
     short = d.strftime("%a %b %d").replace(" 0", " ")
     if day_type == "transit":
         return f"{short} · Transit"
-    city_bit = (city or "Day").split(",")[0].strip()
-    if len(city_bit) > 18:
-        city_bit = city_bit[:16] + "…"
-    return f"{short} · {city_bit}"
+    place_bit = (place or "Day").split(",")[0].strip()
+    if len(place_bit) > 18:
+        place_bit = place_bit[:16] + "…"
+    return f"{short} · {place_bit}"
+
+
+def _location_ids_used_in_days(itinerary: dict) -> set[str]:
+    used: set[str] = set()
+    for day in itinerary.get("days") or []:
+        for lid in day.get("locationIds") or []:
+            if lid:
+                used.add(str(lid))
+    return used
+
+
+def _normalize_location_ids(raw: Any, meta: dict[str, Any]) -> list[str]:
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        raise HTTPException(400, "locationIds must be a list")
+    known = {
+        str(loc.get("id"))
+        for loc in (meta.get("locations") or [])
+        if isinstance(loc, dict) and loc.get("id")
+    }
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in raw:
+        lid = str(item or "").strip()
+        if not lid or lid in seen:
+            continue
+        if lid not in known:
+            raise HTTPException(400, f"Unknown location id '{lid}'")
+        seen.add(lid)
+        out.append(lid)
+    return out
+
+
+def _assert_locations_removable(
+    meta: dict[str, Any],
+    itinerary: dict,
+    new_locations: list[dict[str, Any]],
+) -> None:
+    old_ids = {
+        str(loc.get("id"))
+        for loc in (meta.get("locations") or [])
+        if isinstance(loc, dict) and loc.get("id")
+    }
+    new_ids = {str(loc.get("id")) for loc in new_locations if loc.get("id")}
+    removed = old_ids - new_ids
+    if not removed:
+        return
+    used_days = _location_ids_used_in_days(itinerary)
+    blocked_days = sorted(removed & used_days)
+    if blocked_days:
+        raise HTTPException(
+            400,
+            f"Cannot remove location(s) still used by days: {', '.join(blocked_days)}",
+        )
+    trip_id = meta.get("id")
+    database_url = os.environ.get("DATABASE_URL", "")
+    if not trip_id or not database_url:
+        return
+    try:
+        import psycopg
+        from psycopg.rows import dict_row
+
+        with psycopg.connect(database_url, row_factory=dict_row) as conn:
+            rows = conn.execute(
+                """
+                SELECT DISTINCT location_id FROM (
+                  SELECT location_id
+                  FROM note
+                  WHERE trip_id = %s::uuid
+                    AND record_status = 'active'
+                    AND location_id = ANY(%s)
+                  UNION
+                  SELECT location_id
+                  FROM video
+                  WHERE trip_id = %s::uuid
+                    AND record_status = 'active'
+                    AND location_id = ANY(%s)
+                ) refs
+                """,
+                (str(trip_id), list(removed), str(trip_id), list(removed)),
+            ).fetchall()
+    except Exception:
+        return
+    blocked_refs = sorted(
+        str(r["location_id"]) for r in rows if r.get("location_id")
+    )
+    if blocked_refs:
+        raise HTTPException(
+            400,
+            f"Cannot remove location(s) still referenced by notes or videos: {', '.join(blocked_refs)}",
+        )
 
 
 def sync_end_date(meta: dict[str, Any], itinerary: dict) -> None:
@@ -1063,9 +1170,12 @@ def sync_end_date(meta: dict[str, Any], itinerary: dict) -> None:
         meta["end_date"] = last
 
 
-def shift_day_dates(itinerary: dict, delta_days: int) -> None:
+def shift_day_dates(
+    itinerary: dict, delta_days: int, meta: Optional[dict[str, Any]] = None
+) -> None:
     if not delta_days:
         return
+    trip_meta = meta or {}
     for day in itinerary.get("days") or []:
         raw = day.get("date")
         if not raw:
@@ -1073,7 +1183,8 @@ def shift_day_dates(itinerary: dict, delta_days: int) -> None:
         d = parse_iso_date(raw) + timedelta(days=delta_days)
         day["date"] = d.isoformat()
         day["dateLabel"] = format_date_label(d)
-        day["navLabel"] = format_nav_label(d, day.get("city") or "", day.get("type") or "activity")
+        place = day_location_label(day, trip_meta)
+        day["navLabel"] = format_nav_label(d, place, day.get("type") or "activity")
 
 
 class CreateTripBody(BaseModel):
@@ -1101,7 +1212,8 @@ class PatchTripBody(BaseModel):
 
 
 class CreateDayBody(BaseModel):
-    city: str = "New city"
+    locationIds: Optional[list[str]] = None
+    city: Optional[str] = None
     headline: str = "New day"
     briefing: str = ""
     type: str = "activity"
@@ -1115,6 +1227,7 @@ class DayMapLinkBody(BaseModel):
 
 
 class PatchDayBody(BaseModel):
+    locationIds: Optional[list[str]] = None
     city: Optional[str] = None
     headline: Optional[str] = None
     briefing: Optional[str] = None
@@ -1195,7 +1308,12 @@ def _normalize_trip_locations(raw: Any) -> list[dict[str, Any]]:
 
 @router.get("/trips/{slug}")
 def get_trip_admin(slug: str, _: None = Depends(require_admin)) -> dict[str, Any]:
-    return load_trip_meta(slug)
+    meta = load_trip_meta(slug)
+    itinerary, _, _ = load_pack(slug)
+    return {
+        **meta,
+        "used_location_ids": sorted(_location_ids_used_in_days(itinerary)),
+    }
 
 
 @router.patch("/trips/{slug}")
@@ -1222,14 +1340,16 @@ def patch_trip(
         else:
             meta["vacation_notes"] = str(notes).strip()
     if "locations" in data:
-        meta["locations"] = _normalize_trip_locations(data["locations"])
+        normalized = _normalize_trip_locations(data["locations"])
+        _assert_locations_removable(meta, itinerary, normalized)
+        meta["locations"] = normalized
     if "start_date" in data and data["start_date"]:
         new_start = parse_iso_date(data["start_date"])
         old_raw = meta.get("start_date")
         if old_raw:
             old_start = parse_iso_date(old_raw)
             delta = (new_start - old_start).days
-            shift_day_dates(itinerary, delta)
+            shift_day_dates(itinerary, delta, meta)
         meta["start_date"] = new_start.isoformat()
     if "end_date" in data:
         if data["end_date"]:
@@ -1298,14 +1418,13 @@ def create_day(
     else:
         d = parse_iso_date(meta.get("start_date") or date.today().isoformat())
     day_type = body.type if body.type in ("transit", "activity") else "activity"
-    city = body.city.strip() or "New city"
+    location_ids = _normalize_location_ids(body.locationIds, meta)
     headline = body.headline.strip() or "New day"
-    day = {
+    day: dict[str, Any] = {
         "id": f"day-{d.isoformat()}-{uuid4().hex[:4]}",
         "date": d.isoformat(),
         "dateLabel": format_date_label(d),
-        "navLabel": format_nav_label(d, city, day_type),
-        "city": city,
+        "locationIds": location_ids,
         "type": day_type,
         "headline": headline,
         "briefing": body.briefing or "",
@@ -1318,6 +1437,10 @@ def create_day(
         "highlights": [],
         "stops": [],
     }
+    if body.city and body.city.strip() and not location_ids:
+        day["city"] = body.city.strip()
+    place = day_location_label(day, meta)
+    day["navLabel"] = format_nav_label(d, place, day_type)
     days.append(day)
     days.sort(key=lambda x: x.get("date") or "9999-99-99")
     sync_end_date(meta, itinerary)
@@ -1355,9 +1478,15 @@ def patch_day(
             ) or f"map-{i + 1}-{uuid4().hex[:4]}"
             cleaned.append({"id": mid, "label": label, "url": url})
         data["mapsUrls"] = cleaned
+    if "locationIds" in data:
+        data["locationIds"] = _normalize_location_ids(data["locationIds"], meta)
+        # Prefer locationIds over legacy city once set
+        day.pop("city", None)
     for k, v in data.items():
         day[k] = v
     day.setdefault("mapsUrls", [])
+    day.setdefault("locationIds", [])
+    place_changed = "locationIds" in data or "city" in data or "type" in data
     if "date" in data and data["date"]:
         d = parse_iso_date(data["date"])
         day["date"] = d.isoformat()
@@ -1365,14 +1494,14 @@ def patch_day(
             day["dateLabel"] = format_date_label(d)
         if "navLabel" not in data:
             day["navLabel"] = format_nav_label(
-                d, day.get("city") or "", day.get("type") or "activity"
+                d, day_location_label(day, meta), day.get("type") or "activity"
             )
-    elif "city" in data or "type" in data:
+    elif place_changed:
         try:
             d = parse_iso_date(day.get("date") or date.today().isoformat())
             if "navLabel" not in data:
                 day["navLabel"] = format_nav_label(
-                    d, day.get("city") or "", day.get("type") or "activity"
+                    d, day_location_label(day, meta), day.get("type") or "activity"
                 )
         except HTTPException:
             pass

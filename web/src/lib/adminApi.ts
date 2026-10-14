@@ -298,6 +298,8 @@ export type AdminTripMeta = {
   record_status?: string
   vacation_notes?: string | null
   locations?: TripLocation[]
+  /** Location ids referenced by at least one day. */
+  used_location_ids?: string[]
 }
 
 export async function adminGetTripMeta(tripSlug: string): Promise<AdminTripMeta> {
@@ -373,6 +375,8 @@ export async function adminDownloadTripBackup(tripSlug: string): Promise<void> {
 export async function adminCreateDay(
   tripSlug: string,
   body?: {
+    locationIds?: string[]
+    /** @deprecated Prefer locationIds */
     city?: string
     headline?: string
     briefing?: string

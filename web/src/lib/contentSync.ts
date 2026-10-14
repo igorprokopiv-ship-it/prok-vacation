@@ -45,7 +45,7 @@ export interface TripDocument {
 }
 
 const DB_NAME = 'prok-vacation'
-const DB_VERSION = 1
+const DB_VERSION = 2
 const CACHE_NAME = 'prok-vacation-blobs-v1'
 
 function openDb(): Promise<IDBDatabase> {
@@ -65,6 +65,12 @@ function openDb(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains('trip_links')) {
         db.createObjectStore('trip_links', { keyPath: 'id' })
+      }
+      if (!db.objectStoreNames.contains('videos')) {
+        db.createObjectStore('videos', { keyPath: 'id' })
+      }
+      if (!db.objectStoreNames.contains('video_offline')) {
+        db.createObjectStore('video_offline', { keyPath: 'id' })
       }
       if (!db.objectStoreNames.contains('outbox')) {
         db.createObjectStore('outbox', { keyPath: 'op_id' })
@@ -272,6 +278,7 @@ export interface NoteRow {
   trip_id: string
   day_id?: string | null
   stop_id?: string | null
+  location_id?: string | null
   body: string
   record_status: string
   last_modified_on: string
@@ -307,6 +314,41 @@ export interface TripLinkRow {
   day_id?: string | null
   record_status: string
   last_modified_on: string
+  dirty?: boolean
+}
+
+export interface VideoRow {
+  id: string
+  trip_id: string
+  location_id?: string | null
+  youtube_id: string
+  url: string
+  title: string
+  thumbnail_url?: string | null
+  body?: string
+  record_status: string
+  last_modified_on: string
+  created_on?: string
+  created_by?: string | null
+  last_modified_by?: string | null
+  created_on_device?: string
+  last_modified_on_device?: string
+  dirty?: boolean
+}
+
+export interface VideoOfflineRow {
+  id: string
+  trip_id: string
+  video_id: string
+  user_name: string
+  downloaded_at?: string | null
+  record_status: string
+  last_modified_on: string
+  created_on?: string
+  created_by?: string | null
+  last_modified_by?: string | null
+  created_on_device?: string
+  last_modified_on_device?: string
   dirty?: boolean
 }
 
@@ -358,6 +400,89 @@ export async function listTripLinks(tripId: string): Promise<TripLinkRow[]> {
   return all.filter((n) => n.trip_id === tripId && n.record_status !== 'deleted')
 }
 
+export async function saveVideo(video: VideoRow): Promise<void> {
+  const row = {
+    ...video,
+    dirty: true,
+    last_modified_on: new Date().toISOString(),
+  }
+  await idbSet('videos', row)
+  await enqueueOutbox('video', row)
+}
+
+export async function deleteVideo(
+  video: VideoRow,
+  modifiedBy: string,
+): Promise<void> {
+  await saveVideo({
+    ...video,
+    record_status: 'deleted',
+    last_modified_by: modifiedBy,
+    last_modified_on_device: 'web',
+  })
+}
+
+export async function listVideos(tripId: string): Promise<VideoRow[]> {
+  const all = await idbGetAll<VideoRow>('videos')
+  return all.filter((v) => v.trip_id === tripId && v.record_status !== 'deleted')
+}
+
+export async function saveVideoOffline(row: VideoOfflineRow): Promise<void> {
+  const next = {
+    ...row,
+    dirty: true,
+    last_modified_on: new Date().toISOString(),
+  }
+  await idbSet('video_offline', next)
+  await enqueueOutbox('video_offline', next)
+}
+
+export async function listVideoOffline(
+  tripId: string,
+): Promise<VideoOfflineRow[]> {
+  const all = await idbGetAll<VideoOfflineRow>('video_offline')
+  return all.filter(
+    (r) => r.trip_id === tripId && r.record_status !== 'deleted',
+  )
+}
+
+/** Find or create the current user's offline checklist row for a video. */
+export async function upsertVideoOfflineMark(input: {
+  tripId: string
+  videoId: string
+  userName: string
+  downloaded: boolean
+}): Promise<VideoOfflineRow> {
+  const existing = (await listVideoOffline(input.tripId)).find(
+    (r) => r.video_id === input.videoId && r.user_name === input.userName,
+  )
+  const now = new Date().toISOString()
+  const row: VideoOfflineRow = existing
+    ? {
+        ...existing,
+        downloaded_at: input.downloaded ? now : null,
+        last_modified_by: input.userName,
+        last_modified_on_device: 'web',
+        record_status: 'active',
+      }
+    : {
+        id: crypto.randomUUID(),
+        trip_id: input.tripId,
+        video_id: input.videoId,
+        user_name: input.userName,
+        downloaded_at: input.downloaded ? now : null,
+        record_status: 'active',
+        last_modified_on: now,
+        created_on: now,
+        created_by: input.userName,
+        last_modified_by: input.userName,
+        created_on_device: 'web',
+        last_modified_on_device: 'web',
+      }
+  await saveVideoOffline(row)
+  return row
+}
+
 async function enqueueOutbox(entity: string, payload: unknown): Promise<void> {
   await idbSet('outbox', {
     op_id: crypto.randomUUID(),
@@ -372,23 +497,45 @@ export async function syncUserData(tripId?: string): Promise<void> {
   const outbox = await idbGetAll<{
     op_id: string
     entity: string
-    payload: NoteRow | PlanItemRow | TripLinkRow
+    payload:
+      | NoteRow
+      | PlanItemRow
+      | TripLinkRow
+      | VideoRow
+      | VideoOfflineRow
   }>('outbox')
 
   const notes: NoteRow[] = []
   const plan_items: PlanItemRow[] = []
   const trip_links: TripLinkRow[] = []
+  const videos: VideoRow[] = []
+  const video_offline: VideoOfflineRow[] = []
   for (const op of outbox) {
     if (op.entity === 'note') notes.push(op.payload as NoteRow)
     if (op.entity === 'plan_item') plan_items.push(op.payload as PlanItemRow)
     if (op.entity === 'trip_link') trip_links.push(op.payload as TripLinkRow)
+    if (op.entity === 'video') videos.push(op.payload as VideoRow)
+    if (op.entity === 'video_offline')
+      video_offline.push(op.payload as VideoOfflineRow)
   }
 
-  if (notes.length || plan_items.length || trip_links.length) {
+  if (
+    notes.length ||
+    plan_items.length ||
+    trip_links.length ||
+    videos.length ||
+    video_offline.length
+  ) {
     await fetch('/api/sync/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes, plan_items, trip_links }),
+      body: JSON.stringify({
+        notes,
+        plan_items,
+        trip_links,
+        videos,
+        video_offline,
+      }),
     })
     // clear outbox
     const db = await openDb()
@@ -407,12 +554,17 @@ export async function syncUserData(tripId?: string): Promise<void> {
     notes: NoteRow[]
     plan_items: PlanItemRow[]
     trip_links: TripLinkRow[]
+    videos: VideoRow[]
+    video_offline: VideoOfflineRow[]
     server_time: string
   }>(`/api/sync/pull?${qs}`)
   if (!pull) return
   for (const n of pull.notes ?? []) await idbSet('notes', { ...n, dirty: false })
   for (const p of pull.plan_items ?? []) await idbSet('plan_items', { ...p, dirty: false })
   for (const l of pull.trip_links ?? []) await idbSet('trip_links', { ...l, dirty: false })
+  for (const v of pull.videos ?? []) await idbSet('videos', { ...v, dirty: false })
+  for (const o of pull.video_offline ?? [])
+    await idbSet('video_offline', { ...o, dirty: false })
   if (pull.server_time) await idbSet('meta', pull.server_time, 'sync_since')
 }
 

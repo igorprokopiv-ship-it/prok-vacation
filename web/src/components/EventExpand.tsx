@@ -56,6 +56,7 @@ import {
   flatOptionChoices,
   shouldShowBranchPicker,
 } from '@/lib/options'
+import type { TripLocation } from '@/lib/tripMeta'
 import { cn } from '@/lib/utils'
 
 export type CreateEventPayload = {
@@ -222,6 +223,7 @@ export function EventExpand({
   onClearOption,
   onOpenTicket,
   onOpenMap,
+  locations = [],
 }: {
   mode?: 'edit' | 'create'
   stop?: ItineraryStop
@@ -254,6 +256,7 @@ export function EventExpand({
   onClearOption?: () => void | Promise<void>
   onOpenTicket?: (ticketId: string, title: string) => void
   onOpenMap?: (title: string, pageIndex?: number) => void
+  locations?: TripLocation[]
 }) {
   const isCreate = mode === 'create'
   const stop = stopProp ?? EMPTY_STOP
@@ -1638,6 +1641,7 @@ export function EventExpand({
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         defaultKind={kind}
+        locations={locations}
         onSelect={pickExistingSite}
       />
     </div>

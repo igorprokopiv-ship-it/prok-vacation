@@ -1,5 +1,5 @@
 import { Pencil, Trash2 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAppDialog } from '@/components/AppDialogs'
 import {
   AttachmentPicker,
@@ -8,75 +8,168 @@ import {
 import { Button } from '@/components/ui/button'
 import { RichText } from '@/components/RichText'
 import { RichTextEditor } from '@/components/RichTextEditor'
-import type { ItineraryStop } from '@/data/types'
 import {
   deleteNote,
   listNotes,
   saveNote,
   type NoteRow,
 } from '@/lib/contentSync'
-import { stopTitle } from '@/lib/data'
 import { getDeviceUser } from '@/lib/deviceIdentity'
 import { isEmptyRichText, normalizeRichText } from '@/lib/richText'
+import type { TripLocation } from '@/lib/tripMeta'
 
-const WHOLE_DAY_ID = '__whole_day__'
+const VACATION_WIDE_ID = '__vacation__'
+const LOCATION_PREFIX = 'loc:'
 
-function eventLabel(stop: ItineraryStop): string {
-  return `${stop.time} · ${stopTitle(stop)}`
+type NoteScope = {
+  location_id: string | null
+}
+
+const VACATION_SCOPE: NoteScope = { location_id: null }
+
+function isVacationWide(n: Pick<NoteRow, 'day_id' | 'stop_id' | 'location_id'>) {
+  return !n.day_id && !n.stop_id && !n.location_id
+}
+
+function isLocationNote(n: Pick<NoteRow, 'location_id'>) {
+  return Boolean(n.location_id)
+}
+
+/** Vacation-wide on every day; location notes on every day that includes that location. */
+function noteMatchesDayView(
+  n: NoteRow,
+  dayLocationIds: string[],
+): boolean {
+  if (isLocationNote(n)) {
+    return dayLocationIds.includes(n.location_id as string)
+  }
+  return isVacationWide(n)
+}
+
+function pickIdToScope(id: string): NoteScope {
+  if (id === VACATION_WIDE_ID) return VACATION_SCOPE
+  if (id.startsWith(LOCATION_PREFIX)) {
+    return { location_id: id.slice(LOCATION_PREFIX.length) }
+  }
+  return VACATION_SCOPE
 }
 
 export function NotesPanel({
   tripId,
   dayId,
-  dayStops = [],
+  locations = [],
+  dayLocationIds = [],
   deviceUser,
   adminMode = false,
 }: {
   tripId: string
   dayId: string
-  dayStops?: ItineraryStop[]
+  /** @deprecated day/event scopes removed; kept for call-site compat */
+  dayStops?: unknown
+  locations?: TripLocation[]
+  dayLocationIds?: string[]
   deviceUser: string
   adminMode?: boolean
 }) {
   const dialog = useAppDialog()
   const [notes, setNotes] = useState<NoteRow[]>([])
   const [draft, setDraft] = useState('')
-  const [draftStopId, setDraftStopId] = useState<string | null>(null)
+  const [draftScope, setDraftScope] = useState<NoteScope>(VACATION_SCOPE)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
-  const [editStopId, setEditStopId] = useState<string | null>(null)
+  const [editScope, setEditScope] = useState<NoteScope>(VACATION_SCOPE)
   const [busy, setBusy] = useState(false)
   const [pickerTarget, setPickerTarget] = useState<'create' | 'edit' | null>(
     null,
   )
+  const cleanedTrips = useRef(new Set<string>())
 
   const author = () => getDeviceUser() || deviceUser
 
-  const stopById = useMemo(() => {
-    const map = new Map<string, ItineraryStop>()
-    for (const s of dayStops) map.set(s.id, s)
+  const locationById = useMemo(() => {
+    const map = new Map<string, TripLocation>()
+    for (const loc of locations) map.set(loc.id, loc)
     return map
-  }, [dayStops])
+  }, [locations])
 
-  const eventOptions: AttachmentPickOption[] = useMemo(
+  const scopeOptions: AttachmentPickOption[] = useMemo(
     () => [
-      { id: WHOLE_DAY_ID, label: 'Whole day (no event)' },
-      ...dayStops.map((s) => ({
-        id: s.id,
-        label: eventLabel(s),
+      { id: VACATION_WIDE_ID, label: 'Vacation-wide' },
+      ...locations.map((loc) => ({
+        id: `${LOCATION_PREFIX}${loc.id}`,
+        label: `Location · ${loc.name}`,
       })),
     ],
-    [dayStops],
+    [locations],
   )
 
-  const reload = async () => {
+  const scopeLabel = (scope: NoteScope) => {
+    if (scope.location_id) {
+      const loc = locationById.get(scope.location_id)
+      return loc ? `Location · ${loc.name}` : 'Location · unknown'
+    }
+    return 'Vacation-wide'
+  }
+
+  const noteScopeLine = (n: NoteRow) => {
+    if (n.location_id) {
+      const loc = locationById.get(n.location_id)
+      return loc ? `Location · ${loc.name}` : 'Location · unknown'
+    }
+    return 'Vacation-wide'
+  }
+
+  /** Soft-delete day/event-scoped notes; normalize location notes to trip-wide location scope. */
+  const cleanupOtherScopes = async () => {
+    if (cleanedTrips.current.has(tripId)) return
+    cleanedTrips.current.add(tripId)
     const all = await listNotes(tripId)
-    setNotes(all.filter((n) => !n.day_id || n.day_id === dayId))
+    const who = author()
+    for (const n of all) {
+      if (isVacationWide(n)) continue
+      if (isLocationNote(n)) {
+        if (n.day_id || n.stop_id) {
+          await saveNote({
+            ...n,
+            day_id: null,
+            stop_id: null,
+            last_modified_by: who,
+            last_modified_on_device: 'web',
+          })
+        }
+        continue
+      }
+      // Day / event / other scopes → remove
+      await deleteNote(n, who)
+    }
+  }
+
+  const reload = async () => {
+    await cleanupOtherScopes()
+    const all = await listNotes(tripId)
+    const visible = all.filter((n) =>
+      noteMatchesDayView(n, dayLocationIds),
+    )
+    // Stable order: vacation-wide first, then by location name, then modified
+    visible.sort((a, b) => {
+      const aLoc = a.location_id ? 1 : 0
+      const bLoc = b.location_id ? 1 : 0
+      if (aLoc !== bLoc) return aLoc - bLoc
+      if (a.location_id && b.location_id && a.location_id !== b.location_id) {
+        const an = locationById.get(a.location_id)?.name ?? a.location_id
+        const bn = locationById.get(b.location_id)?.name ?? b.location_id
+        return an.localeCompare(bn)
+      }
+      return (b.last_modified_on || '').localeCompare(a.last_modified_on || '')
+    })
+    setNotes(visible)
   }
 
   useEffect(() => {
+    setDraftScope(VACATION_SCOPE)
     void reload()
-  }, [tripId, dayId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripId, dayId, dayLocationIds.join('|')])
 
   const isOwner = (n: NoteRow) => {
     const me = author()
@@ -84,19 +177,6 @@ export function NotesPanel({
   }
 
   const canDelete = (n: NoteRow) => isOwner(n) || adminMode
-
-  const scopeLabel = (stopId: string | null | undefined) => {
-    if (!stopId) return 'Whole day'
-    const stop = stopById.get(stopId)
-    return stop ? eventLabel(stop) : 'Event · unknown'
-  }
-
-  const noteEventLine = (n: NoteRow) => {
-    if (!n.stop_id) return null
-    const stop = stopById.get(n.stop_id)
-    if (!stop) return 'Event · unknown'
-    return `Event · ${eventLabel(stop)}`
-  }
 
   const add = async () => {
     const body = normalizeRichText(draft)
@@ -108,8 +188,9 @@ export function NotesPanel({
       await saveNote({
         id: crypto.randomUUID(),
         trip_id: tripId,
-        day_id: dayId,
-        stop_id: draftStopId,
+        day_id: null,
+        stop_id: null,
+        location_id: draftScope.location_id,
         body,
         record_status: 'active',
         last_modified_on: now,
@@ -120,7 +201,7 @@ export function NotesPanel({
         last_modified_on_device: 'web',
       })
       setDraft('')
-      setDraftStopId(null)
+      setDraftScope(VACATION_SCOPE)
       await reload()
     } finally {
       setBusy(false)
@@ -131,13 +212,13 @@ export function NotesPanel({
     if (!isOwner(n)) return
     setEditingId(n.id)
     setEditDraft(n.body)
-    setEditStopId(n.stop_id ?? null)
+    setEditScope({ location_id: n.location_id ?? null })
   }
 
   const cancelEdit = () => {
     setEditingId(null)
     setEditDraft('')
-    setEditStopId(null)
+    setEditScope(VACATION_SCOPE)
   }
 
   const saveEdit = async (n: NoteRow) => {
@@ -152,7 +233,9 @@ export function NotesPanel({
       await saveNote({
         ...n,
         body,
-        stop_id: editStopId,
+        day_id: null,
+        stop_id: null,
+        location_id: editScope.location_id,
         last_modified_by: author(),
         last_modified_on_device: 'web',
       })
@@ -182,10 +265,10 @@ export function NotesPanel({
     }
   }
 
-  const onPickEvent = (id: string) => {
-    const stopId = id === WHOLE_DAY_ID ? null : id
-    if (pickerTarget === 'create') setDraftStopId(stopId)
-    else if (pickerTarget === 'edit') setEditStopId(stopId)
+  const onPickScope = (id: string) => {
+    const scope = pickIdToScope(id)
+    if (pickerTarget === 'create') setDraftScope(scope)
+    else if (pickerTarget === 'edit') setEditScope(scope)
     setPickerTarget(null)
   }
 
@@ -193,8 +276,9 @@ export function NotesPanel({
     <div className="space-y-4 pb-8">
       <p className="text-sm text-ink-soft">
         Notes as <span className="font-semibold text-ink">{deviceUser}</span>.
-        You can edit or delete your own
-        {adminMode ? '; admins can delete any' : ''}. They sync when online.
+        Vacation-wide notes appear on every day; location notes on days with that
+        location.
+        {adminMode ? ' Admins can delete any note.' : ''}
       </p>
 
       <div className="space-y-2">
@@ -205,10 +289,10 @@ export function NotesPanel({
           <Button
             variant="outline"
             size="sm"
-            disabled={busy || !dayStops.length}
+            disabled={busy}
             onClick={() => setPickerTarget('create')}
           >
-            {scopeLabel(draftStopId)}
+            {scopeLabel(draftScope)}
           </Button>
         </div>
         <RichTextEditor
@@ -228,7 +312,7 @@ export function NotesPanel({
         {notes.map((n) => {
           const mine = isOwner(n)
           const editing = editingId === n.id
-          const eventLine = noteEventLine(n)
+          const scopeLine = noteScopeLine(n)
           return (
             <li
               key={n.id}
@@ -243,10 +327,10 @@ export function NotesPanel({
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={busy || !dayStops.length}
+                      disabled={busy}
                       onClick={() => setPickerTarget('edit')}
                     >
-                      {scopeLabel(editStopId)}
+                      {scopeLabel(editScope)}
                     </Button>
                   </div>
                   <RichTextEditor value={editDraft} onChange={setEditDraft} />
@@ -271,11 +355,9 @@ export function NotesPanel({
               ) : (
                 <>
                   <RichText value={n.body} />
-                  {eventLine ? (
-                    <p className="mt-1.5 text-[11px] font-medium text-ink-soft">
-                      {eventLine}
-                    </p>
-                  ) : null}
+                  <p className="mt-1.5 text-[11px] font-medium text-ink-soft">
+                    {scopeLine}
+                  </p>
                 </>
               )}
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
@@ -316,7 +398,9 @@ export function NotesPanel({
           )
         })}
         {!notes.length ? (
-          <li className="text-sm text-ink-soft">No notes for this day yet.</li>
+          <li className="text-sm text-ink-soft">
+            No vacation or location notes yet.
+          </li>
         ) : null}
       </ul>
 
@@ -327,8 +411,8 @@ export function NotesPanel({
             if (!open) setPickerTarget(null)
           }}
           title="Note scope"
-          options={eventOptions}
-          onSelect={onPickEvent}
+          options={scopeOptions}
+          onSelect={onPickScope}
         />
       ) : null}
     </div>

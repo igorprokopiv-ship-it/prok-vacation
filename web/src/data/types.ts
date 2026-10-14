@@ -68,7 +68,10 @@ export interface ItineraryDay {
   date: string;
   dateLabel: string;
   navLabel: string;
-  city: string;
+  /** @deprecated Prefer locationIds; kept for pack migration fallback. */
+  city?: string;
+  /** Trip-meta location ids associated with this day (ordered). */
+  locationIds?: string[];
   type: DayType;
   headline: string;
   briefing: string;

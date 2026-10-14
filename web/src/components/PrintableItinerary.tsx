@@ -2,7 +2,9 @@ import { Printer, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { RichText } from '@/components/RichText'
 import type { Itinerary, ItineraryStop, Site } from '@/data/types'
+import { dayLocationLabel } from '@/lib/dayLocations'
 import { isEmptyRichText } from '@/lib/richText'
+import type { TripLocation } from '@/lib/tripMeta'
 
 function siteName(stop: ItineraryStop, sites: Site[]): string {
   if (!stop.siteId) return 'Untitled stop'
@@ -22,6 +24,7 @@ export function PrintableItinerary({
   endDate,
   itinerary,
   sites,
+  locations = [],
   onClose,
 }: {
   title: string
@@ -29,6 +32,7 @@ export function PrintableItinerary({
   endDate?: string | null
   itinerary: Itinerary
   sites: Site[]
+  locations?: TripLocation[]
   onClose: () => void
 }) {
   const dateRange = [startDate, endDate].filter(Boolean).join(' → ')
@@ -77,7 +81,9 @@ export function PrintableItinerary({
                 {day.dateLabel || day.date}
                 {day.type ? ` · ${day.type}` : ''}
               </p>
-              <h2 className="mt-1 font-display text-2xl font-bold">{day.city}</h2>
+              <h2 className="mt-1 font-display text-2xl font-bold">
+                {dayLocationLabel(day, locations)}
+              </h2>
               {day.headline ? (
                 <p className="mt-1 text-base text-ink-soft">{day.headline}</p>
               ) : null}

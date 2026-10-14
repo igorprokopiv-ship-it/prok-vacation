@@ -6,7 +6,6 @@
       "date": "2026-10-28",
       "dateLabel": "Wednesday, Oct 28",
       "navLabel": "Wed Oct 28 · Transit",
-      "city": "Transit to London",
       "type": "transit",
       "headline": "Operation: Cross the Pond",
       "briefing": "The deployment begins on two fronts. Hanna flies Business from BWI (FI 642), while the Plebs (Prok, Max, Troy) depart IAD on FI 644. Everyone reconnects in Iceland for FI 470 into London Gatwick.",
@@ -101,6 +100,9 @@
           "primary": false,
           "timedEntry": true
         }
+      ],
+      "locationIds": [
+        "loc-london"
       ]
     },
     {
@@ -108,7 +110,6 @@
       "date": "2026-10-29",
       "dateLabel": "Thursday, Oct 29",
       "navLabel": "Thu Oct 29 · London",
-      "city": "London",
       "type": "activity",
       "headline": "The Crown Jewels & The Medieval Fortress",
       "briefing": "Touch down at Gatwick, Thameslink into London Bridge, grab a Ginger Pig sausage roll, drop bags at Apex City of London, then dive straight into the Tower of London and a surviving stretch of Roman London Wall before dinner at The Lampery.",
@@ -289,6 +290,9 @@
           "label": "Walking route",
           "url": "https://www.google.com/maps/dir/London+Bridge,+Station+Approach+Rd,+London+SE1+9SP,+United+Kingdom/The+Ginger+Pig,+Borough+Market,+Borough+High+St,+London+SE1+1TL,+United+Kingdom/Apex+City+of+London+Hotel,+1+Seething+Ln,+London+EC3N+4AX,+United+Kingdom/Tower+of+London,+London+EC3N+4AB,+United+Kingdom/London+Wall,+Tower+Hill,+London+EC3N+4DJ,+United+Kingdom/Apex+City+of+London+Hotel,+1+Seething+Ln,+London+EC3N+4AX,+United+Kingdom/@51.5035084,-0.0887232,16z/data=!3m1!5s0x132f605c87448521:0xbf5790e798df062f!4m42!4m41!1m5!1m1!1s0x487603509c580b6f:0x335af388238f54bc!2m2!1d-0.0848024!2d51.5042625!1m5!1m1!1s0x487604a873ad51bb:0x7aa6af8fe1fea33c!2m2!1d-0.0911759!2d51.5055874!1m5!1m1!1s0x48761cab5f67a04b:0xd70632c706e31b65!2m2!1d-0.0794882!2d51.5105534!1m5!1m1!1s0x48760349331f38dd:0xa8bf49dde1d56467!2m2!1d-0.0759493!2d51.5081124!1m5!1m1!1s0x4876034eac643b8b:0x733a1478531889a7!2m2!1d-0.0760332!2d51.5098895!1m5!1m1!1s0x48761cab5f67a04b:0xd70632c706e31b65!2m2!1d-0.0794882!2d51.5105534!2m3!6e0!7e2!8j1788429600!3e2?entry=tts&g_ep=EgoyMDI2MDgzMC4wKgBIAVAD&skid=81e80716-e0b5-4d01-9f2c-f430cfa3a0ff"
         }
+      ],
+      "locationIds": [
+        "loc-london"
       ]
     },
     {
@@ -296,7 +300,6 @@
       "date": "2026-10-30",
       "dateLabel": "Friday, Oct 30",
       "navLabel": "Fri Oct 30 · London",
-      "city": "London",
       "type": "activity",
       "headline": "Hogwarts & The Phantom of the Opera",
       "briefing": "Full English Breakfast at the hotel, then Leavesden for Harry Potter Studios. Afternoon branches: Oxford (if weather is good) or St Paul's + Piccadilly shopping. Finish the day with Phantom of the Opera at 19:30.",
@@ -539,14 +542,16 @@
           "timedEntry": false
         }
       ],
-      "mapsUrls": []
+      "mapsUrls": [],
+      "locationIds": [
+        "loc-london"
+      ]
     },
     {
       "id": "day-3",
       "date": "2026-10-31",
       "dateLabel": "Saturday, Oct 31",
       "navLabel": "Sat Oct 31 · London",
-      "city": "London",
       "type": "activity",
       "headline": "Kings, Queens & Shakespeare's Globe",
       "briefing": "Early Westminster photo loop with light crowds, then Westminster Abbey, Officers Inspection at Horse Guards, Buckingham Palace walk, Globe & Golden Hind, Tower Bridge, and dinner at The George Inn.",
@@ -821,6 +826,9 @@
           "label": "Afternoon walking route",
           "url": "https://maps.app.goo.gl/kmYzbFbFmgJpgTbo6"
         }
+      ],
+      "locationIds": [
+        "loc-london"
       ]
     },
     {
@@ -828,7 +836,6 @@
       "date": "2026-11-01",
       "dateLabel": "Sunday, Nov 1",
       "navLabel": "Sun Nov 1 · London → Paris",
-      "city": "London to Paris",
       "type": "activity",
       "headline": "Ancient Empires & The Jump to France",
       "briefing": "Morning branches: British Museum (full family) or Oxford exteriors + Magdalen (Hanna + Max only). Converge at Blacklock for Sunday Roast, grab bags from Bounce, then Eurostar from St Pancras to Paris and check in at Pullman Paris Centre-Bercy.",
@@ -1088,6 +1095,10 @@
           "label": "London walking route",
           "url": "https://maps.app.goo.gl/YfmyyM6doXWz8T1q9"
         }
+      ],
+      "locationIds": [
+        "loc-london",
+        "loc-paris"
       ]
     },
     {
@@ -1095,7 +1106,6 @@
       "date": "2026-11-02",
       "dateLabel": "Monday, Nov 2",
       "navLabel": "Mon Nov 2 · Paris",
-      "city": "Paris",
       "type": "activity",
       "headline": "The Mona Lisa, Stained Glass & The Unknown Soldier",
       "briefing": "Palais Royal columns and Le Pain Quotidien, then the Louvre via Arc du Carrousel, Sainte-Chapelle, Vedettes du Pont Neuf Seine cruise, Notre-Dame, and the 18:30 rekindling of the flame at the Arc de Triomphe.",
@@ -1324,6 +1334,9 @@
           "label": "Walking route",
           "url": "https://maps.app.goo.gl/QPihrEWs6RPuNb4o8"
         }
+      ],
+      "locationIds": [
+        "loc-paris"
       ]
     },
     {
@@ -1331,7 +1344,6 @@
       "date": "2026-11-03",
       "dateLabel": "Tuesday, Nov 3",
       "navLabel": "Tue Nov 3 · Paris",
-      "city": "Paris",
       "type": "activity",
       "headline": "The Sun King's Palace, Catacombs & The Eiffel Tower",
       "briefing": "Sunrise family picture at Trocadéro, croissants at Carette, full Versailles day (Hall of Mirrors + gardens), sunset from the Eiffel Tower 2nd floor, then the Catacombs.",
@@ -1526,6 +1538,9 @@
           "primary": true,
           "timedEntry": false
         }
+      ],
+      "locationIds": [
+        "loc-paris"
       ]
     },
     {
@@ -1533,7 +1548,6 @@
       "date": "2026-11-04",
       "dateLabel": "Wednesday, Nov 4",
       "navLabel": "Wed Nov 4 · Paris → Rome",
-      "city": "Paris to Rome",
       "type": "activity",
       "headline": "Arrival in the Eternal City & The Ancient Oculus",
       "briefing": "Early Orly flight TO 3910 into FCO. Italy's National Unity Day — free museums, packed streets, Piazza Venezia ceremony. Drop bags at Casa Modelli, then three Pantheon queue options before converging on Piazza Mattei pizza masterclass.",
@@ -1906,6 +1920,10 @@
           "label": "Rome walking route",
           "url": "https://maps.app.goo.gl/LuJRMLz3fuBaR2Pi7"
         }
+      ],
+      "locationIds": [
+        "loc-paris",
+        "loc-rome"
       ]
     },
     {
@@ -1913,7 +1931,6 @@
       "date": "2026-11-05",
       "dateLabel": "Thursday, Nov 5",
       "navLabel": "Thu Nov 5 · Rome",
-      "city": "Rome",
       "type": "activity",
       "headline": "Gladiators, Emperors & The Mega-Baths",
       "briefing": "Early Colosseum family picture from Largo Gaetana Agnesi, then Forum, Palatine, Colosseum interior, Baths of Caracalla, Circus Maximus, Capitoline, Trajan's Column, and the Altar of the Fatherland rooftop.",
@@ -2160,6 +2177,9 @@
           "label": "Walking route",
           "url": "https://maps.app.goo.gl/68VnYPt5RAQAgzg37"
         }
+      ],
+      "locationIds": [
+        "loc-rome"
       ]
     },
     {
@@ -2167,7 +2187,6 @@
       "date": "2026-11-06",
       "dateLabel": "Friday, Nov 6",
       "navLabel": "Fri Nov 6 · Rome",
-      "city": "Rome",
       "type": "activity",
       "headline": "The Sistine Chapel, Massive Domes & A Papal Fortress",
       "briefing": "Uber to St Peter's early (knees and shoulders covered, passports), climb the dome, walk the Vatican walls to the Museums & Sistine Chapel, then Castel Sant'Angelo and afternoon shopping near Trevi / Via dei Coronari.",
@@ -2344,14 +2363,16 @@
           "label": "Walking route",
           "url": "https://maps.app.goo.gl/GabWYNzScBWHeNJV6"
         }
+      ],
+      "locationIds": [
+        "loc-rome"
       ]
     },
     {
       "id": "day-10",
       "date": "2026-11-07",
       "dateLabel": "Saturday, Nov 7",
-      "navLabel": "Sat Nov 7 · Pompeii",
-      "city": "Pompeii",
+      "navLabel": "Sat Nov 7 · Pompeii · Rome",
       "type": "activity",
       "headline": "A City Frozen in Ash & The Volcano Summit",
       "briefing": "Meet at Piazza del Popolo for the tour bus to Pompeii — guide, Neapolitan lunch with Bay of Naples views, then hike Mt. Vesuvius before returning to Rome for dinner at ADEVA.",
@@ -2523,14 +2544,18 @@
           "primary": true,
           "timedEntry": false
         }
-      ]
+      ],
+      "locationIds": [
+        "loc-pompeii",
+        "loc-rome"
+      ],
+      "mapsUrls": []
     },
     {
       "id": "day-11",
       "date": "2026-11-08",
       "dateLabel": "Sunday, Nov 8",
-      "navLabel": "Sun Nov 8 · Transit home",
-      "city": "Transit to Home",
+      "navLabel": "Sun Nov 8 · Transit",
       "type": "transit",
       "headline": "The Journey Home",
       "briefing": "Leonardo Express to FCO. Everyone flies FI 931 FCO→KEF in Economy, then FI 645 KEF→IAD — Hanna back in Business for the long leg; boys remain Economy. Home ~20:00.",
@@ -2668,7 +2693,11 @@
           "primary": true,
           "timedEntry": false
         }
-      ]
+      ],
+      "locationIds": [
+        "loc-rome"
+      ],
+      "mapsUrls": []
     }
   ]
 }

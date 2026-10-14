@@ -1,15 +1,15 @@
 {
   "tripId": "a1111111-1111-4111-8111-111111111111",
   "slug": "eu2026",
-  "version": "b92d6c898246",
-  "generatedAt": "2026-10-13T21:50:20.038Z",
+  "version": "7a3adfe17ee0",
+  "generatedAt": "2026-10-14T12:23:11.058Z",
   "fileCount": 136,
-  "totalBytes": 44678769,
+  "totalBytes": 44687733,
   "files": [
     {
       "path": "assets.json",
-      "sha256": "66953f8052458109e7539d361c980c97461faa86d9216cecf5efc667a74f3897",
-      "bytes": 956,
+      "sha256": "be3a82c51581caf83a28a3728e19a49f2e3b4245d5323d1940da947b3019b1cd",
+      "bytes": 998,
       "mime": "application/json",
       "kind": "json"
     },
@@ -939,22 +939,22 @@
     },
     {
       "path": "itinerary.json",
-      "sha256": "6a9958a9c1d1f8f6e1713f85d7c43f31d2405a02906b65e6bc1b1d59c09dc01a",
-      "bytes": 84735,
+      "sha256": "a49a6ae74e7e7cbad649ff0ef82e5808cb5258949d95ce53982ee18e4688d085",
+      "bytes": 87855,
       "mime": "application/json",
       "kind": "json"
     },
     {
       "path": "sites.json",
-      "sha256": "577354262314144dd295ba6b50c3552d8cd5147425e0a50cae3f1bb1a87c0f8d",
-      "bytes": 201875,
+      "sha256": "edd2cc784fbd6022b29732833599c801b6e2665026420666202264a15f6f2c79",
+      "bytes": 207581,
       "mime": "application/json",
       "kind": "json"
     },
     {
       "path": "trip.json",
-      "sha256": "b38f5ffe0dea6a7f0db4c6a272d3aa1c00fe5d041ef009754edd751a9d21d7dd",
-      "bytes": 585,
+      "sha256": "a004dbf19882932d9879f2d73c618526ce8147ca545abaa9b06760d401ca7233",
+      "bytes": 681,
       "mime": "application/json",
       "kind": "json"
     }
