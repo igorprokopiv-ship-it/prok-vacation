@@ -394,6 +394,12 @@ export function TripPicker({
           </DialogHeader>
           <p className="text-sm text-ink-soft">
             Choose a printable itinerary or a JSON backup for restore.
+            {menuTrip?.slug ? (
+              <>
+                {' '}
+                Backup file: <span className="font-medium text-ink">{menuTrip.slug}-backup.json</span>
+              </>
+            ) : null}
           </p>
           <div className="flex flex-col gap-2">
             <Button disabled={busy} onClick={() => void openPrintable()}>

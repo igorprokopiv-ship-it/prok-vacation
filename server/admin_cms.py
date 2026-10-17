@@ -131,8 +131,15 @@ def write_json(path: Path, data: Any) -> None:
 
 
 def sync_web_data(slug: str) -> None:
-    """Keep Vite bundled JSON in sync for local/offline fallback."""
+    """Keep Vite bundled JSON in sync for local/offline fallback.
+
+    Production images only ship ``web/dist`` (no ``web/src``), and the NAS
+    content volume often mounts over the image packs — skip quietly when the
+    Vite data dir is absent so CMS saves / export-restore still succeed.
+    """
     if slug != "eu2026":
+        return
+    if not WEB_DATA.is_dir():
         return
     pack = pack_dir(slug)
     for name in ("itinerary.json", "sites.json", "assets.json"):
@@ -168,7 +175,10 @@ def refresh_trip_document(slug: str) -> None:
 
 
 def commit_pack(slug: str) -> None:
-    sync_web_data(slug)
+    try:
+        sync_web_data(slug)
+    except Exception as exc:
+        print(f"admin sync_web_data ({slug}): {exc}", file=sys.stderr)
     rebuild_pack(slug)
     refresh_trip_document(slug)
 

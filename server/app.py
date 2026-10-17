@@ -28,6 +28,10 @@ WEB_DIST = ROOT / "web" / "dist"
 BLOBS = ROOT / "data" / "blobs"
 CONTENT_TRIPS = ROOT / "content" / "trips"
 CONTENT_INBOX = ROOT / "content" / "inbox"
+# Bundled defaults outside the host content mount (see Dockerfile content-seed).
+CONTENT_SEED_TRIPS = Path(
+    os.environ.get("CONTENT_SEED_TRIPS", str(ROOT / "content-seed" / "trips"))
+)
 
 load_dotenv(ROOT / ".env", override=True)
 
@@ -216,11 +220,36 @@ app.add_middleware(
 app.include_router(admin_router)
 
 
+def ensure_seed_packs() -> None:
+    """Copy missing trip packs from the image seed tree into CONTENT_TRIPS.
+
+    TrueNAS mounts a host ``content`` volume over ``/app/content``, which can
+    hide the packs baked into the image. If a seeded pack (e.g. eu2026) was
+    never copied onto the host volume, restore it once — never overwrite an
+    existing directory.
+    """
+    if not CONTENT_SEED_TRIPS.is_dir():
+        return
+    CONTENT_TRIPS.mkdir(parents=True, exist_ok=True)
+    for src in sorted(CONTENT_SEED_TRIPS.iterdir()):
+        if not src.is_dir():
+            continue
+        dest = CONTENT_TRIPS / src.name
+        if dest.exists():
+            continue
+        shutil.copytree(src, dest)
+        print(f"restored missing trip pack from seed: {src.name}")
+
+
 @app.on_event("startup")
 def startup() -> None:
     BLOBS.mkdir(parents=True, exist_ok=True)
     CONTENT_INBOX.joinpath("tickets").mkdir(parents=True, exist_ok=True)
     CONTENT_INBOX.joinpath("maps").mkdir(parents=True, exist_ok=True)
+    try:
+        ensure_seed_packs()
+    except Exception as exc:
+        print(f"WARNING: ensure_seed_packs failed: {exc}", file=sys.stderr)
     if not DATABASE_URL:
         print(
             "WARNING: DATABASE_URL unset — serving filesystem packs only",

@@ -77,6 +77,8 @@ After a green **Build and publish image** run: Edit App → save (or Stop/Start)
 | `/mnt/Programs/Apps/ProkVacation/blobs` | `/app/data/blobs` |
 | `/mnt/Programs/Apps/ProkVacation/web-public-images` | `/app/web/public/images` |
 
+The host `content` mount **replaces** packs baked into the image. On first deploy, seed the host folder from the repo (or let the container copy missing packs from `/app/content-seed/trips` on startup — it never overwrites an existing slug directory). If `eu2026` is missing from the host mount, export/print will show the wrong trip or an empty itinerary.
+
 ---
 
 ## Access
