@@ -31,6 +31,11 @@ __pycache__/
 source/
 TMP/
 
+# Home-lab TLS material (never commit)
+*.crt
+*.key
+prok-certs/
+
 dev-dist/
 dist/
 web/dist/

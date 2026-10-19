@@ -224,9 +224,9 @@ def ensure_seed_packs() -> None:
     """Copy missing trip packs from the image seed tree into CONTENT_TRIPS.
 
     TrueNAS mounts a host ``content`` volume over ``/app/content``, which can
-    hide the packs baked into the image. If a seeded pack (e.g. eu2026) was
-    never copied onto the host volume, restore it once — never overwrite an
-    existing directory.
+    hide the packs baked into the image. If a seeded pack (e.g. eu2026) is
+    absent, copy it. If the host dir exists but has no ``manifest.json``, fill
+    missing files from the seed without overwriting anything already present.
     """
     if not CONTENT_SEED_TRIPS.is_dir():
         return
@@ -235,10 +235,28 @@ def ensure_seed_packs() -> None:
         if not src.is_dir():
             continue
         dest = CONTENT_TRIPS / src.name
-        if dest.exists():
+        if not dest.exists():
+            shutil.copytree(src, dest)
+            print(f"restored missing trip pack from seed: {src.name}")
             continue
-        shutil.copytree(src, dest)
-        print(f"restored missing trip pack from seed: {src.name}")
+        if (dest / "manifest.json").is_file():
+            continue
+        # Incomplete host pack (empty/partial mount) — copy only missing paths.
+        copied = 0
+        for item in src.iterdir():
+            target = dest / item.name
+            if target.exists():
+                continue
+            if item.is_dir():
+                shutil.copytree(item, target)
+            else:
+                shutil.copy2(item, target)
+            copied += 1
+        if copied:
+            print(
+                f"filled incomplete trip pack from seed: {src.name} "
+                f"({copied} paths)"
+            )
 
 
 @app.on_event("startup")

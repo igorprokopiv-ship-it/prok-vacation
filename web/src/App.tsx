@@ -278,8 +278,10 @@ export default function App() {
     }
     if (syncingRef.current) return
     syncingRef.current = true
+    const contentStatus = { current: 'checking' as SyncStatus }
     try {
-      await syncTripContent(id, (info) => {
+      const manifest = await syncTripContent(id, (info) => {
+        contentStatus.current = info.status
         setSyncStatus(info.status)
         if (info.status === 'downloading' && info.total) {
           const mb = (info.bytes / (1024 * 1024)).toFixed(1)
@@ -288,6 +290,10 @@ export default function App() {
           setSyncDetail(undefined)
         }
       })
+      if (!manifest || contentStatus.current === 'error') {
+        setSyncStatus('error')
+        return
+      }
       const doc = await getLocalTripDoc(id)
       if (doc) {
         applyTripDocument(doc)
