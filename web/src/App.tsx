@@ -283,15 +283,28 @@ export default function App() {
       const manifest = await syncTripContent(id, (info) => {
         contentStatus.current = info.status
         setSyncStatus(info.status)
-        if (info.status === 'downloading' && info.total) {
+        if (
+          (info.status === 'downloading' || info.status === 'checking') &&
+          info.total
+        ) {
           const mb = (info.bytes / (1024 * 1024)).toFixed(1)
-          setSyncDetail(`${info.done}/${info.total} · ${mb} MB`)
+          setSyncDetail(
+            info.bytes
+              ? `${info.done}/${info.total} · ${mb} MB`
+              : `${info.done}/${info.total}`,
+          )
         } else {
           setSyncDetail(undefined)
         }
       })
-      if (!manifest || contentStatus.current === 'error') {
-        setSyncStatus('error')
+      if (
+        !manifest ||
+        contentStatus.current === 'error' ||
+        contentStatus.current === 'offline'
+      ) {
+        setSyncStatus(
+          contentStatus.current === 'offline' ? 'offline' : 'error',
+        )
         return
       }
       const doc = await getLocalTripDoc(id)
@@ -300,7 +313,14 @@ export default function App() {
         setTick((n) => n + 1)
       }
       await syncUserData(id)
-      setSyncStatus(navigator.onLine ? 'synced' : 'offline')
+      // Only Synced when content sync reported every blob cached.
+      setSyncStatus(
+        contentStatus.current === 'synced' && navigator.onLine
+          ? 'synced'
+          : navigator.onLine
+            ? 'error'
+            : 'offline',
+      )
     } catch {
       setSyncStatus(navigator.onLine ? 'error' : 'offline')
     } finally {
@@ -366,7 +386,7 @@ export default function App() {
       const initial =
         remote.find((t) => t.id === saved || t.slug === saved) ?? remote[0]
       if (initial) {
-        // Local itinerary first; content blobs sync in background (Sync chip = retry).
+        // Local itinerary first; download entire trip pack in background (chip = retry).
         await openTrip(initial, 'background')
       }
       setReady(true)

@@ -77,7 +77,7 @@ After a green **Build and publish image** run: Edit App → save (or Stop/Start)
 | `/mnt/Programs/Apps/ProkVacation/blobs` | `/app/data/blobs` |
 | `/mnt/Programs/Apps/ProkVacation/web-public-images` | `/app/web/public/images` |
 
-The host `content` mount **replaces** packs baked into the image. On first deploy, seed the host folder from the repo (or let the container copy missing packs from `/app/content-seed/trips` on startup — it never overwrites an existing slug directory). If `eu2026` is missing from the host mount, export/print will show the wrong trip or an empty itinerary.
+The host `content` and `blobs` mounts **replace** data baked into the image. On startup the container restores missing trip packs from `/app/content-seed/trips` and missing blob files from `/app/data-seed/blobs` (never overwrites existing files). If `eu2026/manifest.json` is still missing after restart, check `GET /api/health` (`manifest_ok`) and repair the host mounts. Without a manifest, phones cannot download the full offline pack.
 
 ---
 

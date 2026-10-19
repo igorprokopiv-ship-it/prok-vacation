@@ -28,9 +28,10 @@ COPY --from=webbuild /src/web/dist ./web/dist
 COPY --from=webbuild /src/web/public ./web/public
 COPY --from=webbuild /src/data/blobs ./data/blobs
 COPY --from=webbuild /src/content/trips ./content/trips
-# Kept outside the host-mounted /app/content volume so missing packs
-# (especially eu2026) can be restored on startup.
+# Kept outside host-mounted volumes so missing packs/blobs can be restored
+# on startup (TrueNAS mounts hide /app/content and /app/data/blobs).
 COPY --from=webbuild /src/content/trips ./content-seed/trips
+COPY --from=webbuild /src/data/blobs ./data-seed/blobs
 ENV HOST=0.0.0.0 PORT=8083
 WORKDIR /app/server
 EXPOSE 8083

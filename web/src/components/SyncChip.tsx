@@ -13,14 +13,14 @@ export function SyncChip({
     status === 'offline'
       ? 'Offline'
       : status === 'checking'
-        ? 'Checking…'
+        ? detail || 'Checking…'
         : status === 'downloading'
           ? detail || 'Downloading…'
           : status === 'synced'
             ? 'Synced'
             : status === 'error'
-              ? 'Sync error'
-              : 'Tap to sync'
+              ? 'Tap to retry'
+              : 'Downloading…'
 
   const tone =
     status === 'offline'

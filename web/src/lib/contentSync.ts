@@ -199,26 +199,44 @@ export async function syncTripContent(
   await idbSet('meta', manifest, `manifest:${tripId}`)
   await idbSet('meta', manifest.version, `version:${tripId}`)
 
+  const packTotal = manifest.files?.length ?? 0
+  if (!packTotal) {
+    onProgress?.({ status: 'error', done: 0, total: 0, bytes: 0 })
+    return manifest
+  }
   const missing = await listMissingBlobs(manifest.files)
-  const total = missing.length
-  let done = 0
+  let cached = packTotal - missing.length
   let bytes = 0
-  if (total) {
-    onProgress?.({ status: 'downloading', done, total, bytes })
-    for (const f of missing) {
+  onProgress?.({
+    status: missing.length ? 'downloading' : 'checking',
+    done: cached,
+    total: packTotal,
+    bytes,
+  })
+
+  // Download every missing file; continue past individual failures.
+  for (const f of missing) {
+    try {
       await downloadBlob(f.sha256)
-      done += 1
+      cached += 1
       bytes += f.bytes
-      onProgress?.({ status: 'downloading', done, total, bytes })
+    } catch {
+      /* counted in stillMissing below */
     }
+    onProgress?.({
+      status: 'downloading',
+      done: cached,
+      total: packTotal,
+      bytes,
+    })
   }
 
   const stillMissing = await listMissingBlobs(manifest.files)
-  if (stillMissing.length) {
+  if (stillMissing.length || cached < packTotal) {
     onProgress?.({
       status: 'error',
-      done: manifest.files.length - stillMissing.length,
-      total: manifest.files.length,
+      done: packTotal - stillMissing.length,
+      total: packTotal,
       bytes,
     })
     return manifest
@@ -237,8 +255,8 @@ export async function syncTripContent(
 
   onProgress?.({
     status: 'synced',
-    done: manifest.files.length,
-    total: manifest.files.length,
+    done: packTotal,
+    total: packTotal,
     bytes,
   })
   return manifest

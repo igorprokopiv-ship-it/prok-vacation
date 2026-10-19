@@ -28,9 +28,12 @@ WEB_DIST = ROOT / "web" / "dist"
 BLOBS = ROOT / "data" / "blobs"
 CONTENT_TRIPS = ROOT / "content" / "trips"
 CONTENT_INBOX = ROOT / "content" / "inbox"
-# Bundled defaults outside the host content mount (see Dockerfile content-seed).
+# Bundled defaults outside host mounts (see Dockerfile content-seed / data-seed).
 CONTENT_SEED_TRIPS = Path(
     os.environ.get("CONTENT_SEED_TRIPS", str(ROOT / "content-seed" / "trips"))
+)
+BLOBS_SEED = Path(
+    os.environ.get("BLOBS_SEED", str(ROOT / "data-seed" / "blobs"))
 )
 
 load_dotenv(ROOT / ".env", override=True)
@@ -259,6 +262,60 @@ def ensure_seed_packs() -> None:
             )
 
 
+def ensure_seed_blobs() -> None:
+    """Copy missing content-addressed blobs from image seed into BLOBS.
+
+    TrueNAS mounts a host ``blobs`` volume over ``/app/data/blobs``, which can
+    hide blobs baked into the image. Copy any missing ``aa/sha…`` files from
+    ``data-seed/blobs`` — never overwrite existing files.
+    """
+    if not BLOBS_SEED.is_dir():
+        return
+    BLOBS.mkdir(parents=True, exist_ok=True)
+    copied = 0
+    for shard in BLOBS_SEED.iterdir():
+        if not shard.is_dir() or len(shard.name) != 2:
+            continue
+        dest_shard = BLOBS / shard.name
+        dest_shard.mkdir(parents=True, exist_ok=True)
+        for src in shard.iterdir():
+            if not src.is_file():
+                continue
+            dest = dest_shard / src.name
+            if dest.exists():
+                continue
+            shutil.copy2(src, dest)
+            copied += 1
+    if copied:
+        print(f"restored missing blobs from seed: {copied} files")
+
+
+def content_readiness() -> dict[str, Any]:
+    """Pack/blob readiness for health checks (eu2026 is the primary trip)."""
+    eu_manifest = CONTENT_TRIPS / "eu2026" / "manifest.json"
+    manifest_ok = eu_manifest.is_file()
+    manifest_files = 0
+    if manifest_ok:
+        try:
+            data = json.loads(eu_manifest.read_text(encoding="utf-8"))
+            files = data.get("files") or []
+            manifest_files = len(files) if isinstance(files, list) else 0
+        except Exception:
+            manifest_ok = False
+    blob_files = 0
+    if BLOBS.is_dir():
+        for shard in BLOBS.iterdir():
+            if shard.is_dir():
+                blob_files += sum(1 for p in shard.iterdir() if p.is_file())
+    return {
+        "manifest_ok": manifest_ok,
+        "manifest_files": manifest_files,
+        "blob_files": blob_files,
+        "content_seed": CONTENT_SEED_TRIPS.is_dir(),
+        "blobs_seed": BLOBS_SEED.is_dir(),
+    }
+
+
 @app.on_event("startup")
 def startup() -> None:
     BLOBS.mkdir(parents=True, exist_ok=True)
@@ -268,6 +325,16 @@ def startup() -> None:
         ensure_seed_packs()
     except Exception as exc:
         print(f"WARNING: ensure_seed_packs failed: {exc}", file=sys.stderr)
+    try:
+        ensure_seed_blobs()
+    except Exception as exc:
+        print(f"WARNING: ensure_seed_blobs failed: {exc}", file=sys.stderr)
+    if not (CONTENT_TRIPS / "eu2026" / "manifest.json").is_file():
+        print(
+            "WARNING: eu2026/manifest.json missing after seed — "
+            "offline sync will fail until content mount is repaired",
+            file=sys.stderr,
+        )
     if not DATABASE_URL:
         print(
             "WARNING: DATABASE_URL unset — serving filesystem packs only",
@@ -294,10 +361,13 @@ def health() -> dict[str, Any]:
                 db_ok = True
         except Exception:
             db_ok = False
+    ready = content_readiness()
     return {
         "ok": True,
         "version": APP_VERSION,
         "database": db_ok,
+        "manifest_ok": ready["manifest_ok"],
+        "content": ready,
         "links": {
             "timelog": PROK_TIMELOG_BASE,
             "money": PROK_MONEY_BASE,
