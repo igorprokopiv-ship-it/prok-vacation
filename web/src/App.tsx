@@ -7,7 +7,7 @@ import {
   LockOpen,
   Pencil,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAppDialog } from '@/components/AppDialogs'
 import { AdminLoginDialog } from '@/components/AdminLoginDialog'
 import {
@@ -17,6 +17,7 @@ import {
 import { DayDrawer } from '@/components/DayDrawer'
 import { DeviceIdentityGate } from '@/components/DeviceIdentityGate'
 import { HighlightsPanel } from '@/components/HighlightsPanel'
+import { ImageViewer } from '@/components/ImageViewer'
 import { NotesPanel } from '@/components/NotesPanel'
 import { VideosPanel } from '@/components/VideosPanel'
 import {
@@ -100,6 +101,8 @@ type Overlay =
   | { type: 'create' }
   | null
 
+type ImageViewerState = { title: string; pages: string[] }
+
 type PromptState = { kind: 'briefing' } | { kind: 'day-meta' } | null
 
 const inputClass =
@@ -118,6 +121,7 @@ export default function App() {
   const [tab, setTab] = useState('highlights')
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [overlay, setOverlay] = useState<Overlay>(null)
+  const [imageViewer, setImageViewer] = useState<ImageViewerState | null>(null)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle')
   const [syncDetail, setSyncDetail] = useState<string | undefined>()
   const [appVersion, setAppVersion] = useState(
@@ -135,6 +139,9 @@ export default function App() {
     options: AttachmentPickOption[]
     onSelect: (id: string) => void
   } | null>(null)
+  const syncingRef = useRef(false)
+  const tripIdRef = useRef<string | null>(null)
+  tripIdRef.current = tripId
 
   const tripSlug = tripMeta?.slug ?? 'eu2026'
   const itinerary = getItinerary()
@@ -265,6 +272,12 @@ export default function App() {
   }
 
   async function runSync(id: string) {
+    if (!navigator.onLine) {
+      setSyncStatus('offline')
+      return
+    }
+    if (syncingRef.current) return
+    syncingRef.current = true
     try {
       await syncTripContent(id, (info) => {
         setSyncStatus(info.status)
@@ -284,10 +297,12 @@ export default function App() {
       setSyncStatus(navigator.onLine ? 'synced' : 'offline')
     } catch {
       setSyncStatus(navigator.onLine ? 'error' : 'offline')
+    } finally {
+      syncingRef.current = false
     }
   }
 
-  async function openTrip(trip: TripSummary, sync = true) {
+  async function openTrip(trip: TripSummary, sync: boolean | 'background' = true) {
     setTripId(trip.id)
     setTripMeta(trip)
     await setActiveTripId(trip.id)
@@ -303,8 +318,12 @@ export default function App() {
       setTick((n) => n + 1)
     }
 
-    if (sync) {
+    if (sync === true) {
       await runSync(trip.id)
+    } else if (sync === 'background' && navigator.onLine) {
+      void runSync(trip.id)
+    } else if (!navigator.onLine) {
+      setSyncStatus('offline')
     }
   }
 
@@ -341,61 +360,47 @@ export default function App() {
       const initial =
         remote.find((t) => t.id === saved || t.slug === saved) ?? remote[0]
       if (initial) {
-        await openTrip(initial, false)
+        // Local itinerary first; content blobs sync in background (Sync chip = retry).
+        await openTrip(initial, 'background')
       }
       setReady(true)
     })()
   }, [])
 
   useEffect(() => {
+    const onOnline = () => {
+      const id = tripIdRef.current
+      if (id) void runSync(id)
+    }
+    const onOffline = () => setSyncStatus('offline')
+    window.addEventListener('online', onOnline)
+    window.addEventListener('offline', onOffline)
+    return () => {
+      window.removeEventListener('online', onOnline)
+      window.removeEventListener('offline', onOffline)
+    }
+  }, [])
+
+  useEffect(() => {
     if (!dayId && itinerary.days[0]) setDayId(itinerary.days[0].id)
   }, [itinerary, dayId, tick])
+
+  const closeImageViewer = () => {
+    setImageViewer((prev) => {
+      if (prev) {
+        for (const src of prev.pages) {
+          if (src.startsWith('blob:')) URL.revokeObjectURL(src)
+        }
+      }
+      return null
+    })
+  }
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setOverlay(null)
+    closeImageViewer()
   }, [dayId])
-
-  const openPagesWindow = (title: string, pages: string[]) => {
-    if (!pages.length) {
-      void dialog.alert(title ? `${title}: no pages yet` : 'No pages yet')
-      return
-    }
-    const win = window.open('', '_blank')
-    if (!win) {
-      void dialog.alert('Pop-up blocked — allow pop-ups to open attachments.')
-      return
-    }
-    const esc = (s: string) =>
-      s
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-    const imgs = pages
-      .map(
-        (src) =>
-          `<img src="${esc(src)}" alt="" style="max-width:100%;height:auto;display:block;margin:0 auto 1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.2)" />`,
-      )
-      .join('')
-    win.document.write(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${esc(title)}</title>
-  <style>
-    body { margin: 0; padding: 1rem; background: #1c2a3a; color: #f4f1ea; font-family: system-ui, sans-serif; }
-    h1 { font-size: 1.1rem; margin: 0 0 1rem; font-weight: 700; }
-  </style>
-</head>
-<body>
-  <h1>${esc(title)}</h1>
-  ${imgs}
-</body>
-</html>`)
-    win.document.close()
-  }
 
   const openViewer = async (target: ViewerTarget) => {
     if (target.kind === 'expand') {
@@ -420,8 +425,21 @@ export default function App() {
           ? [all[target.pageIndex]]
           : all
     }
-    const pages = tripId ? await resolveAssetUrls(tripId, raw) : raw
-    openPagesWindow(target.title, pages)
+    if (!raw.length) {
+      void dialog.alert(
+        target.title ? `${target.title}: no pages yet` : 'No pages yet',
+      )
+      return
+    }
+    const pages = tripId ? await resolveAssetUrls(tripId, raw) : []
+    setImageViewer((prev) => {
+      if (prev) {
+        for (const src of prev.pages) {
+          if (src.startsWith('blob:')) URL.revokeObjectURL(src)
+        }
+      }
+      return { title: target.title, pages }
+    })
   }
 
   const pickFile = (accept: string): Promise<File | null> =>
@@ -1204,6 +1222,20 @@ export default function App() {
           </Button>
         </DialogContent>
       </Dialog>
+
+      {imageViewer ? (
+        <ImageViewer
+          title={imageViewer.title}
+          pages={imageViewer.pages}
+          emptyTitle="Not available offline"
+          emptyDetail={
+            navigator.onLine
+              ? 'These pages are not on this device yet. Wait for sync to finish, or tap the Sync chip.'
+              : 'Connect once so the app can download tickets and maps automatically. Sync chip is only for retry.'
+          }
+          onClose={closeImageViewer}
+        />
+      ) : null}
 
       {overlay?.type === 'create' ? (
         <EventExpand

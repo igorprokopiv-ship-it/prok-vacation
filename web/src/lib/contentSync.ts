@@ -236,11 +236,15 @@ export async function getLocalTripDoc(tripId: string): Promise<TripDocument | nu
   return (await idbGet<TripDocument>('meta', `doc:${tripId}`)) ?? null
 }
 
-/** Resolve a pack-relative or public path to a usable URL (blob cache or static). */
+/**
+ * Resolve a pack path to a usable URL.
+ * Offline: only Cache Storage blob URLs (never /images/ — Sync does not cache those).
+ * Online: blob cache → /api/content/blobs/{sha} → static /images/ fallback.
+ */
 export async function resolveAssetUrl(
   tripId: string,
   assetPath: string,
-): Promise<string> {
+): Promise<string | null> {
   const normalized = assetPath.startsWith('/')
     ? assetPath.slice(1)
     : assetPath
@@ -260,15 +264,19 @@ export async function resolveAssetUrl(
       return URL.createObjectURL(blob)
     }
     if (navigator.onLine) return url
+    return null
   }
+  if (!navigator.onLine) return null
   return assetPath.startsWith('/') ? assetPath : `/${assetPath}`
 }
 
+/** Resolve paths; drops nulls (missing offline / unresolved). */
 export async function resolveAssetUrls(
   tripId: string,
   paths: string[],
 ): Promise<string[]> {
-  return Promise.all(paths.map((p) => resolveAssetUrl(tripId, p)))
+  const resolved = await Promise.all(paths.map((p) => resolveAssetUrl(tripId, p)))
+  return resolved.filter((u): u is string => Boolean(u))
 }
 
 // --- Notes / plan / outbox ---
