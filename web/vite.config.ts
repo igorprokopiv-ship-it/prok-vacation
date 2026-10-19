@@ -41,22 +41,12 @@ export default defineConfig({
         navigateFallback: 'index.html',
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith('/api/content/blobs/'),
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'prok-vacation-blobs-v1',
-              expiration: {
-                maxEntries: 2000,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
-              },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
+          // Trip media blobs are cached by contentSync (do not share that cache here).
           {
             urlPattern: ({ url }) =>
               url.pathname.startsWith('/images/') ||
-              url.pathname.startsWith('/api/'),
+              (url.pathname.startsWith('/api/') &&
+                !url.pathname.startsWith('/api/content/blobs/')),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'prok-vacation-runtime',

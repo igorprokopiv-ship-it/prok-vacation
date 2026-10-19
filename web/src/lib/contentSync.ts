@@ -102,6 +102,16 @@ async function idbSet(store: string, value: unknown, key?: string): Promise<void
   })
 }
 
+async function idbDelete(store: string, key: string): Promise<void> {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite')
+    const req = tx.objectStore(store).delete(key)
+    req.onsuccess = () => resolve()
+    req.onerror = () => reject(req.error)
+  })
+}
+
 async function idbGetAll<T>(store: string): Promise<T[]> {
   const db = await openDb()
   return new Promise((resolve, reject) => {
@@ -135,12 +145,14 @@ export async function fetchManifest(tripId: string): Promise<ContentManifest | n
   return apiGet<ContentManifest>(`/api/content/${encodeURIComponent(tripId)}/manifest`)
 }
 
+/** Cache Storage only — IDB blob meta is accounting, not proof of bytes. */
 async function cacheHas(sha: string): Promise<boolean> {
   const cache = await caches.open(CACHE_NAME)
   const hit = await cache.match(`/api/content/blobs/${sha}`)
   if (hit) return true
   const meta = await idbGet<{ sha256: string }>('blobs', sha)
-  return Boolean(meta)
+  if (meta) await idbDelete('blobs', sha)
+  return false
 }
 
 async function downloadBlob(sha: string): Promise<void> {
@@ -160,6 +172,14 @@ export type ProgressFn = (info: {
   bytes: number
 }) => void
 
+async function listMissingBlobs(files: ManifestFile[]): Promise<ManifestFile[]> {
+  const missing: ManifestFile[] = []
+  for (const f of files) {
+    if (!(await cacheHas(f.sha256))) missing.push(f)
+  }
+  return missing
+}
+
 export async function syncTripContent(
   tripId: string,
   onProgress?: ProgressFn,
@@ -175,10 +195,11 @@ export async function syncTripContent(
     return (await idbGet<ContentManifest>('meta', `manifest:${tripId}`)) ?? null
   }
 
-  const missing: ManifestFile[] = []
-  for (const f of manifest.files) {
-    if (!(await cacheHas(f.sha256))) missing.push(f)
-  }
+  // Persist path→sha before downloads so partial syncs can resolve offline.
+  await idbSet('meta', manifest, `manifest:${tripId}`)
+  await idbSet('meta', manifest.version, `version:${tripId}`)
+
+  const missing = await listMissingBlobs(manifest.files)
   const total = missing.length
   let done = 0
   let bytes = 0
@@ -192,8 +213,16 @@ export async function syncTripContent(
     }
   }
 
-  await idbSet('meta', manifest, `manifest:${tripId}`)
-  await idbSet('meta', manifest.version, `version:${tripId}`)
+  const stillMissing = await listMissingBlobs(manifest.files)
+  if (stillMissing.length) {
+    onProgress?.({
+      status: 'error',
+      done: manifest.files.length - stillMissing.length,
+      total: manifest.files.length,
+      bytes,
+    })
+    return manifest
+  }
 
   // Materialize JSON document from blobs or trip API
   const trip = await apiGet<{ trip_document?: TripDocument; slug?: string }>(
@@ -206,7 +235,12 @@ export async function syncTripContent(
     if (doc) await idbSet('meta', doc, `doc:${tripId}`)
   }
 
-  onProgress?.({ status: 'synced', done: total, total, bytes })
+  onProgress?.({
+    status: 'synced',
+    done: manifest.files.length,
+    total: manifest.files.length,
+    bytes,
+  })
   return manifest
 }
 
