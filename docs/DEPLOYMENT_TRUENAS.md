@@ -77,15 +77,33 @@ After a green **Build and publish image** run: Edit App → save (or Stop/Start)
 | `/mnt/Programs/Apps/ProkVacation/blobs` | `/app/data/blobs` |
 | `/mnt/Programs/Apps/ProkVacation/web-public-images` | `/app/web/public/images` |
 
-The host `content` and `blobs` mounts **replace** data baked into the image. On startup the container restores missing trip packs from `/app/content-seed/trips` and missing blob files from `/app/data-seed/blobs` (never overwrites existing files). If `eu2026/manifest.json` is still missing after restart, check `GET /api/health` (`manifest_ok`) and repair the host mounts. Without a manifest, phones cannot download the full offline pack.
+The host `content` and `blobs` mounts **replace** data baked into the image. On startup the container restores missing trip packs from `/app/content-seed/trips` and missing blob files from `/app/data-seed/blobs`. Packs with a missing/empty/corrupt `manifest.json` are **replaced** from seed. Check `GET /api/health` (`manifest_ok`). Without a valid manifest, phones cannot download the full offline pack.
+
+### One-shot repair if `manifest_ok` is still false
+
+Replace `CONTAINER` with the vacation container name/id (`docker ps`):
+
+```bash
+ls -la /mnt/Programs/Apps/ProkVacation/content/trips/eu2026/
+sudo docker exec CONTAINER ls -la /app/content-seed/trips/eu2026/
+sudo rm -rf /mnt/Programs/Apps/ProkVacation/content/trips/eu2026
+sudo docker cp CONTAINER:/app/content-seed/trips/eu2026 \
+  /mnt/Programs/Apps/ProkVacation/content/trips/
+sudo docker restart CONTAINER
+curl -s https://vacation.prok/api/health
+# expect manifest_ok: true — then:
+curl -s -o /dev/null -w "%{http_code}\n" https://vacation.prok/api/content/eu2026/manifest
+```
+
+Also install `prok-ca.crt` as a trusted root on each PC/Pixel so the address bar is not “Not secure” (required for a reliable service worker).
 
 ---
 
 ## Access
 
-- App: `http://admin.prok:8083` (or your Pihole/proxy hostname)
-- Health: `GET /api/health`
-- After deploy: open once on Wi‑Fi → **Add to Home Screen** → tap Sync chip to pull content deltas
+- App: `https://vacation.prok` (or `http://admin.prok:8083`)
+- Health: `GET /api/health` — confirm `manifest_ok: true`
+- After deploy: open once on Wi‑Fi → wait for Sync chip **Synced** (auto-download) → Add to Home Screen
 
 ---
 

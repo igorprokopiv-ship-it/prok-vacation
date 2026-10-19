@@ -223,13 +223,26 @@ app.add_middleware(
 app.include_router(admin_router)
 
 
+def _pack_manifest_valid(pack_dir: Path) -> bool:
+    """True when pack has a parseable manifest.json with a non-empty files list."""
+    path = pack_dir / "manifest.json"
+    if not path.is_file():
+        return False
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        files = data.get("files") or []
+        return isinstance(files, list) and len(files) > 0
+    except Exception:
+        return False
+
+
 def ensure_seed_packs() -> None:
-    """Copy missing trip packs from the image seed tree into CONTENT_TRIPS.
+    """Copy / repair trip packs from the image seed tree into CONTENT_TRIPS.
 
     TrueNAS mounts a host ``content`` volume over ``/app/content``, which can
-    hide the packs baked into the image. If a seeded pack (e.g. eu2026) is
-    absent, copy it. If the host dir exists but has no ``manifest.json``, fill
-    missing files from the seed without overwriting anything already present.
+    hide packs baked into the image. Missing packs are copied from seed.
+    Host stubs with a missing/empty/corrupt ``manifest.json`` are replaced
+    entirely from seed (never leave a broken pack that blocks sync forever).
     """
     if not CONTENT_SEED_TRIPS.is_dir():
         return
@@ -237,29 +250,23 @@ def ensure_seed_packs() -> None:
     for src in sorted(CONTENT_SEED_TRIPS.iterdir()):
         if not src.is_dir():
             continue
+        if not _pack_manifest_valid(src):
+            print(
+                f"WARNING: seed pack has no valid manifest, skipping: {src.name}",
+                file=sys.stderr,
+            )
+            continue
         dest = CONTENT_TRIPS / src.name
         if not dest.exists():
             shutil.copytree(src, dest)
             print(f"restored missing trip pack from seed: {src.name}")
             continue
-        if (dest / "manifest.json").is_file():
+        if _pack_manifest_valid(dest):
             continue
-        # Incomplete host pack (empty/partial mount) — copy only missing paths.
-        copied = 0
-        for item in src.iterdir():
-            target = dest / item.name
-            if target.exists():
-                continue
-            if item.is_dir():
-                shutil.copytree(item, target)
-            else:
-                shutil.copy2(item, target)
-            copied += 1
-        if copied:
-            print(
-                f"filled incomplete trip pack from seed: {src.name} "
-                f"({copied} paths)"
-            )
+        # Broken stub (empty/corrupt/missing manifest) — replace from seed.
+        shutil.rmtree(dest)
+        shutil.copytree(src, dest)
+        print(f"repaired broken trip pack from seed: {src.name}")
 
 
 def ensure_seed_blobs() -> None:
@@ -292,14 +299,13 @@ def ensure_seed_blobs() -> None:
 
 def content_readiness() -> dict[str, Any]:
     """Pack/blob readiness for health checks (eu2026 is the primary trip)."""
-    eu_manifest = CONTENT_TRIPS / "eu2026" / "manifest.json"
-    manifest_ok = eu_manifest.is_file()
+    eu_pack = CONTENT_TRIPS / "eu2026"
+    manifest_ok = _pack_manifest_valid(eu_pack)
     manifest_files = 0
     if manifest_ok:
         try:
-            data = json.loads(eu_manifest.read_text(encoding="utf-8"))
-            files = data.get("files") or []
-            manifest_files = len(files) if isinstance(files, list) else 0
+            data = json.loads((eu_pack / "manifest.json").read_text(encoding="utf-8"))
+            manifest_files = len(data.get("files") or [])
         except Exception:
             manifest_ok = False
     blob_files = 0
